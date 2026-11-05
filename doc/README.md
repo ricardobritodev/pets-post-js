@@ -13,6 +13,7 @@ O **que deve ser feito** (regras, contratos) fica em [`../specs`](../specs/READM
 |---|---|---|---|
 | 001 | [Fundação do projeto](features/001-fundacao.md) | 1 | 2026-11-04 |
 | 002 | [Banco de dados](features/002-banco.md) | 2 | 2026-11-05 |
+| 003 | [Autenticação](features/003-autenticacao.md) | 3 | 2026-11-05 |
 
 ## Como documentar uma feature nova
 Crie `features/NNN-nome.md` usando o modelo abaixo e adicione na tabela acima.

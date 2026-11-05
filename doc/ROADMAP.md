@@ -26,16 +26,16 @@ Legenda: ✅ concluída · 🔜 próxima · ⬜ pendente
 | 2.4 | Validar hash `scrypt:` real (Werkzeug 3.1.3) | ✅ |
 | 2.5 | Testes de integração (`npm run test:integration`) + repositório de usuários | ✅ |
 
-## Etapa 3 — Autenticação 🔜
+## Etapa 3 — Autenticação ✅
 | # | Micro tarefa | Status |
 |---|---|---|
-| 3.1 | Sessão (`express-session` + store MySQL), cookies (BR-AUTH-008) | ⬜ |
-| 3.2 | CSRF (`csrf-csrf`) e rate limit (`express-rate-limit`) (BR-AUTH-007/010) | ⬜ |
-| 3.3 | `POST /auth/register`, `/auth/login`, `/auth/logout`, `GET /auth/me` | ⬜ |
-| 3.4 | Re-hash de senha legada no login, log de segurança (BR-AUTH-004/011) | ⬜ |
-| 3.5 | Páginas login/cadastro no front | ⬜ |
+| 3.1 | Sessão (`express-session` + store MySQL), cookies (BR-AUTH-008) | ✅ |
+| 3.2 | CSRF (`csrf-csrf`) e rate limit (`express-rate-limit`) (BR-AUTH-007/010) | ✅ |
+| 3.3 | `POST /auth/register`, `/auth/login`, `/auth/logout`, `GET /auth/me` | ✅ |
+| 3.4 | Re-hash de senha legada no login, log de segurança (BR-AUTH-004/011) | ✅ |
+| 3.5 | Páginas login/cadastro no front | ✅ |
 
-## Etapa 4 — Posts de pets perdidos/encontrados
+## Etapa 4 — Posts de pets perdidos/encontrados 🔜
 | 4.1 | Contratos zod de post | ⬜ |
 | 4.2 | Listagem com filtros/paginação + home (BR-POST-002..004) | ⬜ |
 | 4.3 | Detalhe com regra de visibilidade (PERM-002) | ⬜ |

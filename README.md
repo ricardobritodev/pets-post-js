@@ -14,7 +14,7 @@ parceiros** (lares temporários, petshops e clínicas), com contato direto por W
 | Testes | `node:test` (nativo, sem dependências) |
 | Chatbot (futuro) | grammY, node-nlp, LanceDB, Anthropic SDK |
 
-> **Status:** Etapas 1 (fundação) e 2 (banco de dados) concluídas. Veja o [roadmap](doc/ROADMAP.md) e o checklist do que falta em [`todo/`](todo/README.md).
+> **Status:** Etapas 1 (fundação), 2 (banco de dados) e 3 (autenticação) concluídas. Veja o [roadmap](doc/ROADMAP.md) e o checklist do que falta em [`todo/`](todo/README.md).
 
 ---
 
@@ -118,7 +118,7 @@ Isso sobe os dois servidores juntos:
 
 | Serviço | URL |
 |---|---|
-| Web (Vite) | http://localhost:5173 |
+| Web (Vite) | http://localhost:5173 (login em `/login/`, cadastro em `/cadastro/`) |
 | API (Express) | http://localhost:3000/api/v1/health |
 
 Abra **http://localhost:5173**. O card "Status do sistema" deve mostrar

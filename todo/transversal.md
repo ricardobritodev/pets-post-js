@@ -13,12 +13,12 @@
 - [ ] **X-08 — OpenAPI** gerado a partir dos schemas zod (`zod-to-openapi`) em `specs/api/openapi.yaml`.
 
 ## Segurança
-- [ ] **X-09 — Repositório remoto** (GitHub) e proteção do branch `main`.
+- [ ] **X-09 — Repositório remoto** (GitHub) e proteção do branch `main`. *(repositório criado; falta proteger o `main`)*
 - [ ] **X-10 — Dependabot/Renovate** para atualizações.
-- [ ] **X-11 — Revisão de segurança** ao final das Etapas 3, 5 e 7.
+- [ ] **X-11 — Revisão de segurança** ao final das Etapas 3, 5 e 7. *(Etapa 3 ✅, ver doc/features/003)*
 
 ## Observabilidade
-- [ ] **X-12 — Logger `pino`** com request id; sem dados pessoais nos logs.
+- [ ] **X-12 — Logger `pino`** com request id; sem dados pessoais nos logs. *(pino + redact de senha feitos; falta request id e `pino-pretty` em dev)*
 
 ## Front / UX
 - [ ] **X-13 — Acessibilidade**: labels, foco visível, contraste, `alt` nas fotos.
