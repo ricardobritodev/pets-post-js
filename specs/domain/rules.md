@@ -78,6 +78,15 @@ Origem: engenharia reversa do projeto Flask (`pets-post/app/**`).
 | BR-ADMIN-003 | Admin pode ocultar/reexibir anúncios (`isActive`). *(nova — no Flask o campo existia sem rota)* | 🟡 |
 | BR-ADMIN-004 | Dashboard inclui estatísticas e moderação de adoção. *(nova)* | 🟡 |
 
+## Dados e operação — BR-DATA
+| ID | Regra | Status |
+|---|---|---|
+| BR-DATA-001 | Seeds são idempotentes: registro cuja chave natural já existe é pulado (`users.email`, `pet_posts.title`, `adoption_posts.title`, `partners.name`). | ✅ |
+| BR-DATA-002 | O seed de desenvolvimento (senhas conhecidas) recusa rodar com `NODE_ENV=production`. O seed de parceiros SP pode rodar em produção. | ✅ |
+| BR-DATA-003 | Senhas criadas por seed usam `hashPassword` (BR-AUTH-004) e o admin de dev (`admin@petpost.com` / `Admin@123`) verifica com `verifyPassword`. | ✅ |
+| BR-DATA-004 | O banco Flask existente é adotado por *baseline* (`migrate resolve --applied 0_init`), sem alterar dados. | ✅ |
+| BR-DATA-005 | Testes de integração só rodam contra banco cujo nome termina em `_test` (proteção contra apagar dados reais). | ✅ |
+
 ## Questões em aberto
 | ID | Pergunta | Proposta |
 |---|---|---|
