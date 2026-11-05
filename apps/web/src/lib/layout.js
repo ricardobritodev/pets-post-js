@@ -6,22 +6,17 @@
  */
 import { getMe, logout } from './session.js';
 import { flash, takeFlashes } from './flash.js';
+import { el } from './dom.js';
 
 /** Links do menu. Novos módulos entram aqui conforme forem migrados (Etapas 4–6). */
-const NAV = [{ href: '/', label: 'Início' }];
+const NAV = [
+  { href: '/', label: 'Início' },
+  { href: '/posts/', label: 'Posts' },
+  { href: '/sobre', label: 'Sobre' },
+];
 
-const el = (tag, attrs = {}, ...children) => {
-  const node = document.createElement(tag);
-  for (const [k, v] of Object.entries(attrs)) {
-    if (k === 'class') node.className = v;
-    else if (k.startsWith('on')) node.addEventListener(k.slice(2), v);
-    else node.setAttribute(k, v);
-  }
-  node.append(...children.filter(Boolean));
-  return node;
-};
-
-const isCurrent = (href) => (href === '/' ? location.pathname === '/' : location.pathname.startsWith(href));
+const isCurrent = (href) =>
+  href === '/' ? location.pathname === '/' : location.pathname.startsWith(href.replace(/\/$/, ''));
 
 function navLinks(className) {
   return NAV.map(({ href, label }) =>
@@ -29,11 +24,14 @@ function navLinks(className) {
   );
 }
 
+const publishCta = () => el('a', { href: '/posts/criar', class: 'btn btn-primary btn-sm' }, '+ Publicar anúncio');
+
 function authArea(user) {
   if (!user) {
     return [
+      publishCta(),
       el('a', { href: '/login/', class: 'nav-link' }, 'Entrar'),
-      el('a', { href: '/cadastro/', class: 'btn btn-primary btn-sm' }, 'Criar conta'),
+      el('a', { href: '/cadastro/', class: 'btn btn-outline btn-sm' }, 'Criar conta'),
     ];
   }
   const onLogout = async (event) => {
@@ -48,6 +46,7 @@ function authArea(user) {
     }
   };
   return [
+    publishCta(),
     el('span', { class: 'text-sm text-stone-600', 'data-user-name': '' }, `Olá, ${user.name.split(' ')[0]}`),
     user.role === 'admin' && el('span', { class: 'badge' }, 'admin'),
     el('button', { type: 'button', class: 'btn btn-ghost btn-sm', onclick: onLogout }, 'Sair'),

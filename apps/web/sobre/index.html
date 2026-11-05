@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sobre · Pets Post</title>
+    <meta name="description" content="O Pets Post é uma plataforma criada para ajudar pets perdidos a voltarem para casa." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script type="module" src="/src/pages/sobre.js"></script>
+  </head>
+  <body class="flex min-h-screen flex-col bg-stone-50 text-stone-800 antialiased">
+    <div id="app-header"></div>
+    <main class="mx-auto w-full max-w-3xl flex-1 space-y-8 px-4 py-10">
+      <div id="app-flash" class="space-y-2" aria-live="polite"></div>
+
+      <header class="text-center">
+        <div class="text-5xl" aria-hidden="true">🐾</div>
+        <h1 class="mt-2 text-3xl font-bold">Sobre o Pets Post</h1>
+        <p class="mt-2 text-lg text-stone-600">Uma plataforma criada para ajudar pets perdidos a voltarem para casa.</p>
+      </header>
+
+      <section class="card space-y-3">
+        <h2 class="text-xl font-semibold">🎯 Nossa missão</h2>
+        <p>
+          O <strong>Pets Post</strong> é uma plataforma web que conecta pessoas que encontraram pets perdidos
+          com seus donos. Qualquer pessoa pode criar um post com fotos e informações do animal encontrado,
+          ajudando famílias a reencontrar seus companheiros.
+        </p>
+        <p>
+          Acreditamos que a tecnologia pode ser uma ferramenta poderosa para o bem. Com um anúncio bem feito
+          e a divulgação certa, muitos pets conseguem voltar para casa em questão de horas.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2 class="mb-3 text-xl font-semibold">✨ Funcionalidades</h2>
+        <ul class="space-y-2">
+          <li>📢 Criar posts de pets perdidos ou encontrados</li>
+          <li>🔎 Filtrar posts por tipo de animal e situação</li>
+          <li>💬 Contato direto pelo WhatsApp, com a prévia do anúncio no link</li>
+          <li>👤 Cadastro e login de usuários</li>
+          <li>📱 Interface responsiva: funciona no celular e no computador</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2 class="mb-3 text-xl font-semibold">🔮 Em breve</h2>
+        <ul class="space-y-2">
+          <li>📷 Fotos dos pets</li>
+          <li>🗺️ Mapa interativo de localização</li>
+          <li>🏠 Adoção de pets disponíveis</li>
+          <li>🏪 Mapa de lares temporários, petshops e clínicas parceiras</li>
+          <li>🛡️ Painel administrativo para moderação</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2 class="mb-3 text-xl font-semibold">🛠️ Tecnologias</h2>
+        <ul class="grid gap-3 sm:grid-cols-3">
+          <li class="tech"><span aria-hidden="true">🟩</span> Node.js + Express</li>
+          <li class="tech"><span aria-hidden="true">🗄️</span> MySQL + Prisma</li>
+          <li class="tech"><span aria-hidden="true">⚡</span> Vite + JavaScript</li>
+          <li class="tech"><span aria-hidden="true">🎨</span> Tailwind CSS</li>
+          <li class="tech"><span aria-hidden="true">✅</span> zod</li>
+          <li class="tech"><span aria-hidden="true">🧪</span> node:test</li>
+        </ul>
+      </section>
+
+      <div class="text-center">
+        <a href="/posts/" class="btn btn-primary">Ver anúncios</a>
+      </div>
+    </main>
+    <footer id="app-footer" class="border-t border-stone-200 bg-white"></footer>
+  </body>
+</html>

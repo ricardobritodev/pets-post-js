@@ -1,30 +1,37 @@
+/**
+ * Home — destaque + 12 anúncios recentes (BR-POST-004, T4.12).
+ */
 import '../styles/main.css';
 import { api } from '../lib/api.js';
 import { mountLayout } from '../lib/layout.js';
+import { el } from '../lib/dom.js';
+import { renderGrid } from '../lib/post-card.js';
 
-function setStatus(key, up, text) {
-  document.querySelector(`[data-status="${key}"]`)?.setAttribute('data-state', up ? 'up' : 'down');
-  const label = document.querySelector(`[data-status-text="${key}"]`);
-  if (label) label.textContent = text;
-}
+const box = document.getElementById('recent-posts');
 
-async function checkHealth() {
+const empty = () =>
+  el('div', { class: 'card text-center' },
+    el('div', { class: 'text-5xl', 'aria-hidden': 'true' }, '🐾'),
+    el('h3', { class: 'mt-3 text-lg font-semibold' }, 'Nenhum anúncio ainda'),
+    el('p', { class: 'mt-1 text-stone-600' }, 'Seja o primeiro a publicar um anúncio e ajudar um pet a voltar para casa!'),
+    el('a', { href: '/posts/criar', class: 'btn btn-primary mt-5' }, 'Criar primeiro anúncio'),
+  );
+
+async function loadRecent() {
   try {
-    await api('/health');
-    setStatus('api', true, 'online');
+    const { items } = await api('/posts/recent');
+    box.replaceChildren(renderGrid(items, empty()));
   } catch {
-    setStatus('api', false, 'offline — rode "npm run dev:api"');
-    setStatus('db', false, 'desconhecido');
-    return;
-  }
-
-  try {
-    await api('/health/db');
-    setStatus('db', true, 'conectado');
-  } catch {
-    setStatus('db', false, 'sem conexão — confira DATABASE_URL no .env');
+    box.replaceChildren(
+      el('div', { class: 'card text-center' },
+        el('p', { class: 'text-stone-600' }, 'Não foi possível carregar os anúncios agora.'),
+        el('button', { type: 'button', class: 'btn btn-outline mt-4', onclick: loadRecent }, 'Tentar de novo'),
+      ),
+    );
+  } finally {
+    box.setAttribute('aria-busy', 'false');
   }
 }
 
 mountLayout();
-checkHealth();
+loadRecent();

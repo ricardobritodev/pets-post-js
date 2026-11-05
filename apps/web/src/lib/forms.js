@@ -44,8 +44,11 @@ export function setFieldError(input, message) {
   }
 }
 
+const isField = (node) =>
+  node instanceof HTMLInputElement || node instanceof HTMLSelectElement || node instanceof HTMLTextAreaElement;
+
 export function clearErrors(form) {
-  form.querySelectorAll('input').forEach((i) => setFieldError(i, null));
+  form.querySelectorAll('input[id], select[id], textarea[id]').forEach((i) => setFieldError(i, null));
 }
 
 /**
@@ -58,7 +61,7 @@ export function showFieldErrors(form, details) {
   let first = null;
   for (const { path, message } of details) {
     const input = form.elements.namedItem(path);
-    if (input instanceof HTMLInputElement) {
+    if (isField(input) && input.id) {
       setFieldError(input, message);
       first ??= input;
     } else {

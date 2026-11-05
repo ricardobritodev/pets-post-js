@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Publicar anúncio · Pets Post</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script type="module" src="/src/pages/post-form.js"></script>
+  </head>
+  <body class="flex min-h-screen flex-col bg-stone-50 text-stone-800 antialiased">
+    <div id="app-header"></div>
+    <main class="mx-auto w-full max-w-3xl flex-1 px-4 py-10">
+      <div id="app-flash" class="mb-6 space-y-2" aria-live="polite"></div>
+      <h1 id="form-title" class="mb-6 text-3xl font-bold">Publicar anúncio</h1>
+
+      <form id="post-form" class="space-y-6" novalidate hidden>
+        <fieldset class="card space-y-4">
+          <legend class="text-lg font-semibold">Situação</legend>
+          <div class="grid gap-3 sm:grid-cols-2">
+            <label class="choice"><input type="radio" name="status" value="lost" required /> 💔 Perdi meu pet</label>
+            <label class="choice"><input type="radio" name="status" value="found" /> 🔍 Encontrei um pet</label>
+          </div>
+          <div>
+            <label for="title" class="label">Título do anúncio</label>
+            <input id="title" name="title" type="text" required maxlength="150" class="input" placeholder="Ex.: Cachorro caramelo perdido no Parque Ibirapuera" />
+          </div>
+          <div>
+            <label for="description" class="label">Descrição</label>
+            <textarea id="description" name="description" required rows="5" maxlength="5000" class="input" placeholder="Conte detalhes que ajudem a reconhecer o pet: comportamento, coleira, marcas…"></textarea>
+          </div>
+        </fieldset>
+
+        <fieldset class="card grid gap-4 sm:grid-cols-2">
+          <legend class="text-lg font-semibold">Sobre o pet</legend>
+          <div>
+            <label for="petType" class="label">Tipo de animal</label>
+            <select id="petType" name="petType" required class="input">
+              <option value="">Selecione…</option>
+              <option value="dog">Cachorro</option>
+              <option value="cat">Gato</option>
+              <option value="bird">Pássaro</option>
+              <option value="other">Outro</option>
+            </select>
+          </div>
+          <div>
+            <label for="petName" class="label">Nome do pet <span class="font-normal text-stone-500">(opcional)</span></label>
+            <input id="petName" name="petName" type="text" maxlength="100" class="input" />
+          </div>
+          <div>
+            <label for="petBreed" class="label">Raça <span class="font-normal text-stone-500">(opcional)</span></label>
+            <input id="petBreed" name="petBreed" type="text" maxlength="100" class="input" />
+          </div>
+          <div>
+            <label for="petColor" class="label">Cor / Pelagem <span class="font-normal text-stone-500">(opcional)</span></label>
+            <input id="petColor" name="petColor" type="text" maxlength="100" class="input" />
+          </div>
+          <div>
+            <label for="petSize" class="label">Porte <span class="font-normal text-stone-500">(opcional)</span></label>
+            <select id="petSize" name="petSize" class="input">
+              <option value="">Não sei</option>
+              <option value="small">Pequeno</option>
+              <option value="medium">Médio</option>
+              <option value="large">Grande</option>
+            </select>
+          </div>
+        </fieldset>
+
+        <fieldset class="card space-y-4">
+          <legend class="text-lg font-semibold">Onde e como falar com você</legend>
+          <div>
+            <label for="lastSeenLocation" id="location-label" class="label">Onde foi visto por último</label>
+            <input id="lastSeenLocation" name="lastSeenLocation" type="text" required maxlength="255" class="input" placeholder="Bairro, cidade e estado. Ex.: Pinheiros, São Paulo, SP" />
+          </div>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label for="contactPhone" class="label">Telefone / WhatsApp</label>
+              <input id="contactPhone" name="contactPhone" type="tel" required inputmode="numeric" class="input" placeholder="(11) 98765-4321" />
+            </div>
+            <div>
+              <label for="contactEmail" class="label">Email de contato <span class="font-normal text-stone-500">(opcional)</span></label>
+              <input id="contactEmail" name="contactEmail" type="email" maxlength="120" class="input" />
+            </div>
+          </div>
+          <div id="reward-field">
+            <label for="reward" class="label">Recompensa <span class="font-normal text-stone-500">(opcional)</span></label>
+            <input id="reward" name="reward" type="text" maxlength="100" class="input" placeholder="Ex.: R$ 200,00" />
+          </div>
+        </fieldset>
+
+        <p class="text-sm text-stone-500">📷 O envio de fotos e o mapa chegam em breve.</p>
+
+        <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+          <a id="cancel" href="/posts/" class="btn btn-ghost">Cancelar</a>
+          <button type="submit" class="btn btn-primary">Publicar anúncio</button>
+        </div>
+      </form>
+    </main>
+    <footer id="app-footer" class="border-t border-stone-200 bg-white"></footer>
+  </body>
+</html>
