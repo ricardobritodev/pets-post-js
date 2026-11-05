@@ -55,6 +55,16 @@ export function createClient(base) {
 
     get: (path, opts) => client.request('GET', path, opts),
     post: (path, json, opts) => client.request('POST', path, { ...opts, json }),
+    patch: (path, json, opts) => client.request('PATCH', path, { ...opts, json }),
+    del: (path, opts) => client.request('DELETE', path, opts),
+
+    /** Atalho: pega o token CSRF e loga. */
+    async loginAs(email, password = 'Senha@123') {
+      await client.init();
+      const res = await client.post('/auth/login', { email, password });
+      if (res.status !== 200) throw new Error(`login falhou: ${res.status}`);
+      return client;
+    },
 
     /** Pega o token CSRF (cria a sessão anônima). */
     async init() {
@@ -64,6 +74,9 @@ export function createClient(base) {
   };
   return client;
 }
+
+export const BIG_LIMIT = { perMinute: 10_000, perHour: 10_000 };
+export const LOOSE_LIMITS = { login: BIG_LIMIT, register: BIG_LIMIT, csrf: BIG_LIMIT };
 
 export const validUser = (over = {}) => ({
   name: 'Maria Silva',

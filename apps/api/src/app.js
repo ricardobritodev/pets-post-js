@@ -17,6 +17,9 @@ import { createLogger, createSecurityLog } from './lib/security-log.js';
 import { createUserRepository } from './modules/users/repository.js';
 import { createAuthService } from './modules/auth/service.js';
 import { authRouter } from './modules/auth/router.js';
+import { createPostRepository } from './modules/posts/repository.js';
+import { createPostService } from './modules/posts/service.js';
+import { postsRouter, meRouter } from './modules/posts/router.js';
 
 /**
  * @param {{
@@ -52,6 +55,10 @@ export function createApp({ config, db, logger, securityLog, sessionStore, limit
   app.use('/api', loadUser({ users }));
 
   app.use('/api/v1/auth', authRouter({ auth: createAuthService({ users, securityLog }), csrf, limits, securityLog }));
+
+  const postService = createPostService({ posts: createPostRepository(db) });
+  app.use('/api/v1/posts', postsRouter({ service: postService }));
+  app.use('/api/v1/me', meRouter({ service: postService }));
 
   app.use('/api', notFound);
   app.use(errorHandler({ config, logger }));
