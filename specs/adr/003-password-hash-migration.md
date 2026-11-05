@@ -1,6 +1,6 @@
 # ADR 003 — Hash de senha compatível com Werkzeug
 
-**Status:** aceita · 2026-11-04
+**Status:** aceita · 2026-11-04 · **validada** · 2026-11-05
 
 ## Contexto
 O banco herdado guarda `password_hash` no formato do Werkzeug
@@ -19,7 +19,8 @@ Implementar em `packages/domain/src/password.js`, só com `node:crypto`:
 ## Validação
 - Vetores PBKDF2 gerados pelo Werkzeug 3.1.3 real.
 - Primitiva scrypt validada com o vetor oficial da RFC 7914.
-- **Pendente:** validar 1 hash `scrypt:` real do banco de produção (ver doc/features/001).
+- Hashes `scrypt:32768:8:1` gerados pelo Werkzeug 3.1.3 real (Python 3.13 + OpenSSL 3) verificam, e
+  um hash gerado pela v2 é aceito pelo `check_password_hash` do Werkzeug (ver doc/features/002).
 
 ## Consequências
 + Migração transparente e rollback para o Flask possível.
