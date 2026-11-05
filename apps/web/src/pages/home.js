@@ -1,5 +1,6 @@
 import '../styles/main.css';
 import { api } from '../lib/api.js';
+import { mountLayout } from '../lib/layout.js';
 
 function setStatus(key, up, text) {
   document.querySelector(`[data-status="${key}"]`)?.setAttribute('data-state', up ? 'up' : 'down');
@@ -25,4 +26,5 @@ async function checkHealth() {
   }
 }
 
+mountLayout();
 checkHealth();

@@ -18,12 +18,16 @@ export default defineConfig({
       '/uploads': 'http://localhost:3000',
     },
   },
+  // top-level await nas páginas (ex.: await mountLayout())
   build: {
+    target: 'es2022',
     outDir: 'dist',
     rollupOptions: {
-      // Novas páginas entram aqui (ex.: posts/index.html, posts/detail.html)
+      // Uma pasta por página → URL limpa (/login/). Novas páginas entram aqui.
       input: {
         home: page('index.html'),
+        login: page('login/index.html'),
+        cadastro: page('cadastro/index.html'),
       },
     },
   },

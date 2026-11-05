@@ -12,5 +12,8 @@
     "@tailwindcss/vite": "^4.3.4",
     "tailwindcss": "^4.3.4",
     "vite": "^8.3.5"
+  },
+  "dependencies": {
+    "@petspost/domain": "0.1.0"
   }
 }
