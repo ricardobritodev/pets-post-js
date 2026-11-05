@@ -1,0 +1,30 @@
+# todo/ — O que falta implementar
+
+Checklist **acionável** da reescrita. Visão resumida por etapa: [`../doc/ROADMAP.md`](../doc/ROADMAP.md).
+Regras citadas (`BR-*`, `PERM-*`) estão em [`../specs/domain`](../specs/domain/).
+
+## Como usar
+1. Pegue a primeira tarefa `[ ]` da etapa atual (as etapas são sequenciais).
+2. Siga o fluxo SDD: **spec → contrato zod → teste (citando o BR) → código**.
+3. Marque `[x]` quando todos os critérios de "Pronto quando" forem atendidos.
+4. Ao fechar uma etapa: atualize `doc/ROADMAP.md` e crie `doc/features/NNN-*.md`.
+
+## Arquivos
+| Arquivo | Etapa | Tarefas |
+|---|---|---|
+| [00-pendencias.md](00-pendencias.md) | — | Decisões e bloqueios em aberto |
+| [etapa-2-banco.md](etapa-2-banco.md) | 2 | Migrations, seeds, baseline do banco Flask |
+| [etapa-3-auth.md](etapa-3-auth.md) | 3 | Sessão, CSRF, rate limit, login/cadastro |
+| [etapa-4-posts.md](etapa-4-posts.md) | 4 | Pets perdidos/encontrados |
+| [etapa-5-midia-geo.md](etapa-5-midia-geo.md) | 5 | Upload de fotos, geocodificação, CEP, mapa |
+| [etapa-6-adocao-parceiros.md](etapa-6-adocao-parceiros.md) | 6 | Adoção e mapa de parceiros |
+| [etapa-7-admin-deploy.md](etapa-7-admin-deploy.md) | 7 | Painel admin, produção, cutover |
+| [etapa-8-chatbot-ia.md](etapa-8-chatbot-ia.md) | 8+ | Bot Telegram, NLP, RAG, similaridade de fotos |
+| [transversal.md](transversal.md) | contínuo | Qualidade, CI, segurança, acessibilidade |
+
+## Progresso
+| Etapa | Status |
+|---|---|
+| 1 — Fundação | ✅ concluída (ver `doc/features/001-fundacao.md`) |
+| 2 — Banco | 🔜 próxima |
+| 3 a 8 | ⬜ |

@@ -2,6 +2,8 @@
 
 Legenda: ✅ concluída · 🔜 próxima · ⬜ pendente
 
+> Detalhamento acionável de cada tarefa (critérios de pronto, regras cobertas): [`../todo/`](../todo/README.md).
+
 ## Etapa 1 — Fundação ✅
 | # | Micro tarefa | Status |
 |---|---|---|

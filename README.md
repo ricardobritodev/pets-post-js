@@ -14,7 +14,7 @@ parceiros** (lares temporários, petshops e clínicas), com contato direto por W
 | Testes | `node:test` (nativo, sem dependências) |
 | Chatbot (futuro) | grammY, node-nlp, LanceDB, Anthropic SDK |
 
-> **Status:** Etapa 1 (fundação) concluída. Veja o [roadmap](doc/ROADMAP.md).
+> **Status:** Etapa 1 (fundação) concluída. Veja o [roadmap](doc/ROADMAP.md) e o checklist do que falta em [`todo/`](todo/README.md).
 
 ---
 
@@ -154,6 +154,7 @@ packages/
   db/           Schema Prisma + client
 specs/          Fonte da verdade: regras (BR-*), permissões, contratos de API, ADRs
 doc/            Features implementadas e roadmap
+todo/           Checklist do que falta implementar (por etapa)
 ```
 
 ## Como contribuir (fluxo SDD)
