@@ -11,7 +11,8 @@ const globalForPrisma = globalThis;
 export const prisma =
   globalForPrisma.__petspostPrisma ??
   new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
+    // Em teste, erros esperados (ex.: P2002 de email duplicado) não poluem a saída.
+    log: { development: ['warn', 'error'], test: [] }[process.env.NODE_ENV] ?? ['error'],
   });
 
 if (process.env.NODE_ENV !== 'production') {

@@ -5,19 +5,29 @@
   "description": "Schema Prisma e client compartilhado",
   "type": "module",
   "exports": {
-    ".": "./src/index.js"
+    ".": "./src/index.js",
+    "./seed": "./src/seed.js",
+    "./testing": "./src/testing.js"
   },
   "prisma": {
-    "schema": "prisma/schema.prisma"
+    "schema": "prisma/schema.prisma",
+    "seed": "node prisma/seed.js"
   },
   "scripts": {
     "validate": "dotenv -e ../../.env -- prisma validate",
     "generate": "prisma generate",
     "migrate": "dotenv -e ../../.env -- prisma migrate dev",
+    "deploy": "dotenv -e ../../.env -- prisma migrate deploy",
+    "status": "dotenv -e ../../.env -- prisma migrate status",
+    "baseline": "node --env-file-if-exists=../../.env scripts/baseline.js",
+    "seed": "node --env-file-if-exists=../../.env prisma/seed.js",
+    "seed:partners": "node --env-file-if-exists=../../.env prisma/seed-partners-sp.js",
     "studio": "dotenv -e ../../.env -- prisma studio",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "test": "node --test"
   },
   "dependencies": {
+    "@petspost/domain": "0.1.0",
     "@prisma/client": "6.19.3"
   },
   "devDependencies": {

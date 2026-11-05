@@ -17,9 +17,15 @@
     "dev:web": "npm run dev -w @petspost/web",
     "build": "npm run build -w @petspost/web",
     "test": "npm test --workspaces --if-present",
+    "test:integration": "node --env-file-if-exists=.env scripts/test-integration.js",
     "db:validate": "npm run validate -w @petspost/db",
     "db:generate": "npm run generate -w @petspost/db",
     "db:migrate": "npm run migrate -w @petspost/db",
+    "db:deploy": "npm run deploy -w @petspost/db",
+    "db:status": "npm run status -w @petspost/db",
+    "db:baseline": "npm run baseline -w @petspost/db --",
+    "db:seed": "npm run seed -w @petspost/db",
+    "db:seed:partners": "npm run seed:partners -w @petspost/db",
     "db:studio": "npm run studio -w @petspost/db"
   },
   "devDependencies": {
