@@ -1,0 +1,27 @@
+# dependências
+node_modules/
+
+# build
+dist/
+apps/web/dist/
+
+# ambiente
+.env
+.env.*
+!.env.example
+
+# uploads de usuários
+apps/api/uploads/*
+!apps/api/uploads/.gitkeep
+
+# dados locais (LanceDB, etc.)
+data/
+
+# logs / SO / editores
+*.log
+npm-debug.log*
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+coverage/

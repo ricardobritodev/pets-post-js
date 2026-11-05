@@ -1,0 +1,32 @@
+/**
+ * config.js — Variáveis de ambiente validadas com zod.
+ * Falha rápido (na inicialização) se algo obrigatório estiver faltando.
+ */
+import { z } from 'zod';
+
+const schema = z
+  .object({
+    NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+    API_PORT: z.coerce.number().int().min(0).max(65535).default(3000),
+    DATABASE_URL: z.string().optional(),
+    SESSION_SECRET: z.string().optional(),
+  })
+  .superRefine((env, ctx) => {
+    if (env.NODE_ENV !== 'production') return;
+    if (!env.DATABASE_URL) {
+      ctx.addIssue({ code: 'custom', path: ['DATABASE_URL'], message: 'obrigatória em produção' });
+    }
+    if (!env.SESSION_SECRET || env.SESSION_SECRET.length < 32) {
+      ctx.addIssue({ code: 'custom', path: ['SESSION_SECRET'], message: 'obrigatória em produção (mín. 32 caracteres)' });
+    }
+  });
+
+/** @param {NodeJS.ProcessEnv} source */
+export function loadConfig(source = process.env) {
+  const result = schema.safeParse(source);
+  if (!result.success) {
+    const details = result.error.issues.map((i) => `  - ${i.path.join('.')}: ${i.message}`).join('\n');
+    throw new Error(`Configuração inválida:\n${details}\nConfira o arquivo .env (veja .env.example).`);
+  }
+  return Object.freeze(result.data);
+}

@@ -1,0 +1,27 @@
+# doc/ — Documentação das features implementadas
+
+Aqui fica o **registro do que já foi entregue** (o "como ficou").
+O **que deve ser feito** (regras, contratos) fica em [`../specs`](../specs/README.md).
+
+| Arquivo | Conteúdo |
+|---|---|
+| [ROADMAP.md](ROADMAP.md) | Etapas e micro tarefas da reescrita, com status |
+| [features/](features/) | Uma página por etapa/feature entregue |
+
+## Features entregues
+| # | Feature | Etapa | Data |
+|---|---|---|---|
+| 001 | [Fundação do projeto](features/001-fundacao.md) | 1 | 2026-11-04 |
+
+## Como documentar uma feature nova
+Crie `features/NNN-nome.md` usando o modelo abaixo e adicione na tabela acima.
+
+```markdown
+# NNN — Nome da feature
+**Etapa:** X · **Data:** AAAA-MM-DD · **Specs:** links para BR/PERM/rotas
+
+## O que foi entregue
+## Como usar / testar
+## Decisões e desvios da spec
+## Pendências
+```

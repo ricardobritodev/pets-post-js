@@ -1,0 +1,34 @@
+{
+  "name": "pets-post-v2",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pets Post reescrito em Node.js (Express + Prisma + Vite)",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,magenta \"npm run dev -w @petspost/api\" \"npm run dev -w @petspost/web\"",
+    "dev:api": "npm run dev -w @petspost/api",
+    "dev:web": "npm run dev -w @petspost/web",
+    "build": "npm run build -w @petspost/web",
+    "test": "npm test --workspaces --if-present",
+    "db:validate": "npm run validate -w @petspost/db",
+    "db:generate": "npm run generate -w @petspost/db",
+    "db:migrate": "npm run migrate -w @petspost/db",
+    "db:studio": "npm run studio -w @petspost/db"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "allowScripts": {
+    "prisma@6.19.3": true,
+    "@prisma/client@6.19.3": true,
+    "@prisma/engines@6.19.3": true,
+    "fsevents": false
+  }
+}

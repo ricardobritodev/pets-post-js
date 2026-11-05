@@ -1,0 +1,17 @@
+{
+  "name": "@petspost/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Schemas zod compartilhados (DTOs) entre api, web e bot",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "zod": "^4.1.0",
+    "@petspost/domain": "0.1.0"
+  }
+}

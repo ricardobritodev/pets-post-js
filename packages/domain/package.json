@@ -1,0 +1,13 @@
+{
+  "name": "@petspost/domain",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Regras de negócio puras (sem I/O) — fonte: specs/domain/rules.md",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}

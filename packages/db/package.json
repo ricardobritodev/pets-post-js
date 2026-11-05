@@ -1,0 +1,27 @@
+{
+  "name": "@petspost/db",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Schema Prisma e client compartilhado",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
+  },
+  "scripts": {
+    "validate": "dotenv -e ../../.env -- prisma validate",
+    "generate": "prisma generate",
+    "migrate": "dotenv -e ../../.env -- prisma migrate dev",
+    "studio": "dotenv -e ../../.env -- prisma studio",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.3"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^11.1.0",
+    "prisma": "6.19.3"
+  }
+}
