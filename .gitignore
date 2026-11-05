@@ -15,7 +15,8 @@ apps/api/uploads/*
 !apps/api/uploads/.gitkeep
 
 # dados locais (LanceDB, etc.)
-data/
+/data/
+apps/*/data/
 
 # logs / SO / editores
 *.log
@@ -25,3 +26,6 @@ npm-debug.log*
 .vscode/*
 !.vscode/extensions.json
 coverage/
+
+# saída do baseline (SQL executado por banco)
+packages/db/scripts/output/
