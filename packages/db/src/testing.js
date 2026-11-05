@@ -42,6 +42,7 @@ export async function assertTestDatabase(db) {
 export async function clearDatabase(db) {
   await assertTestDatabase(db);
   await db.$transaction([
+    db.session.deleteMany(),
     db.photo.deleteMany(),
     db.adoptionPhoto.deleteMany(),
     db.petPost.deleteMany(),

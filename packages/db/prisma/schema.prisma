@@ -175,3 +175,17 @@ model Partner {
 
   @@map("partners")
 }
+
+// Sessões do express-session (migration M-05 · specs/api/auth.md).
+// Tabela nova da v2 — não existe no banco do sistema antigo.
+// `userId` sem FK de propósito: a sessão é cache; serve para "sair de todos os dispositivos".
+model Session {
+  sid       String   @id @db.VarChar(128)
+  data      String   @db.Text
+  expiresAt DateTime @map("expires_at") @db.DateTime(0)
+  userId    Int?     @map("user_id")
+
+  @@index([expiresAt])
+  @@index([userId])
+  @@map("sessions")
+}

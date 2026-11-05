@@ -86,6 +86,14 @@ test('BR-DATA-004 baseline é idempotente (segunda execução não muda nada)', 
   assert.deepEqual(await snapshot(), antes);
 });
 
+test('BR-DATA-004 migrations posteriores à 0_init (1_sessions) entram via deploy', async () => {
+  assert.equal(await db.session.count(), 0);
+  const [{ n }] = await db.$queryRawUnsafe(
+    "SELECT COUNT(*) AS n FROM _prisma_migrations WHERE migration_name = '1_sessions' AND finished_at IS NOT NULL",
+  );
+  assert.equal(Number(n), 1);
+});
+
 test('BR-AUTH-004 senhas do banco Flask continuam válidas após o baseline', async () => {
   const byEmail = async (email) => (await db.user.findUnique({ where: { email } })).passwordHash;
   const admin = await byEmail('admin@petpost.com');

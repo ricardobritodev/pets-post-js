@@ -14,8 +14,14 @@ As colunas e os tipos batem com o `schema.prisma`, mas a **estrutura** não:
 | Nomes de índices/FKs (`ix_users_email`, `pet_posts_ibfk_1`, ...) | `prisma migrate dev` acusa *drift* |
 | Tabela `alembic_version` | mantida de propósito (rollback para o Flask) |
 
-Por isso o baseline tem 2 partes: **alinhar a estrutura** (DDL gerado por
-`prisma migrate diff`) e **registrar** `0_init` como aplicada (`prisma migrate resolve`).
+Por isso o baseline tem 3 partes:
+1. **Alinhar a estrutura** (DDL gerado por `prisma migrate diff`) ao schema do momento da `0_init`.
+   Esse schema fica guardado em `scripts/baseline-target.prisma`, que não deve ser editado.
+2. **Registrar** a `0_init` como aplicada (`prisma migrate resolve`).
+3. **Aplicar as migrations seguintes** (`1_sessions`, ...) com `prisma migrate deploy`.
+
+O alvo é a foto da `0_init`, e não o schema atual, por um motivo: se o alinhamento criasse por fora
+as tabelas das migrations novas, o `deploy` falharia depois com "table already exists".
 
 ## Passo a passo (produção)
 

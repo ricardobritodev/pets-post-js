@@ -9,7 +9,12 @@
  *   - nomes de índices/FKs diferentes (ix_users_email, pet_posts_ibfk_1, ...);
  *   - tabela extra `alembic_version` (Flask-Migrate) — MANTIDA, para rollback.
  *
- * Fluxo: inspect (só leitura) → align (DDL, sem tocar em dados) → resolve 0_init → verify.
+ * Fluxo: inspect (só leitura) → align (DDL, sem tocar em dados) → resolve 0_init
+ *        → migrate deploy (migrations posteriores, ex.: 1_sessions) → verify.
+ *
+ * O alinhamento mira o schema DO MOMENTO da 0_init (scripts/baseline-target.prisma),
+ * não o atual. Senão ele criaria por fora tabelas de migrations futuras e o
+ * `migrate deploy` falharia depois ("table already exists").
  */
 import { spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
@@ -22,6 +27,8 @@ const require = createRequire(import.meta.url);
 const PRISMA_CLI = resolve(require.resolve('prisma/package.json'), '..', 'build/index.js');
 const PKG_DIR = resolve(import.meta.dirname, '..');
 const SCHEMA = resolve(PKG_DIR, 'prisma/schema.prisma');
+/** Foto do schema na 0_init — alvo do alinhamento. */
+export const BASELINE_TARGET = resolve(PKG_DIR, 'scripts/baseline-target.prisma');
 export const BASELINE_MIGRATION = '0_init';
 
 /** Tabelas que existem no banco Flask mas não no schema Prisma e devem ser preservadas. */
@@ -74,10 +81,14 @@ export function filterAlignmentSql(sql, preserved = PRESERVED_TABLES) {
     .trim();
 }
 
-/** SQL que leva o banco ao schema.prisma (sem os DROPs de tabelas preservadas). */
-export function alignmentSql(url) {
+/**
+ * SQL que leva o banco a um schema (padrão: o da 0_init), sem os DROPs de tabelas preservadas.
+ * @param {string} url
+ * @param {string} [target] arquivo .prisma de destino
+ */
+export function alignmentSql(url, target = BASELINE_TARGET) {
   const raw = prismaOrThrow(
-    ['migrate', 'diff', '--from-url', url, '--to-schema-datamodel', SCHEMA, '--script'],
+    ['migrate', 'diff', '--from-url', url, '--to-schema-datamodel', target, '--script'],
     url,
     'migrate diff',
   );
@@ -183,22 +194,25 @@ export async function applyBaseline(url, { outDir, log = () => {} } = {}) {
     );
   }
 
-  await alignSchema(url, { outDir, log });
-
   if (!before.baselined) {
+    await alignSchema(url, { outDir, log });
     log(`Marcando ${BASELINE_MIGRATION} como aplicada...`);
     prismaOrThrow(['migrate', 'resolve', '--applied', BASELINE_MIGRATION], url, 'migrate resolve');
   } else {
+    // Depois do baseline a estrutura é das migrations: não alinhar de novo.
     log(`${BASELINE_MIGRATION} já estava marcada como aplicada.`);
   }
+
+  log('Aplicando migrations posteriores (migrate deploy)...');
+  prismaOrThrow(['migrate', 'deploy'], url, 'migrate deploy');
 
   return verifyBaseline(url, before.counts);
 }
 
-/** Confere: sem diferença de schema, migrations em dia e nenhuma linha alterada. */
+/** Confere: banco igual ao schema.prisma ATUAL, migrations em dia e nenhuma linha alterada. */
 export async function verifyBaseline(url, expectedCounts) {
   const after = await inspect(url);
-  const remainingSql = alignmentSql(url);
+  const remainingSql = alignmentSql(url, SCHEMA);
   const status = prisma(['migrate', 'status'], url);
   const countsUnchanged = !expectedCounts || JSON.stringify(after.counts) === JSON.stringify(expectedCounts);
   return {
