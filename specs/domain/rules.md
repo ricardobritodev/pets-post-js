@@ -8,17 +8,19 @@ Origem: engenharia reversa do projeto Flask (`pets-post/app/**`).
 ## Autenticação — BR-AUTH
 | ID | Regra | Status |
 |---|---|---|
-| BR-AUTH-001 | Cadastro exige nome (2–100), email único e válido, senha e confirmação. Telefone opcional. Email é salvo em minúsculas e com trim. | ✅ contrato · 🟡 rota |
+| BR-AUTH-001 | Cadastro exige nome (2–100), email único e válido, senha e confirmação. Telefone opcional. Email é salvo em minúsculas e com trim. | ✅ |
 | BR-AUTH-002 | Senha com no mínimo 8 caracteres. | ✅ contrato |
 | BR-AUTH-003 | Confirmação de senha deve ser igual à senha. | ✅ contrato |
 | BR-AUTH-004 | Senhas são armazenadas com hash no formato Werkzeug. Hashes legados `scrypt:*` e `pbkdf2:*` do banco Flask **devem** continuar válidos. Novos hashes usam `scrypt:32768:8:1`. Hash legado PBKDF2 é regenerado após login bem-sucedido. | ✅ |
-| BR-AUTH-005 | Usuário com `isActive=false` não consegue logar ("Esta conta foi desativada"). | 🟡 |
-| BR-AUTH-006 | Login com email ou senha errados retorna mensagem genérica (não revela qual errou). | 🟡 |
-| BR-AUTH-007 | Rate limit: login 10/min e 50/h por IP; cadastro 5/min e 20/h por IP. | 🟡 |
-| BR-AUTH-008 | Sessão expira após 2h de inatividade (renovada a cada requisição). "Lembrar de mim" mantém por 7 dias. Cookie HttpOnly, SameSite=Lax, Secure em produção. | 🟡 |
-| BR-AUTH-009 | Redirect pós-login (`next`) só para o mesmo host (anti open-redirect). | 🟡 |
-| BR-AUTH-010 | Logout somente via POST com proteção CSRF. | 🟡 |
-| BR-AUTH-011 | Log de segurança: login_success, login_failed, login_blocked_inactive, register_success, logout (com IP). | 🟡 |
+| BR-AUTH-005 | Usuário com `isActive=false` não consegue logar ("Esta conta foi desativada"). | ✅ |
+| BR-AUTH-006 | Login com email ou senha errados retorna mensagem genérica (não revela qual errou). | ✅ |
+| BR-AUTH-007 | Rate limit: login 10/min e 50/h por IP; cadastro 5/min e 20/h por IP; emissão de token CSRF 30/min e 300/h por IP. | ✅ |
+| BR-AUTH-008 | Sessão expira após 2h de inatividade (renovada a cada requisição). "Lembrar de mim" mantém por 7 dias. Cookie HttpOnly, SameSite=Lax, Secure em produção. | ✅ |
+| BR-AUTH-009 | Redirect pós-login (`next`) só para o mesmo host (anti open-redirect). | ✅ |
+| BR-AUTH-010 | Logout somente via POST com proteção CSRF. | ✅ |
+| BR-AUTH-011 | Log de segurança: login_success, login_failed, login_blocked_inactive, register_success, logout (com IP). | ✅ |
+| BR-AUTH-012 | Toda requisição que altera estado (POST/PUT/PATCH/DELETE) exige token CSRF válido (header `X-CSRF-Token`). *(generaliza BR-AUTH-010; no sistema antigo o CSRF cobria todos os formulários)* | ✅ |
+| BR-AUTH-013 | O login gera um ID de sessão novo (contra fixação de sessão); o logout destrói a sessão no servidor. | ✅ |
 
 ## Posts de pets — BR-POST
 | ID | Regra | Status |

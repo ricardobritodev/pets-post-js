@@ -17,6 +17,9 @@
 | 400 | `VALIDATION_ERROR` | corpo/query não passa no schema zod |
 | 400 | `INVALID_JSON` | JSON malformado |
 | 401 | `UNAUTHENTICATED` | sem sessão |
+| 401 | `INVALID_CREDENTIALS` | email ou senha incorretos (mensagem genérica, BR-AUTH-006) |
+| 403 | `ACCOUNT_INACTIVE` | conta desativada (BR-AUTH-005) |
+| 403 | `CSRF_INVALID` | token CSRF ausente ou inválido (BR-AUTH-012) |
 | 403 | `FORBIDDEN` | sem permissão |
 | 404 | `NOT_FOUND` | inexistente **ou** inativo sem permissão (PERM-002) |
 | 409 | `CONFLICT` | ex.: email já cadastrado |

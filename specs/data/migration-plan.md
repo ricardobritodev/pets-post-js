@@ -35,6 +35,6 @@ Procedimento: [`packages/db/scripts/BASELINE.md`](../../packages/db/scripts/BASE
 | M-02 | ~~`ON DELETE CASCADE` nas FKs de fotos~~ ✅ feito no baseline (já estava no `0_init`) | integridade |
 | M-03 | Unificar `photos` + `adoption_photos` (Q-002) | remover duplicação |
 | M-04 | Índices `(is_active, is_resolved, created_at)` e `(is_active, is_adopted, created_at)` | listagens |
-| M-05 | Tabela `sessions` (express-session store) | sessões persistentes |
+| M-05 | ~~Tabela `sessions` (express-session store)~~ ✅ migration `1_sessions` (Etapa 3) | sessões persistentes |
 
 Cada mudança vira uma migration Prisma separada e reversível.
