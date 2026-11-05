@@ -2,6 +2,7 @@
  * config.js — Variáveis de ambiente validadas com zod.
  * Falha rápido (na inicialização) se algo obrigatório estiver faltando.
  */
+import { randomBytes } from 'node:crypto';
 import { z } from 'zod';
 
 const schema = z
@@ -28,5 +29,11 @@ export function loadConfig(source = process.env) {
     const details = result.error.issues.map((i) => `  - ${i.path.join('.')}: ${i.message}`).join('\n');
     throw new Error(`Configuração inválida:\n${details}\nConfira o arquivo .env (veja .env.example).`);
   }
-  return Object.freeze(result.data);
+  const data = { ...result.data };
+  // Fora de produção, sem SESSION_SECRET: gera um aleatório (as sessões somem ao reiniciar).
+  if (!data.SESSION_SECRET) {
+    data.SESSION_SECRET = randomBytes(32).toString('hex');
+    data.SESSION_SECRET_GENERATED = true;
+  }
+  return Object.freeze(data);
 }

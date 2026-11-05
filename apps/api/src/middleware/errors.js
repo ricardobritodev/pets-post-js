@@ -16,19 +16,24 @@ export function notFound(_req, res) {
   res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Recurso não encontrado.' } });
 }
 
-export function errorHandler({ config }) {
+export function errorHandler({ config, logger }) {
   // eslint-disable-next-line no-unused-vars
   return (err, _req, res, _next) => {
     // JSON malformado no corpo da requisição
     if (err.type === 'entity.parse.failed') {
       return res.status(400).json({ error: { code: 'INVALID_JSON', message: 'JSON inválido.' } });
     }
+    // BR-AUTH-012 — erro lançado pelo csrf-csrf
+    if (err?.code === 'CSRF_INVALID') {
+      return res.status(403).json({ error: { code: 'CSRF_INVALID', message: err.message } });
+    }
     if (err instanceof HttpError) {
       return res.status(err.status).json({
         error: { code: err.code, message: err.message, ...(err.details && { details: err.details }) },
       });
     }
-    console.error(err);
+    if (logger) logger.error({ err }, 'erro inesperado');
+    else console.error(err);
     const message = config.NODE_ENV === 'production' ? 'Erro interno.' : String(err?.message ?? err);
     return res.status(500).json({ error: { code: 'INTERNAL', message } });
   };
