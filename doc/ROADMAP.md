@@ -17,15 +17,16 @@ Legenda: ✅ concluída · 🔜 próxima · ⬜ pendente
 | 1.8 | Web Vite MPA + Tailwind: página inicial com status da API/banco | ✅ |
 | 1.9 | README com passo a passo e `doc/` | ✅ |
 
-## Etapa 2 — Banco de dados 🔜
+## Etapa 2 — Banco de dados ✅
 | # | Micro tarefa | Status |
 |---|---|---|
-| 2.1 | Migration `0_init` (banco novo) + procedimento de baseline (banco Flask) | ⬜ |
-| 2.2 | Seed: admin + posts + adoção de exemplo (porta de `seeds.py`) | ⬜ |
-| 2.3 | Seed de parceiros SP (porta de `seeds_parceiros_sp.py`) | ⬜ |
-| 2.4 | Validar hash `scrypt:` real do banco de produção | ⬜ |
+| 2.1 | Migration `0_init` (banco novo) + procedimento de baseline (banco Flask) | ✅ |
+| 2.2 | Seed: admin + posts + adoção de exemplo (porta de `seeds.py`) | ✅ |
+| 2.3 | Seed de parceiros SP (porta de `seeds_parceiros_sp.py`) | ✅ |
+| 2.4 | Validar hash `scrypt:` real (Werkzeug 3.1.3) | ✅ |
+| 2.5 | Testes de integração (`npm run test:integration`) + repositório de usuários | ✅ |
 
-## Etapa 3 — Autenticação
+## Etapa 3 — Autenticação 🔜
 | # | Micro tarefa | Status |
 |---|---|---|
 | 3.1 | Sessão (`express-session` + store MySQL), cookies (BR-AUTH-008) | ⬜ |

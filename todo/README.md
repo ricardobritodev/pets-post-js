@@ -26,5 +26,6 @@ Regras citadas (`BR-*`, `PERM-*`) estão em [`../specs/domain`](../specs/domain/
 | Etapa | Status |
 |---|---|
 | 1 — Fundação | ✅ concluída (ver `doc/features/001-fundacao.md`) |
-| 2 — Banco | 🔜 próxima |
-| 3 a 8 | ⬜ |
+| 2 — Banco | ✅ concluída (ver `doc/features/002-banco.md`) |
+| 3 — Autenticação | 🔜 próxima |
+| 4 a 8 | ⬜ |

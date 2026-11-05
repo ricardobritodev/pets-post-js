@@ -14,7 +14,7 @@ parceiros** (lares temporários, petshops e clínicas), com contato direto por W
 | Testes | `node:test` (nativo, sem dependências) |
 | Chatbot (futuro) | grammY, node-nlp, LanceDB, Anthropic SDK |
 
-> **Status:** Etapa 1 (fundação) concluída. Veja o [roadmap](doc/ROADMAP.md) e o checklist do que falta em [`todo/`](todo/README.md).
+> **Status:** Etapas 1 (fundação) e 2 (banco de dados) concluídas. Veja o [roadmap](doc/ROADMAP.md) e o checklist do que falta em [`todo/`](todo/README.md).
 
 ---
 
@@ -58,8 +58,13 @@ Entre no MySQL (`mysql -u root`) e rode:
 
 ```sql
 CREATE DATABASE petpost_v2 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- bancos dos testes de integração (o nome PRECISA terminar em _test)
+CREATE DATABASE petpost_v2_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE petpost_flask_mock_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER 'petpost_user'@'localhost' IDENTIFIED BY 'petpost123';
 GRANT ALL PRIVILEGES ON petpost_v2.* TO 'petpost_user'@'localhost';
+GRANT ALL PRIVILEGES ON petpost_v2_test.* TO 'petpost_user'@'localhost';
+GRANT ALL PRIVILEGES ON petpost_flask_mock_test.* TO 'petpost_user'@'localhost';
 -- o Prisma precisa criar um banco temporário ("shadow") nas migrations de dev:
 GRANT CREATE, ALTER, DROP, REFERENCES ON *.* TO 'petpost_user'@'localhost';
 FLUSH PRIVILEGES;
@@ -81,6 +86,7 @@ NODE_ENV=development
 API_PORT=3000
 DATABASE_URL=mysql://petpost_user:petpost123@localhost:3306/petpost_v2
 SESSION_SECRET=<cole aqui uma chave aleatória>
+DATABASE_URL_TEST=mysql://petpost_user:petpost123@localhost:3306/petpost_v2_test
 ```
 
 Para gerar a `SESSION_SECRET`:
@@ -89,16 +95,18 @@ Para gerar a `SESSION_SECRET`:
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-### 5. Criar as tabelas
+### 5. Criar as tabelas e popular o banco
 
 ```bash
-npm run db:migrate
+npm run db:migrate          # aplica as migrations (0_init cria as 6 tabelas)
+npm run db:seed             # dados de exemplo: admin@petpost.com / Admin@123
+npm run db:seed:partners    # 30 parceiros reais de SP (com coordenadas)
 ```
 
-Na primeira vez, o Prisma pede um nome para a migration (ex.: `init`).
+Os seeds podem rodar várias vezes sem duplicar. O `db:seed` se recusa a rodar com `NODE_ENV=production`.
 
-> **Etapa 1:** este passo é opcional. A página inicial só testa a conexão com o banco.
-> As migrations versionadas entram na Etapa 2.
+> Vai reaproveitar o banco do Flask? **Não** rode `db:migrate` nele. Use o baseline:
+> [`packages/db/scripts/BASELINE.md`](packages/db/scripts/BASELINE.md).
 
 ### 6. Rodar a aplicação
 
@@ -125,7 +133,14 @@ Para subir só um dos lados: `npm run dev:api` ou `npm run dev:web`.
 npm test
 ```
 
-Os testes não precisam de MySQL (a API é testada com um banco falso).
+Os testes unitários não precisam de MySQL (a API é testada com um banco falso).
+
+Para os testes de integração, contra o MySQL real (banco `petpost_v2_test`):
+
+```bash
+npm run test:integration
+npm run test:integration -- --test-name-pattern="BR-DATA"   # filtrar
+```
 
 ---
 
@@ -135,11 +150,16 @@ Os testes não precisam de MySQL (a API é testada com um banco falso).
 |---|---|
 | `npm run dev` | API + Web em modo desenvolvimento (com recarregamento automático) |
 | `npm run dev:api` / `npm run dev:web` | Sobe só a API ou só o front |
-| `npm test` | Roda os testes de todos os pacotes |
+| `npm test` | Testes unitários de todos os pacotes (sem banco) |
+| `npm run test:integration` | Testes de integração contra MySQL (`DATABASE_URL_TEST`) |
 | `npm run build` | Gera o build de produção do front em `apps/web/dist` |
 | `npm run db:validate` | Valida o `schema.prisma` |
 | `npm run db:generate` | Regenera o client do Prisma |
 | `npm run db:migrate` | Cria/aplica migrations no banco de desenvolvimento |
+| `npm run db:deploy` / `db:status` | Aplica migrations pendentes (produção) / mostra o estado |
+| `npm run db:seed` | Dados de exemplo (só fora de produção) |
+| `npm run db:seed:partners` | Parceiros reais de SP (pode rodar em produção) |
+| `npm run db:baseline -- --url ...` | Adota um banco Flask existente (relatório; `--apply` executa) |
 | `npm run db:studio` | Abre o Prisma Studio (interface web do banco) |
 
 ## Estrutura do projeto
@@ -174,4 +194,6 @@ Detalhes em [specs/README.md](specs/README.md).
 | `Error: Configuração inválida` ao subir a API | Falta variável no `.env` (em produção, `DATABASE_URL` e `SESSION_SECRET` são obrigatórias) |
 | `@prisma/client did not initialize yet` | Rode `npm run db:generate` |
 | Banco "sem conexão" na página inicial | MySQL parado (`brew services start mysql`) ou `DATABASE_URL` errado |
+| `test:integration` diz `BR-DATA-005` | Falta `DATABASE_URL_TEST` no `.env`, ou o nome do banco não termina em `_test` |
+| `Foreign key constraint violated` ao excluir post no banco Flask | Rode o baseline (alinha as FKs com CASCADE) |
 | `EADDRINUSE :3000` | Outra coisa usando a porta. Mude `API_PORT` no `.env` e o proxy em `apps/web/vite.config.js` |
