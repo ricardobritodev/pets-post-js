@@ -5,7 +5,9 @@
   "description": "Regras de negócio puras (sem I/O) — fonte: specs/domain/rules.md",
   "type": "module",
   "exports": {
-    ".": "./src/index.js"
+    ".": "./src/index.js",
+    "./redirect": "./src/redirect.js",
+    "./constants": "./src/constants.js"
   },
   "scripts": {
     "test": "node --test"
