@@ -25,13 +25,13 @@ Origem: engenharia reversa do projeto Flask (`pets-post/app/**`).
 ## Posts de pets — BR-POST
 | ID | Regra | Status |
 |---|---|---|
-| BR-POST-001 | Campos obrigatórios: título (≤150), descrição, status, tipo, localização (≤255), telefone de contato. | 🟡 |
-| BR-POST-002 | Listagens públicas mostram apenas `isActive=true` e `isResolved=false`, ordenadas por `createdAt` desc. | 🟡 |
-| BR-POST-003 | Listagem paginada com 12 itens; filtros opcionais `status` e `petType`; valores inválidos são ignorados. | 🟡 |
-| BR-POST-004 | Home mostra os 12 posts mais recentes elegíveis (BR-POST-002). | 🟡 |
-| BR-POST-005 | Marcar como resolvido: post sai das listagens, continua acessível pelo link. | 🟡 |
-| BR-POST-006 | Excluir post remove também as fotos (registro e arquivo). | 🟡 |
-| BR-POST-007 | Ao criar post, `status` pode vir pré-selecionado via `?status=lost|found`. | 🟡 |
+| BR-POST-001 | Campos obrigatórios: título (≤150), descrição, status, tipo, localização (≤255), telefone de contato. | ✅ |
+| BR-POST-002 | Listagens públicas mostram apenas `isActive=true` e `isResolved=false`, ordenadas por `createdAt` desc. | ✅ |
+| BR-POST-003 | Listagem paginada com 12 itens; filtros opcionais `status` e `petType`; valores inválidos são ignorados. | ✅ |
+| BR-POST-004 | Home mostra os 12 posts mais recentes elegíveis (BR-POST-002). | ✅ |
+| BR-POST-005 | Marcar como resolvido: post sai das listagens, continua acessível pelo link. | ✅ |
+| BR-POST-006 | Excluir post remove também as fotos (registro e arquivo). | ✅ registro · 🟡 arquivo (Etapa 5) |
+| BR-POST-007 | Ao criar post, `status` pode vir pré-selecionado via `?status=lost|found`. | ✅ |
 
 ## Adoção — BR-ADOPT
 | ID | Regra | Status |
@@ -44,7 +44,7 @@ Origem: engenharia reversa do projeto Flask (`pets-post/app/**`).
 | ID | Regra | Status |
 |---|---|---|
 | BR-PHOTO-001 | Máximo de **6** fotos por anúncio (criação e edição). Excedentes na edição são ignoradas com aviso. | 🟡 ⚠️ ver Q-001 |
-| BR-PHOTO-002 | A primeira foto enviada é a principal. Se a principal for removida, a primeira restante vira principal. Sem foto marcada, a primeira é usada. | 🟡 |
+| BR-PHOTO-002 | A primeira foto enviada é a principal. Se a principal for removida, a primeira restante vira principal. Sem foto marcada, a primeira é usada. | ✅ escolha da principal · 🟡 upload/remoção (Etapa 5) |
 | BR-PHOTO-003 | Extensões aceitas: png, jpg, jpeg, gif, webp. Requisição de até 8 MB. | 🟡 |
 | BR-PHOTO-004 | Toda imagem é re-codificada no servidor: rejeita não-imagem, rejeita > 20 MP, converte para RGB, redimensiona para no máx. 800 px de largura, qualidade 85. O arquivo original nunca é salvo. | 🟡 |
 | BR-PHOTO-005 | Nome do arquivo = UUID aleatório; o nome enviado pelo usuário é descartado. | 🟡 |

@@ -28,5 +28,6 @@ Regras citadas (`BR-*`, `PERM-*`) estão em [`../specs/domain`](../specs/domain/
 | 1 — Fundação | ✅ concluída (ver `doc/features/001-fundacao.md`) |
 | 2 — Banco | ✅ concluída (ver `doc/features/002-banco.md`) |
 | 3 — Autenticação | ✅ concluída (ver `doc/features/003-autenticacao.md`) |
-| 4 — Posts | 🔜 próxima |
-| 5 a 8 | ⬜ |
+| 4 — Posts | ✅ concluída (ver `doc/features/004-posts.md`) |
+| 5 — Mídia e geo | 🔜 próxima |
+| 6 a 8 | ⬜ |

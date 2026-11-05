@@ -35,14 +35,14 @@ Legenda: ✅ concluída · 🔜 próxima · ⬜ pendente
 | 3.4 | Re-hash de senha legada no login, log de segurança (BR-AUTH-004/011) | ✅ |
 | 3.5 | Páginas login/cadastro no front | ✅ |
 
-## Etapa 4 — Posts de pets perdidos/encontrados 🔜
-| 4.1 | Contratos zod de post | ⬜ |
-| 4.2 | Listagem com filtros/paginação + home (BR-POST-002..004) | ⬜ |
-| 4.3 | Detalhe com regra de visibilidade (PERM-002) | ⬜ |
-| 4.4 | Criar/editar/excluir/resolver (PERM-001) | ⬜ |
-| 4.5 | Páginas de lista, detalhe, formulário; injeção Open Graph (ADR 002) | ⬜ |
+## Etapa 4 — Posts de pets perdidos/encontrados ✅
+| 4.1 | Contratos zod de post | ✅ |
+| 4.2 | Listagem com filtros/paginação + home (BR-POST-002..004) | ✅ |
+| 4.3 | Detalhe com regra de visibilidade (PERM-002) | ✅ |
+| 4.4 | Criar/editar/excluir/resolver (PERM-001) | ✅ |
+| 4.5 | Páginas de lista, detalhe, formulário; injeção Open Graph (ADR 002) | ✅ |
 
-## Etapa 5 — Mídia e geolocalização
+## Etapa 5 — Mídia e geolocalização 🔜
 | 5.1 | Upload (`multer`) + processamento (`sharp`) (BR-PHOTO-*) | ⬜ |
 | 5.2 | Geocodificação Nominatim com fila 1 req/s (BR-GEO-001..003) | ⬜ |
 | 5.3 | Proxy CEP ViaCEP (BR-GEO-004) | ⬜ |
@@ -54,7 +54,7 @@ Legenda: ✅ concluída · 🔜 próxima · ⬜ pendente
 
 ## Etapa 7 — Admin e cutover
 | 7.1 | Dashboard, usuários, moderação, parceiros (BR-ADMIN-*) | ⬜ |
-| 7.2 | Express serve o build do Vite em produção; CSP final | ⬜ |
+| 7.2 | Express serve o build do Vite em produção; CSP final | 🟡 serve o build + OG (Etapa 4); falta CSP final |
 | 7.3 | Migração de uploads, deploy paralelo, troca de DNS | ⬜ |
 
 ## Etapa 8+ — Chatbot e IA (ADR 004/005)

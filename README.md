@@ -14,7 +14,7 @@ parceiros** (lares temporários, petshops e clínicas), com contato direto por W
 | Testes | `node:test` (nativo, sem dependências) |
 | Chatbot (futuro) | grammY, node-nlp, LanceDB, Anthropic SDK |
 
-> **Status:** Etapas 1 (fundação), 2 (banco de dados) e 3 (autenticação) concluídas. Veja o [roadmap](doc/ROADMAP.md) e o checklist do que falta em [`todo/`](todo/README.md).
+> **Status:** Etapas 1 (fundação), 2 (banco), 3 (autenticação) e 4 (posts) concluídas. Veja o [roadmap](doc/ROADMAP.md) e o checklist do que falta em [`todo/`](todo/README.md).
 
 ---
 
@@ -118,14 +118,21 @@ Isso sobe os dois servidores juntos:
 
 | Serviço | URL |
 |---|---|
-| Web (Vite) | http://localhost:5173 (login em `/login/`, cadastro em `/cadastro/`) |
+| Web (Vite) | http://localhost:5173: home, `/posts/`, `/posts/criar`, `/sobre`, `/login/`, `/cadastro/` |
 | API (Express) | http://localhost:3000/api/v1/health |
 
-Abra **http://localhost:5173**. O card "Status do sistema" deve mostrar
-**API online** e **Banco conectado**. Se o banco aparecer "sem conexão",
-confira o `DATABASE_URL` e se o MySQL está rodando.
+Abra **http://localhost:5173**. A home deve listar os anúncios recentes do seed. Para publicar,
+entre com `admin@petpost.com` / `Admin@123`. Para conferir só a API e o banco:
+`curl localhost:3000/api/v1/health/db`.
 
 Para subir só um dos lados: `npm run dev:api` ou `npm run dev:web`.
+
+**Como em produção** (o Express serve o front e injeta a prévia do WhatsApp em `/posts/:id`):
+
+```bash
+npm run build
+WEB_DIST_DIR=apps/web/dist PUBLIC_URL=http://localhost:3000 npm run dev:api   # abra http://localhost:3000
+```
 
 ### 7. Rodar os testes
 
@@ -193,7 +200,7 @@ Detalhes em [specs/README.md](specs/README.md).
 |---|---|
 | `Error: Configuração inválida` ao subir a API | Falta variável no `.env` (em produção, `DATABASE_URL` e `SESSION_SECRET` são obrigatórias) |
 | `@prisma/client did not initialize yet` | Rode `npm run db:generate` |
-| Banco "sem conexão" na página inicial | MySQL parado (`brew services start mysql`) ou `DATABASE_URL` errado |
+| Home mostra "Não foi possível carregar os anúncios" | API parada (`npm run dev:api`), MySQL parado (`brew services start mysql`) ou `DATABASE_URL` errado |
 | `test:integration` diz `BR-DATA-005` | Falta `DATABASE_URL_TEST` no `.env`, ou o nome do banco não termina em `_test` |
 | `Foreign key constraint violated` ao excluir post no banco Flask | Rode o baseline (alinha as FKs com CASCADE) |
 | `EADDRINUSE :3000` | Outra coisa usando a porta. Mude `API_PORT` no `.env` e o proxy em `apps/web/vite.config.js` |
