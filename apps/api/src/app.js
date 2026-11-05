@@ -20,6 +20,7 @@ import { authRouter } from './modules/auth/router.js';
 import { createPostRepository } from './modules/posts/repository.js';
 import { createPostService } from './modules/posts/service.js';
 import { postsRouter, meRouter } from './modules/posts/router.js';
+import { webRouter } from './web/router.js';
 
 /**
  * @param {{
@@ -29,9 +30,10 @@ import { postsRouter, meRouter } from './modules/posts/router.js';
  *   securityLog?: (event: string, fields: object) => void,
  *   sessionStore?: import('express-session').Store,
  *   limits?: typeof DEFAULT_LIMITS,
+ *   webDistDir?: string, // serve o build do front (produção)
  * }} deps
  */
-export function createApp({ config, db, logger, securityLog, sessionStore, limits = DEFAULT_LIMITS }) {
+export function createApp({ config, db, logger, securityLog, sessionStore, limits = DEFAULT_LIMITS, webDistDir }) {
   const app = express();
   logger ??= createLogger(config);
   securityLog ??= createSecurityLog(logger);
@@ -61,6 +63,11 @@ export function createApp({ config, db, logger, securityLog, sessionStore, limit
   app.use('/api/v1/me', meRouter({ service: postService }));
 
   app.use('/api', notFound);
+
+  // Front (build do Vite) + Open Graph — ADR 002
+  if (webDistDir) {
+    app.use(webRouter({ distDir: webDistDir, posts: postService, publicUrl: config.PUBLIC_URL, cache: config.NODE_ENV === 'production' }));
+  }
   app.use(errorHandler({ config, logger }));
 
   return app;

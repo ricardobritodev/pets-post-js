@@ -1,0 +1,51 @@
+/**
+ * page-routes.js — Mapa de URL → página HTML do front (specs/api/posts.md, "Páginas").
+ *
+ * Usado em dois lugares, para as URLs serem iguais em dev e em produção:
+ *   - vite.config.js (dev): reescreve a URL para o HTML certo;
+ *   - apps/api (produção): o Express serve o HTML do build e injeta Open Graph (ADR 002).
+ *
+ * As URLs do sistema antigo foram mantidas (links já compartilhados no WhatsApp).
+ */
+
+/** @typedef {{ page: string, params: Record<string, string>, og?: 'post' }} PageMatch */
+
+const ROUTES = [
+  { re: /^\/$/, page: 'index.html' },
+  { re: /^\/posts\/?$/, page: 'posts/index.html' },
+  { re: /^\/posts\/criar\/?$/, page: 'posts/form.html' },
+  { re: /^\/posts\/(?<id>\d+)\/editar\/?$/, page: 'posts/form.html' },
+  { re: /^\/posts\/(?<id>\d+)\/?$/, page: 'posts/detalhe.html', og: 'post' },
+  { re: /^\/sobre\/?$/, page: 'sobre/index.html' },
+  { re: /^\/login\/?$/, page: 'login/index.html' },
+  { re: /^\/cadastro\/?$/, page: 'cadastro/index.html' },
+];
+
+/** URLs antigas que mudaram de lugar → redirect 301. */
+export const LEGACY_REDIRECTS = Object.freeze({
+  '/auth/login': '/login/',
+  '/auth/register': '/cadastro/',
+});
+
+/** Páginas que entram no build do Vite (chave = nome do chunk). */
+export const PAGE_INPUTS = Object.freeze({
+  home: 'index.html',
+  posts: 'posts/index.html',
+  postDetail: 'posts/detalhe.html',
+  postForm: 'posts/form.html',
+  sobre: 'sobre/index.html',
+  login: 'login/index.html',
+  cadastro: 'cadastro/index.html',
+});
+
+/**
+ * @param {string} pathname ex.: "/posts/12"
+ * @returns {PageMatch|null}
+ */
+export function resolvePage(pathname) {
+  for (const { re, page, og } of ROUTES) {
+    const m = re.exec(pathname);
+    if (m) return { page, params: { ...m.groups }, ...(og && { og }) };
+  }
+  return null;
+}

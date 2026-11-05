@@ -15,5 +15,8 @@
   },
   "dependencies": {
     "@petspost/domain": "0.1.0"
+  },
+  "exports": {
+    "./page-routes": "./page-routes.js"
   }
 }

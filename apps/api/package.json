@@ -13,6 +13,7 @@
     "@petspost/contracts": "0.1.0",
     "@petspost/db": "0.1.0",
     "@petspost/domain": "0.1.0",
+    "@petspost/web": "0.1.0",
     "cookie-parser": "1.4.7",
     "csrf-csrf": "4.0.3",
     "express": "^5.1.0",

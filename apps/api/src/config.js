@@ -11,6 +11,10 @@ const schema = z
     API_PORT: z.coerce.number().int().min(0).max(65535).default(3000),
     DATABASE_URL: z.string().optional(),
     SESSION_SECRET: z.string().optional(),
+    // Endereço público do site (og:url / og:image absolutos). Ex.: https://www.petspost.com.br
+    PUBLIC_URL: z.url().optional(),
+    // Pasta do build do Vite servida pelo Express (padrão em produção: apps/web/dist).
+    WEB_DIST_DIR: z.string().optional(),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV !== 'production') return;
