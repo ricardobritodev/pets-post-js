@@ -1,8 +1,8 @@
 /**
- * store.js — DTOs da loja. Spec: specs/api/store.md · BR-STORE-002/003/005/006
+ * store.js — DTOs da loja. Spec: specs/api/store.md · BR-STORE-002/003/005/006/013
  */
 import { z } from 'zod';
-import { PET_TYPES, PRODUCT_CATEGORIES, MAX_PRICE_CENTS } from '@petspost/domain';
+import { PET_TYPES, PRODUCT_CATEGORIES, MAX_PRICE_CENTS, MAX_SELLER_NAME } from '@petspost/domain';
 import { requiredText, optionalText, optionalEnum, lenientEnum, formBoolean, petTypeSchema, pageQuerySchema } from './common.js';
 
 const searchQuery = z.string().trim().max(100).optional().catch(undefined).transform((v) => (v ? v : undefined));
@@ -64,6 +64,7 @@ const productFields = {
   promoPriceCents: optionalPrice,
   stock: z.coerce.number().int('Estoque inteiro.').min(0, 'Estoque não pode ser negativo.').max(1_000_000).optional().default(0),
   url: httpUrl,
+  sellerName: optionalText(MAX_SELLER_NAME), // BR-STORE-013 — vazio = nome do parceiro
   isActive: formBoolean.optional().default(true),
   isFeatured: formBoolean.optional().default(false),
 };
@@ -72,8 +73,28 @@ const productFields = {
 const promoBelowPrice = (d) => d.promoPriceCents == null || d.priceCents == null || d.promoPriceCents < d.priceCents;
 const promoIssue = { message: 'O preço promocional precisa ser menor que o preço.', path: ['promoPriceCents'] };
 
-/** BR-STORE-006 — cadastro de produto (só admin). */
-export const productSchema = z.object(productFields).refine(promoBelowPrice, promoIssue);
+/** BR-STORE-012 — loja que ainda não é parceira, cadastrada junto com o produto (vem da importação). */
+const newPartnerSchema = z.object({
+  name: requiredText(150, 'Informe o nome da loja.'),
+  website: z.string().trim().max(255).refine((v) => {
+    try {
+      return ['http:', 'https:'].includes(new URL(v).protocol);
+    } catch {
+      return false;
+    }
+  }, 'Site da loja inválido.'),
+});
+
+/**
+ * BR-STORE-006/012 — cadastro de produto (só admin): parceiro existente (`partnerId`) ou a loja nova (`newPartner`).
+ * `when` faz a checagem do parceiro aparecer junto com os outros campos que faltam.
+ */
+export const productSchema = z
+  .object({ ...productFields, partnerId: productFields.partnerId.optional(), newPartner: newPartnerSchema.nullish() })
+  .refine((d) => d.partnerId != null || d.newPartner != null, {
+    message: 'Selecione o parceiro.', path: ['partnerId'], when: (payload) => payload.value != null && typeof payload.value === 'object',
+  })
+  .refine(promoBelowPrice, promoIssue);
 
 /** PATCH: subconjunto; booleanos e estoque ausentes não mudam. */
 export const updateProductSchema = z
