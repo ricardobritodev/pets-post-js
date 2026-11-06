@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRateQueue, createGeocoder, DEFAULT_USER_AGENT } from '../src/lib/geocoder.js';
 import { createCepClient, UpstreamError } from '../src/lib/cep.js';
-import { createPostGeocoding } from '../src/modules/posts/geocoding.js';
+import { createGeoJobs } from '../src/modules/geo/jobs.js';
 
 const silent = { warn() {}, error() {} };
 const jsonResponse = (body, status = 200) =>
@@ -72,9 +72,9 @@ test('BR-GEO-001 falhas viram null, sem lançar erro', async () => {
 });
 
 test('BR-GEO-002 só geocodifica se o endereço mudou ou faltam coordenadas', () => {
-  const geo = createPostGeocoding({ geocoder: null, posts: {} });
-  const withCoords = { lastSeenLocation: 'Rua A', lastSeenLat: -23, lastSeenLng: -46 };
-  const noCoords = { lastSeenLocation: 'Rua A', lastSeenLat: null, lastSeenLng: null };
+  const geo = createGeoJobs({ geocoder: null });
+  const withCoords = { address: 'Rua A', lat: -23, lng: -46 };
+  const noCoords = { address: 'Rua A', lat: null, lng: null };
   assert.equal(geo.needsGeocoding(withCoords, undefined), false); // editou outro campo
   assert.equal(geo.needsGeocoding(withCoords, 'Rua A'), false); // mandou o mesmo endereço
   assert.equal(geo.needsGeocoding(withCoords, 'Rua B'), true);

@@ -26,8 +26,11 @@ import { createPostService } from './modules/posts/service.js';
 import { postsRouter, meRouter } from './modules/posts/router.js';
 import { createPhotoRepository } from './modules/photos/repository.js';
 import { createPhotoService } from './modules/photos/service.js';
-import { createPostGeocoding } from './modules/posts/geocoding.js';
+import { createGeoJobs } from './modules/geo/jobs.js';
 import { cepRouter } from './modules/geo/router.js';
+import { createAdoptionRepository } from './modules/adoption/repository.js';
+import { createAdoptionService } from './modules/adoption/service.js';
+import { adoptionRouter, meAdoptionRouter } from './modules/adoption/router.js';
 import { webRouter } from './web/router.js';
 
 /**
@@ -83,11 +86,21 @@ export function createApp({ config, db, logger, securityLog, sessionStore, limit
 
   const photoService = createPhotoService({ photos: createPhotoRepository(db), storage, logger });
   const postRepository = createPostRepository(db);
-  const geo = createPostGeocoding({ geocoder, posts: postRepository, logger });
+  const geo = createGeoJobs({ geocoder, logger });
   app.locals.geo = geo; // os testes esperam a fila com app.locals.geo.idle()
   const postService = createPostService({ posts: postRepository, photos: photoService, geo });
   app.use('/api/v1/posts', postsRouter({ service: postService, limits }));
   app.use('/api/v1/me', meRouter({ service: postService }));
+
+  // Adoção: mesmas peças de fotos/geocodificação, com a tabela adoption_photos (Q-002).
+  const adoptionPhotos = createPhotoService({
+    photos: createPhotoRepository(db, { model: 'adoptionPhoto', ownerKey: 'adoptionPostId' }),
+    storage,
+    logger,
+  });
+  const adoptionService = createAdoptionService({ adoptions: createAdoptionRepository(db), photos: adoptionPhotos, geo });
+  app.use('/api/v1/adoption', adoptionRouter({ service: adoptionService, limits }));
+  app.use('/api/v1/me', meAdoptionRouter({ service: adoptionService }));
   app.use('/api/v1/cep', cepRouter({ cep, limits }));
 
   app.use('/api', notFound);

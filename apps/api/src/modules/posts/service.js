@@ -1,33 +1,29 @@
 /**
- * Serviço de posts — permissões PERM-001/002 e regras BR-POST-*.
+ * Serviço de posts — permissões PERM-001/002 e regras BR-POST-*, BR-PHOTO-*, BR-GEO-*.
  */
-import { canView, canManage } from '@petspost/domain';
-import { HttpError } from '../../middleware/errors.js';
+import { canView } from '@petspost/domain';
+import { createManageGuard } from '../shared/access.js';
 import { toPostCard, toPostDetail } from './presenter.js';
-
-const notFound = () => new HttpError(404, 'NOT_FOUND', 'Anúncio não encontrado.');
 
 /**
  * @param {{
  *   posts: ReturnType<typeof import('./repository.js').createPostRepository>,
  *   photos: ReturnType<typeof import('../photos/service.js').createPhotoService>,
- *   geo: ReturnType<typeof import('./geocoding.js').createPostGeocoding>,
+ *   geo: ReturnType<typeof import('../geo/jobs.js').createGeoJobs>,
  * }} deps
  */
 export function createPostService({ posts, photos, geo }) {
-  /**
-   * Garante que o usuário pode gerenciar o post.
-   * Inexistente → 404. Inativo de outra pessoa → 404 (PERM-002, não revela). Ativo de outra → 403 (PERM-001).
-   */
-  async function assertManageable(id, viewer) {
-    const info = id ? await posts.findAccessInfo(id) : null;
-    if (!info || !canView(viewer, info)) throw notFound();
-    if (!canManage(viewer, info)) throw new HttpError(403, 'FORBIDDEN', 'Você não pode alterar este anúncio.');
-    return info;
-  }
+  const { assertManageable, notFound } = createManageGuard(posts.findAccessInfo, {
+    notFoundMessage: 'Anúncio não encontrado.',
+    forbiddenMessage: 'Você não pode alterar este anúncio.',
+  });
 
   /** Detalhe atualizado depois de mexer nas fotos. */
   const freshDetail = async (id, viewer) => toPostDetail(await posts.findDetail(id), viewer);
+
+  /** BR-GEO-001 — geocodifica em segundo plano e grava se o endereço não mudou. */
+  const scheduleGeocoding = (id, address) =>
+    geo.schedule(address, (coords) => posts.setCoordsIfAddress(id, address, coords));
 
   return {
     /** Usado pela rota de upload antes de ler os arquivos (não processa upload de quem não pode). */
@@ -57,16 +53,17 @@ export function createPostService({ posts, photos, geo }) {
     /** BR-POST-001 + BR-GEO-001 (geocodifica depois de responder). */
     async create(viewer, data) {
       const post = await posts.create(viewer.id, data);
-      geo.schedule(post.id, post.lastSeenLocation);
+      scheduleGeocoding(post.id, post.lastSeenLocation);
       return toPostDetail(post, viewer);
     },
 
     /** BR-GEO-002 — endereço novo apaga as coordenadas antigas e entra na fila. */
     async update(id, viewer, data) {
-      const before = await assertManageable(id, viewer);
-      const moved = data.lastSeenLocation !== undefined && data.lastSeenLocation !== before.lastSeenLocation;
+      const info = await assertManageable(id, viewer);
+      const before = { address: info.lastSeenLocation, lat: info.lastSeenLat, lng: info.lastSeenLng };
+      const moved = data.lastSeenLocation !== undefined && data.lastSeenLocation !== before.address;
       const post = await posts.update(id, moved ? { ...data, lastSeenLat: null, lastSeenLng: null } : data);
-      if (geo.needsGeocoding(before, data.lastSeenLocation)) geo.schedule(id, post.lastSeenLocation);
+      if (geo.needsGeocoding(before, data.lastSeenLocation)) scheduleGeocoding(id, post.lastSeenLocation);
       return toPostDetail(post, viewer);
     },
 
@@ -78,11 +75,17 @@ export function createPostService({ posts, photos, geo }) {
       await photos.removeFiles(files);
     },
 
+    /** BR-POST-005 — idempotente. */
+    async resolve(id, viewer) {
+      await assertManageable(id, viewer);
+      return toPostDetail(await posts.update(id, { isResolved: true }), viewer);
+    },
+
     /** BR-PHOTO-001..006 */
     async addPhotos(id, viewer, files) {
       await assertManageable(id, viewer);
       const { saved, rejected } = await photos.add(id, files);
-      return { saved, rejected, post: await freshDetail(id, viewer) };
+      return { saved, rejected, item: await freshDetail(id, viewer) };
     },
 
     /** BR-PHOTO-002/007 */
@@ -90,12 +93,6 @@ export function createPostService({ posts, photos, geo }) {
       await assertManageable(id, viewer);
       await photos.remove(id, photoId);
       return freshDetail(id, viewer);
-    },
-
-    /** BR-POST-005 — idempotente. */
-    async resolve(id, viewer) {
-      await assertManageable(id, viewer);
-      return toPostDetail(await posts.update(id, { isResolved: true }), viewer);
     },
   };
 }
