@@ -18,7 +18,7 @@ Specs: BR-ADMIN-001..004, PERM-003/005, BR-PARTNER-002
 - [ ] **T7.11 — Nginx**: proxy reverso, HTTPS, `client_max_body_size 8m`.
 - [ ] **T7.12 — Redirects de URLs antigas** do Flask (`/posts/<id>`, `/adocao/<id>`, `/mapa`, `/auth/login`) para não quebrar links compartilhados.
 - [ ] **T7.13 — Migração**: backup do banco, baseline (T2.2), copiar `app/static/uploads`.
-- [ ] **T7.14 — Deploy paralelo** em subdomínio, testes de fumaça, troca de DNS, plano de rollback para o Flask.
+- [ ] **T7.14 — Subida** no VPS da Hostinger (Q-004): teste pelo IP/subdomínio, testes de fumaça, troca de DNS. Rollback = versão anterior da v2 (tag + backup); o Flask foi aposentado.
 
 ## Fechamento
 - [ ] **T7.15 — Documentar** `doc/features/007-admin-deploy.md` + seção de deploy no README.

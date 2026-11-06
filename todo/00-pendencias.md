@@ -13,7 +13,7 @@
 - [ ] **Q-003 — Reaproveitar o banco de produção ou começar banco novo e importar?**
   Proposta: reaproveitar. Procedimento pronto e testado em banco simulado (`npm run db:baseline`);
   falta testar num dump real.
-- [ ] **Q-004 — Hospedagem da v2** (mesmo servidor/Nginx do Flask?). Afeta Etapa 7.
+- [x] **Q-004 — Hospedagem da v2.** *(2026-11-06: VPS na Hostinger, Ubuntu 24.04 com Nginx + Node + MySQL na mesma máquina. O Flask, que ficava na Integrator, foi aposentado: não roda em paralelo e não é plano de volta; o "rollback" é a versão anterior da v2)*
 - [x] **Q-005 — Uploads: continuar em disco ou ir para S3/R2?** *(2026-11-06: disco, atrás de uma interface `storage` pequena; trocar por S3/R2 depois é só outra implementação. Ver ADR 006)*
 
 ## Dívida técnica conhecida

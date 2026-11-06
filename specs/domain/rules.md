@@ -82,6 +82,7 @@ Origem: engenharia reversa do projeto Flask (`pets-post/app/**`).
 | BR-ADMIN-002 | Admin (des)ativa usuários, exceto a si mesmo (PERM-005). | 🟡 |
 | BR-ADMIN-003 | Admin pode ocultar/reexibir anúncios (`isActive`). *(nova — no Flask o campo existia sem rota)* | 🟡 |
 | BR-ADMIN-004 | Dashboard inclui estatísticas e moderação de adoção. *(nova)* | 🟡 |
+| BR-ADMIN-005 | Desativar um usuário encerra todas as sessões dele na hora. *(nova — no Flask a sessão continuava até expirar)* | 🟡 |
 
 ## Dados e operação — BR-DATA
 | ID | Regra | Status |
