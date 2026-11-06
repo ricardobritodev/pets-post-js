@@ -1,4 +1,4 @@
-// Integração: importar produto de um link — specs/api/store.md (BR-STORE-009..011)
+// Integração: importar produto de um link — specs/api/store.md (BR-STORE-009..013)
 // Importador real (leitor + miniaturas + fotos); só a "internet" é falsa (páginas e fotos em memória).
 import { test, before, after, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
@@ -64,7 +64,7 @@ beforeEach(async () => {
       { name: 'Maria', email: 'maria@exemplo.com', passwordHash: hash },
     ],
   });
-  partner = await prisma.partner.create({ data: { name: 'Loja Exemplo', partnerType: 'petshop', address: 'Rua X' } });
+  partner = await prisma.partner.create({ data: { name: 'Loja Exemplo', partnerType: 'petshop', address: 'Rua X', website: 'https://www.loja.exemplo.com.br' } });
 });
 
 const asAdmin = () => createClient(app.base).loginAs('admin@exemplo.com');
@@ -82,7 +82,11 @@ test('BR-STORE-009 importar: rascunho com nome, preço, link, sugestões e minia
     category: 'food',
     petType: 'dog',
     siteName: 'loja.exemplo.com.br',
+    sellerName: null,
+    partnerId: partner.id, // BR-STORE-012: o único parceiro com esse site
+    newPartner: null,
   });
+  assert.deepEqual(res.body.partnerMatches, [{ id: partner.id, name: 'Loja Exemplo', isActive: true }]);
   // a foto quebrada (não é imagem) fica de fora; a boa vem com miniatura data:
   assert.equal(res.body.images.length, 1);
   assert.equal(res.body.images[0].url, 'https://cdn.exemplo.com.br/1.jpg');
@@ -173,4 +177,84 @@ test('BR-STORE-011 vitrine mostra a data da consulta; mudar o preço no admin at
   await c.patch(`/admin/products/${body.product.id}`, { priceCents: 900 });
   assert.ok((await prisma.product.findUnique({ where: { id: body.product.id } })).priceCheckedAt > new Date(Date.UTC(2026, 0, 2)));
   assert.ok(first);
+});
+
+/** Página com variações e vendedor, como a da Cobasi (VTEX). */
+const groupPage = () => html(`<script type="application/ld+json">{"@type":"ProductGroup","name":"Antipulgas X Cães",
+  "url":"https://www.rede.com.br/antipulgas-x/p","hasVariant":[
+  {"@type":"Product","name":"Antipulgas X Cães 1 comprimido","sku":"1","url":"https://www.rede.com.br/antipulgas-x/p?idsku=1",
+   "offers":{"price":"74.90","availability":"https://schema.org/InStock","seller":{"@type":"Organization","name":"Rede Pet"}}},
+  {"@type":"Product","name":"Antipulgas X Cães 3 comprimidos","sku":"3","url":"https://www.rede.com.br/antipulgas-x/p?idsku=3",
+   "offers":{"price":"177.90","availability":"https://schema.org/InStock","seller":{"@type":"Organization","name":"Rede Pet"}}}]}</script>`);
+
+test('BR-STORE-012 loja identificada pelo domínio: várias filiais → a do vendedor, com aviso; nenhuma → loja nova', async () => {
+  pages.set('https://www.rede.com.br/antipulgas-x/p?idsku=3', groupPage());
+  const site = { partnerType: 'petshop', address: 'Rua Y', website: 'https://rede.com.br' };
+  const filial = await prisma.partner.create({ data: { ...site, name: 'Rede Pet Santos' } });
+  const matriz = await prisma.partner.create({ data: { ...site, name: 'Rede Pet' } });
+  await prisma.partner.create({ data: { ...site, name: 'Rede Pet Antiga', isActive: false } });
+  const c = await asAdmin();
+
+  const res = await c.post('/admin/products/import', { url: 'https://www.rede.com.br/antipulgas-x/p?idsku=3' });
+  assert.equal(res.status, 200);
+  assert.equal(res.body.draft.partnerId, matriz.id); // nome igual ao vendedor da página
+  assert.equal(res.body.draft.name, 'Antipulgas X Cães 3 comprimidos'); // a variação do link (BR-STORE-009)
+  assert.equal(res.body.draft.priceCents, 17790);
+  assert.equal(res.body.draft.url, 'https://www.rede.com.br/antipulgas-x/p?idsku=3');
+  assert.equal(res.body.partnerMatches.length, 3);
+  assert.ok(res.body.warnings.some((w) => w.includes('Rede Pet Santos') && w.includes('Rede Pet Antiga')));
+
+  await prisma.partner.deleteMany({ where: { website: 'https://rede.com.br' } });
+  const none = await c.post('/admin/products/import', { url: 'https://www.rede.com.br/antipulgas-x/p?idsku=3' });
+  assert.equal(none.body.draft.partnerId, null);
+  assert.deepEqual(none.body.partnerMatches, []);
+  assert.deepEqual(none.body.draft.newPartner, { name: 'Rede Pet', website: 'https://www.rede.com.br' });
+  assert.ok(none.body.warnings.some((w) => /Rede Pet ainda não é parceira/.test(w)));
+  assert.ok(filial.id); // (filial criada só para o empate)
+});
+
+test('BR-STORE-013 "Vendido e entregue por": vendedor da página, editável; vazio volta para o parceiro', async () => {
+  pages.set('https://www.loja.exemplo.com.br/antipulgas-x/p?idsku=1', html(groupPage().body.toString().replaceAll('rede.com.br', 'loja.exemplo.com.br')));
+  const c = await asAdmin();
+  const { body: imported } = await c.post('/admin/products/import', { url: 'https://www.loja.exemplo.com.br/antipulgas-x/p?idsku=1' });
+  assert.equal(imported.draft.sellerName, 'Rede Pet');
+  assert.equal(imported.draft.partnerId, partner.id); // subdomínio www do site do parceiro
+
+  const created = await c.post('/admin/products', { ...imported.draft, category: 'health' });
+  assert.equal(created.status, 201);
+  const { id } = created.body.product;
+  assert.equal(created.body.product.sellerName, 'Rede Pet');
+  const pub = await createClient(app.base).get(`/store/products/${id}`);
+  assert.equal(pub.body.product.soldBy, 'Rede Pet');
+  const list = await createClient(app.base).get('/store/products');
+  assert.equal(list.body.items[0].soldBy, 'Rede Pet');
+
+  await c.patch(`/admin/products/${id}`, { sellerName: '' });
+  assert.equal((await createClient(app.base).get(`/store/products/${id}`)).body.product.soldBy, 'Loja Exemplo');
+});
+
+test('BR-STORE-012 parceiro sem site é achado pelo nome; loja nova vira parceiro online ao salvar (sem pino no mapa)', async () => {
+  pages.set('https://www.rede.com.br/antipulgas-x/p?idsku=3', groupPage());
+  const c = await asAdmin();
+  const semSite = await prisma.partner.create({ data: { name: 'Rede Pet Centro', partnerType: 'petshop', address: 'Rua Z' } });
+  const byName = await c.post('/admin/products/import', { url: 'https://www.rede.com.br/antipulgas-x/p?idsku=3' });
+  assert.equal(byName.body.draft.partnerId, semSite.id);
+  assert.equal(byName.body.draft.newPartner, null);
+  await prisma.partner.delete({ where: { id: semSite.id } });
+
+  const { body: imported } = await c.post('/admin/products/import', { url: 'https://www.rede.com.br/antipulgas-x/p?idsku=3' });
+  const { partnerId, ...draft } = imported.draft;
+  const created = await c.post('/admin/products', { ...draft, category: 'health' });
+  assert.equal(created.status, 201);
+  const loja = await prisma.partner.findUnique({ where: { id: created.body.product.partnerId } });
+  assert.deepEqual([loja.name, loja.website, loja.address, loja.lat, loja.partnerType], ['Rede Pet', 'https://www.rede.com.br', 'Loja online', null, 'petshop']);
+  // segundo produto da mesma loja usa o parceiro que já existe
+  const again = await c.post('/admin/products', { ...draft, category: 'health', name: 'Outro' });
+  assert.equal(again.body.product.partnerId, loja.id);
+  assert.equal(await prisma.partner.count({ where: { website: 'https://www.rede.com.br' } }), 1);
+  // sem parceiro e sem loja nova → erro no campo
+  const bad = await c.post('/admin/products', { ...draft, newPartner: undefined, category: 'health' });
+  assert.equal(bad.status, 400);
+  assert.ok(bad.body.error.details.some((d) => d.path === 'partnerId'));
+  assert.equal(partnerId, null);
 });

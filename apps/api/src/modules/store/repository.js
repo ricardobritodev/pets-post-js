@@ -10,7 +10,7 @@ const partnerSelect = {
 };
 const cardSelect = {
   id: true, name: true, category: true, petType: true, priceCents: true, promoPriceCents: true, stock: true,
-  isActive: true, isFeatured: true, priceCheckedAt: true, createdAt: true, partnerId: true,
+  isActive: true, isFeatured: true, priceCheckedAt: true, createdAt: true, partnerId: true, sellerName: true,
   photos: { select: photoSelect, orderBy: { id: 'asc' } },
   partner: partnerSelect,
 };
@@ -89,6 +89,15 @@ export function createProductRepository(db) {
     },
     exists: async (id) => (await db.product.count({ where: { id } })) > 0,
     partnerExists: async (id) => (await db.partner.count({ where: { id } })) > 0,
+    /** BR-STORE-012 — parceiros para achar a loja pelo site ou pelo nome (são poucas dezenas). */
+    partnersForMatching: () => db.partner.findMany({
+      select: { id: true, name: true, website: true, isActive: true }, orderBy: { id: 'asc' },
+    }),
+    /** BR-STORE-012 — loja online: sem coordenadas, então não aparece no mapa. */
+    createOnlinePartner: ({ name, website }) => db.partner.create({
+      data: { name, website, partnerType: 'petshop', address: 'Loja online', description: 'Loja online cadastrada ao importar um produto.' },
+      select: { id: true },
+    }),
     create: (data) => db.product.create({ data, select: detailSelect }),
     update: (id, data) => db.product.update({ where: { id }, data, select: detailSelect }),
     delete: (id) => db.product.delete({ where: { id } }),

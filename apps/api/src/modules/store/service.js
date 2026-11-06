@@ -1,7 +1,7 @@
 /**
  * Serviços da loja — vitrine pública (BR-STORE-001..005) e cadastro no admin (BR-STORE-006/007).
  */
-import { PRODUCT_CATEGORIES, label } from '@petspost/domain';
+import { PRODUCT_CATEGORIES, label, matchPartnersBySite, siteDomain, sameSite, storeNameFor, siteOrigin } from '@petspost/domain';
 import { HttpError } from '../../middleware/errors.js';
 import { toProductCard, toProductDetail, toAdminProduct } from './presenter.js';
 
@@ -47,6 +47,11 @@ export function createAdminProductService({ products, photos, importer }) {
   const assertExists = async (id) => {
     if (!id || !(await products.exists(id))) throw notFound();
   };
+  /** BR-STORE-012 — a loja nova vira parceiro; se alguém já cadastrou esse site, usa o que existe. */
+  const onlinePartnerId = async ({ name, website }) => {
+    const existing = (await products.partnersForMatching()).find((p) => sameSite(website, p.website));
+    return existing?.id ?? (await products.createOnlinePartner({ name, website })).id;
+  };
 
   return {
     list: async (query) => {
@@ -55,7 +60,8 @@ export function createAdminProductService({ products, photos, importer }) {
     },
     get: (id) => (id ? detail(id) : Promise.reject(notFound())),
 
-    async create(data) {
+    async create({ newPartner, ...data }) {
+      if (data.partnerId == null && newPartner) data.partnerId = await onlinePartnerId(newPartner);
       if (!(await products.partnerExists(data.partnerId))) throw partnerMissing();
       return toAdminProduct(await products.create({ ...data, priceCheckedAt: new Date() })); // BR-STORE-011
     },
@@ -76,8 +82,34 @@ export function createAdminProductService({ products, photos, importer }) {
       return toAdminProduct(await products.update(id, priceTouched ? { ...data, priceCheckedAt: new Date() } : data));
     },
 
-    /** BR-STORE-009 — rascunho a partir de um link (nada é salvo). */
-    importDraft: (url) => importer.draft(url),
+    /**
+     * BR-STORE-009 — rascunho a partir de um link (nada é salvo).
+     * BR-STORE-012 — a loja vem escolhida pelo domínio do link (o admin pode trocar).
+     */
+    async importDraft(url) {
+      const result = await importer.draft(url);
+      const link = result.draft.url ?? url;
+      const { sellerName, siteName } = result.draft;
+      const { matches, chosen, by } = matchPartnersBySite(link, await products.partnersForMatching(), sellerName, siteName);
+      const warnings = [...result.warnings];
+      // Nenhum parceiro: a própria loja é cadastrada ao salvar (loja online, sem pino no mapa).
+      const storeName = storeNameFor({ sellerName, siteName, url: link });
+      const newPartner = !chosen && storeName && siteOrigin(link) ? { name: storeName, website: siteOrigin(link) } : null;
+      if (newPartner) {
+        warnings.push(`${newPartner.name} ainda não é parceira: ao salvar, ela será cadastrada como loja online (${siteDomain(link)}), sem aparecer no mapa.`);
+      } else if (!chosen) {
+        warnings.push('Não identifiquei a loja deste link: escolha o parceiro na lista.');
+      } else if (matches.length > 1) {
+        const others = matches.filter((p) => p.id !== chosen.id).map((p) => p.name).join(', ');
+        warnings.push(`Escolhi o parceiro ${chosen.name}; também ${by === 'site' ? 'têm esse site' : 'têm esse nome'}: ${others}. Troque se precisar.`);
+      }
+      return {
+        ...result,
+        draft: { ...result.draft, partnerId: chosen?.id ?? null, newPartner },
+        partnerMatches: matches.map(({ id, name, isActive }) => ({ id, name, isActive })),
+        warnings,
+      };
+    },
 
     /** Baixa as fotos escolhidas na importação e salva como as enviadas (BR-PHOTO-*). */
     async importPhotos(id, urls) {

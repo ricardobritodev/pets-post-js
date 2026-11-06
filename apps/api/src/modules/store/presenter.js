@@ -2,7 +2,7 @@
  * presenter.js — Produtos → objetos da API (specs/api/store.md).
  */
 import {
-  label, pickPrimaryPhoto, finalPriceCents, discountPercent, buyLink, productWhatsappMessage, toWhatsappUrl, safeWebsite,
+  label, pickPrimaryPhoto, finalPriceCents, discountPercent, buyLink, productWhatsappMessage, toWhatsappUrl, safeWebsite, soldBy,
 } from '@petspost/domain';
 
 export function toProductCard(p) {
@@ -22,6 +22,7 @@ export function toProductCard(p) {
     isFeatured: p.isFeatured,
     priceCheckedAt: p.priceCheckedAt ?? null, // BR-STORE-011
     primaryPhoto: primary ? { url: primary.url } : null,
+    soldBy: soldBy(p, p.partner), // BR-STORE-013 — "Vendido e entregue por"
     partner: p.partner ? { id: p.partner.id, name: p.partner.name } : null,
   };
 }
@@ -54,6 +55,7 @@ export const toAdminProduct = (p) => ({
   ...toProductDetail(p),
   partnerId: p.partnerId,
   url: p.url,
+  sellerName: p.sellerName ?? null,
   isActive: p.isActive,
   partnerActive: p.partner?.isActive ?? false,
   createdAt: p.createdAt,

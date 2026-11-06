@@ -8,13 +8,17 @@
  *     DNS aponta para eles ou quando um redirecionamento leva para eles;
  *   - até 3 redirecionamentos, tempo máximo, tamanho máximo, gzip/br/deflate;
  *   - User-Agent honesto do Pets Post (não se passa por navegador nem tenta burlar bloqueio de robôs).
+ *     Só ASCII: o Node manda acento como byte solto e CDN (ex.: VTEX das fotos) responde 400.
+ *   - página maior que o limite é lida só até o limite (`truncate`); foto grande demais é recusada (BR-STORE-014);
+ *   - certificado conferido com as raízes do Node + as do sistema; erro de certificado tem mensagem própria.
  */
 import https from 'node:https';
 import dns from 'node:dns';
 import net from 'node:net';
 import zlib from 'node:zlib';
+import tls from 'node:tls';
 
-export const USER_AGENT = 'PetsPostBot/2.0 (+https://www.petspost.com.br; importação de produto pelo admin)';
+export const USER_AGENT = 'PetsPostBot/2.0 (+https://www.petspost.com.br; importacao de produto pelo admin)';
 
 /** Erro com mensagem que pode ir para o admin. */
 export class SafeFetchError extends Error {
@@ -23,6 +27,34 @@ export class SafeFetchError extends Error {
     this.code = code;
     this.status = status;
   }
+}
+
+/**
+ * Raízes confiáveis: as do Node + as do sistema (o servidor pode ter raízes mais novas que o Node, ex.:
+ * a "Root YE" da Let's Encrypt). Sem raízes do sistema, fica o padrão do Node. Nunca desliga a conferência.
+ */
+const TRUSTED_CA = (() => {
+  try {
+    const system = tls.getCACertificates('system');
+    return system.length ? [...new Set([...tls.getCACertificates('default'), ...system])] : undefined;
+  } catch {
+    return undefined;
+  }
+})();
+
+const TLS_INVALID = new Set(['ERR_TLS_CERT_ALTNAME_INVALID', 'CERT_HAS_EXPIRED', 'CERT_NOT_YET_VALID', 'CERT_REVOKED',
+  'DEPTH_ZERO_SELF_SIGNED_CERT', 'SELF_SIGNED_CERT_IN_CHAIN']);
+const TLS_UNVERIFIED = new Set(['UNABLE_TO_GET_ISSUER_CERT_LOCALLY', 'UNABLE_TO_GET_ISSUER_CERT', 'UNABLE_TO_VERIFY_LEAF_SIGNATURE']);
+
+/** Erro de rede → mensagem que explica para o admin (BR-STORE-014). */
+export function networkError(err) {
+  if (err instanceof SafeFetchError) return err;
+  if (TLS_INVALID.has(err?.code)) {
+    return new SafeFetchError('O certificado de segurança desse site é inválido (o navegador também avisaria).', 'TLS_INVALID');
+  }
+  if (TLS_UNVERIFIED.has(err?.code)) return new SafeFetchError('Não consegui confirmar o certificado de segurança desse site.', 'TLS_UNVERIFIED');
+  if (err?.code === 'ECONNREFUSED' || err?.code === 'ECONNRESET') return new SafeFetchError('O site recusou a conexão.', 'NETWORK');
+  return new SafeFetchError('Não consegui acessar esse site.', 'NETWORK');
 }
 
 /** Faixas que nunca podem ser acessadas. */
@@ -85,11 +117,12 @@ export function createSafeFetcher({ lookup = dns.lookup, request = https.request
     });
   };
 
-  function once(url, { maxBytes, accept }) {
+  function once(url, { maxBytes, accept, truncate }) {
     return new Promise((resolve, reject) => {
       const req = request(url, {
         method: 'GET',
         lookup: safeLookup,
+        ...(TRUSTED_CA && { ca: TRUSTED_CA }),
         headers: { 'User-Agent': USER_AGENT, Accept: accept, 'Accept-Encoding': 'gzip, deflate, br', 'Accept-Language': 'pt-BR,pt;q=0.9' },
         timeout: timeoutMs,
       }, (res) => {
@@ -105,33 +138,51 @@ export function createSafeFetcher({ lookup = dns.lookup, request = https.request
           : res;
         const chunks = [];
         let size = 0;
+        let done = false;
+        const finish = (truncated) => {
+          if (done) return;
+          done = true;
+          resolve({ status, headers: res.headers, body: Buffer.concat(chunks), truncated });
+        };
         stream.on('data', (chunk) => {
-          size += chunk.length;
-          if (size > maxBytes) {
+          if (done) return;
+          if (size + chunk.length > maxBytes) {
+            if (truncate) {
+              chunks.push(chunk.subarray(0, maxBytes - size)); // página: fica com o começo (os dados estão no <head>)
+              finish(true);
+            } else {
+              done = true;
+              reject(new SafeFetchError('O arquivo é grande demais.', 'TOO_LARGE'));
+            }
             req.destroy();
-            reject(new SafeFetchError('O arquivo é grande demais.', 'TOO_LARGE'));
             return;
           }
+          size += chunk.length;
           chunks.push(chunk);
         });
-        stream.on('end', () => resolve({ status, headers: res.headers, body: Buffer.concat(chunks) }));
-        stream.on('error', () => reject(new SafeFetchError('A resposta do site veio corrompida.', 'BAD_RESPONSE')));
+        stream.on('end', () => finish(false));
+        stream.on('error', () => {
+          if (!done) {
+            done = true;
+            reject(new SafeFetchError('A resposta do site veio corrompida.', 'BAD_RESPONSE'));
+          }
+        });
       });
       req.on('timeout', () => req.destroy(new SafeFetchError('O site demorou demais para responder.', 'TIMEOUT')));
-      req.on('error', (err) => reject(err instanceof SafeFetchError ? err : new SafeFetchError('Não consegui acessar esse site.', 'NETWORK')));
+      req.on('error', (err) => reject(networkError(err)));
       req.end();
     });
   }
 
   /**
    * @param {string} raw URL
-   * @param {{ maxBytes?: number, accept?: string }} [options]
-   * @returns {Promise<{ url: string, status: number, contentType: string, body: Buffer }>}
+   * @param {{ maxBytes?: number, accept?: string, truncate?: boolean }} [options] truncate: passou do limite → fica com o começo
+   * @returns {Promise<{ url: string, status: number, contentType: string, body: Buffer, truncated: boolean }>}
    */
-  async function fetchUrl(raw, { maxBytes = 3 * 1024 * 1024, accept = 'text/html,application/xhtml+xml' } = {}) {
+  async function fetchUrl(raw, { maxBytes = 3 * 1024 * 1024, accept = 'text/html,application/xhtml+xml', truncate = false } = {}) {
     let url = parseSafeUrl(raw);
     for (let hop = 0; hop <= maxRedirects; hop++) {
-      const res = await once(url, { maxBytes, accept });
+      const res = await once(url, { maxBytes, accept, truncate });
       if (res.redirect) {
         if (hop === maxRedirects) throw new SafeFetchError('O link redireciona demais.', 'TOO_MANY_REDIRECTS');
         url = parseSafeUrl(new URL(res.redirect, url).toString()); // cada destino passa pela mesma checagem
@@ -142,6 +193,7 @@ export function createSafeFetcher({ lookup = dns.lookup, request = https.request
         status: res.status,
         contentType: String(res.headers['content-type'] ?? '').toLowerCase(),
         body: res.body,
+        truncated: Boolean(res.truncated),
       };
     }
     throw new SafeFetchError('O link redireciona demais.', 'TOO_MANY_REDIRECTS');
