@@ -8,6 +8,8 @@ import { redirectToLogin } from '../lib/session.js';
 import { flash } from '../lib/flash.js';
 import { el } from '../lib/dom.js';
 import { enhanceForm, clearErrors, showFieldErrors, withSubmitting } from '../lib/forms.js';
+import { createPhotoPicker } from '../lib/photo-picker.js';
+import { attachCepLookup } from '../lib/cep-lookup.js';
 
 const FIELDS = ['status', 'title', 'description', 'petType', 'petName', 'petBreed', 'petColor', 'petSize',
   'lastSeenLocation', 'contactPhone', 'contactEmail', 'reward'];
@@ -36,6 +38,35 @@ function readForm() {
   return data;
 }
 
+/**
+ * Depois de salvar o anúncio: remove as fotos marcadas e envia as novas, uma por requisição.
+ * Falha numa foto não desfaz o anúncio (BR-PHOTO-006); devolve os avisos para mostrar.
+ */
+async function syncPhotos(postId, picker, onProgress) {
+  const problems = [];
+  for (const photoId of picker.removedIds()) {
+    try {
+      await api(`/posts/${postId}/photos/${photoId}`, { method: 'DELETE' });
+    } catch (err) {
+      if (!(err instanceof ApiError && err.status === 404)) problems.push('Não foi possível remover uma das fotos.');
+    }
+  }
+  const files = picker.newFiles();
+  for (const [i, file] of files.entries()) {
+    onProgress(`Enviando foto ${i + 1} de ${files.length}…`);
+    const body = new FormData();
+    body.append('photos', file, file.name);
+    try {
+      const { rejected } = await api(`/posts/${postId}/photos`, { method: 'POST', body });
+      for (const r of rejected) problems.push(`${r.name}: ${r.message}`);
+    } catch (err) {
+      problems.push(`${file.name}: ${err instanceof ApiError ? err.message : 'falha no envio.'}`);
+      if (err instanceof ApiError && err.status === 401) break;
+    }
+  }
+  return problems;
+}
+
 function blocked(message) {
   form.remove();
   document.getElementById('app-flash').after(
@@ -52,8 +83,10 @@ if (!user) {
 } else {
   enhanceForm(form);
   form.addEventListener('change', (e) => e.target.name === 'status' && syncStatusUi());
+  attachCepLookup(document.getElementById('cep'), form.elements.lastSeenLocation, document.getElementById('cep-status'));
 
   let ready = true;
+  let existingPhotos = [];
   if (editId) {
     document.title = 'Editar anúncio · Pets Post';
     document.getElementById('form-title').textContent = 'Editar anúncio';
@@ -66,6 +99,7 @@ if (!user) {
         blocked('Você não pode editar este anúncio.');
       } else {
         fill(post);
+        existingPhotos = post.photos;
       }
     } catch (err) {
       ready = false;
@@ -78,6 +112,8 @@ if (!user) {
   }
 
   if (ready) {
+    const picker = createPhotoPicker(document.getElementById('photo-picker'), { existing: existingPhotos });
+    const submitButton = form.querySelector('button[type="submit"]');
     form.hidden = false;
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
@@ -88,7 +124,11 @@ if (!user) {
             method: editId ? 'PATCH' : 'POST',
             json: readForm(),
           });
+          const problems = await syncPhotos(post.id, picker, (text) => (submitButton.textContent = text));
           flash(editId ? 'Anúncio atualizado com sucesso!' : 'Seu anúncio foi publicado com sucesso!', 'success');
+          if (problems.length) {
+            flash(`O anúncio foi salvo, mas algumas fotos não entraram: ${problems.join(' · ')}`, 'warning');
+          }
           location.assign(`/posts/${post.id}`);
         } catch (err) {
           if (!(err instanceof ApiError)) return showFlash('Sem conexão com o servidor. Tente novamente.', 'danger');

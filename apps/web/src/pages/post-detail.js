@@ -94,6 +94,23 @@ function ownerActions(post) {
   );
 }
 
+/** Mapa só quando a geocodificação achou o endereço (BR-GEO-001). O Leaflet é baixado sob demanda. */
+function locationCard(post) {
+  const label = post.status === 'lost' ? 'Visto por último em' : 'Encontrado em';
+  const hasCoords = post.lastSeenLat != null && post.lastSeenLng != null;
+  const mapBox = hasCoords && el('div', { class: 'detail-map', role: 'region', 'aria-label': `Mapa: ${post.lastSeenLocation}` });
+  if (mapBox) {
+    import('../lib/map.js')
+      .then(({ renderMap }) => renderMap(mapBox, { lat: post.lastSeenLat, lng: post.lastSeenLng, label: post.lastSeenLocation }))
+      .catch(() => mapBox.replaceChildren(el('p', { class: 'p-4 text-sm text-stone-500' }, 'Não foi possível carregar o mapa.')));
+  }
+  return el('section', { class: 'card space-y-3' },
+    el('h2', { class: 'text-lg font-semibold' }, '📍 Localização'),
+    el('p', { class: 'text-stone-700' }, el('span', { class: 'text-stone-500' }, `${label}: `), post.lastSeenLocation),
+    mapBox || el('p', { class: 'text-sm text-stone-500' }, 'O mapa aparece quando o endereço for localizado.'),
+  );
+}
+
 function contactCard(post) {
   return el('aside', { class: 'card space-y-3' },
     el('h2', { class: 'text-lg font-semibold' }, '📞 Contato'),
@@ -115,7 +132,8 @@ function render(post) {
       el('a', { href: '/posts/', class: 'hover:underline' }, 'Posts'), ' › ',
       el('span', { 'aria-current': 'page' }, post.title),
     ),
-    !post.isActive && el('p', { class: 'flash flash-warning mb-4' }, 'Este anúncio está oculto e só você (ou um admin) pode vê-lo.'),
+    // replaceChildren (diferente do el()) escreveria `false` como texto: por isso o spread.
+    ...(post.isActive ? [] : [el('p', { class: 'flash flash-warning mb-4' }, 'Este anúncio está oculto e só você (ou um admin) pode vê-lo.')]),
     el('div', { class: 'mb-6' },
       statusBadge(post, { long: true }),
       el('h1', { class: 'mt-3 text-2xl font-bold sm:text-3xl' }, post.title),
@@ -127,6 +145,7 @@ function render(post) {
           el('h2', { class: 'mb-2 text-lg font-semibold' }, 'Descrição'),
           el('p', { class: 'whitespace-pre-line text-stone-700' }, post.description),
         ),
+        locationCard(post),
         ownerActions(post),
       ),
       el('div', { class: 'space-y-6' },

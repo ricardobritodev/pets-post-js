@@ -68,10 +68,18 @@
 
         <fieldset class="card space-y-4">
           <legend class="text-lg font-semibold">Onde e como falar com você</legend>
-          <div>
-            <label for="lastSeenLocation" id="location-label" class="label">Onde foi visto por último</label>
-            <input id="lastSeenLocation" name="lastSeenLocation" type="text" required maxlength="255" class="input" placeholder="Bairro, cidade e estado. Ex.: Pinheiros, São Paulo, SP" />
+          <div class="grid gap-4 sm:grid-cols-[10rem_1fr]">
+            <div>
+              <label for="cep" class="label">CEP <span class="font-normal text-stone-500">(opcional)</span></label>
+              <input id="cep" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="9" class="input" placeholder="00000-000" aria-describedby="cep-status" />
+            </div>
+            <div>
+              <label for="lastSeenLocation" id="location-label" class="label">Onde foi visto por último</label>
+              <input id="lastSeenLocation" name="lastSeenLocation" type="text" required maxlength="255" class="input" placeholder="Rua ou ponto de referência, bairro, cidade e estado" />
+            </div>
           </div>
+          <p id="cep-status" class="cep-status" aria-live="polite"></p>
+          <p class="text-sm text-stone-500">📍 Com o endereço, o anúncio ganha um mapa. Quanto mais preciso, melhor.</p>
           <div class="grid gap-4 sm:grid-cols-2">
             <div>
               <label for="contactPhone" class="label">Telefone / WhatsApp</label>
@@ -88,7 +96,11 @@
           </div>
         </fieldset>
 
-        <p class="text-sm text-stone-500">📷 O envio de fotos e o mapa chegam em breve.</p>
+        <fieldset class="card space-y-3">
+          <legend class="text-lg font-semibold">Fotos</legend>
+          <p class="text-sm text-stone-600">Fotos ajudam muito a reconhecer o pet. A primeira vira a foto principal do anúncio.</p>
+          <div id="photo-picker" class="space-y-3"></div>
+        </fieldset>
 
         <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <a id="cancel" href="/posts/" class="btn btn-ghost">Cancelar</a>

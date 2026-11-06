@@ -60,7 +60,13 @@ export function createApp({ config, db, logger, securityLog, sessionStore, limit
   // Atrás do Nginx em produção: enxergar IP real (rate limit, logs).
   if (config.NODE_ENV === 'production') app.set('trust proxy', 1);
 
-  app.use(helmet());
+  // CSP padrão do helmet + o que o front precisa: prévia das fotos antes do envio (blob:) e os
+  // "tiles" do mapa do OpenStreetMap (Etapa 5).
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: { 'img-src': ["'self'", 'data:', 'blob:', 'https://tile.openstreetmap.org'] },
+    },
+  }));
   app.use(express.json({ limit: '100kb' }));
 
   app.use('/api/v1/health', healthRouter({ db }));

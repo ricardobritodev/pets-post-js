@@ -129,4 +129,43 @@
   .gallery-thumb img {
     @apply size-full object-cover;
   }
+
+  /* Fotos no formulário (Etapa 5) */
+  .upload-zone {
+    @apply flex cursor-pointer flex-col items-center gap-1 rounded-xl border-2 border-dashed border-stone-300 px-4 py-8 text-center
+      transition hover:border-brand-500 hover:bg-brand-50 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/30;
+  }
+  .upload-zone.is-dragging {
+    @apply border-brand-500 bg-brand-50;
+  }
+  .upload-zone.is-full {
+    @apply pointer-events-none opacity-50;
+  }
+  .photo-tile {
+    @apply relative aspect-square overflow-hidden rounded-lg border border-stone-200 bg-stone-100;
+  }
+  .photo-tile img {
+    @apply size-full object-cover;
+  }
+  .photo-tile.is-removed img {
+    @apply opacity-30 grayscale;
+  }
+  .photo-badge {
+    @apply absolute bottom-1 left-1 rounded bg-brand-700 px-1.5 py-0.5 text-[10px] font-semibold text-white;
+  }
+  .photo-badge-danger {
+    @apply bg-red-700;
+  }
+  .photo-action {
+    @apply absolute right-1 top-1 flex size-7 items-center justify-center rounded-full bg-white/90 text-lg leading-none
+      text-stone-700 shadow hover:bg-white hover:text-red-700;
+  }
+  .cep-status {
+    @apply -mt-2 min-h-5 text-sm text-stone-500 data-[state=ok]:text-emerald-700 data-[state=error]:text-red-700;
+  }
+
+  /* Mapa do detalhe. `isolate` segura o z-index alto do Leaflet dentro do card. */
+  .detail-map {
+    @apply isolate h-72 w-full overflow-hidden rounded-lg border border-stone-200;
+  }
 }

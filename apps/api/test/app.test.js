@@ -55,6 +55,14 @@ test('headers de segurança (helmet) presentes e x-powered-by ausente', async ()
   assert.equal(res.headers.get('x-powered-by'), null);
 });
 
+test('CSP libera só o necessário para as fotos (blob:) e o mapa (tiles do OSM)', async () => {
+  const csp = (await fetch(`${base}/api/v1/health`)).headers.get('content-security-policy');
+  const img = csp.split(';').find((d) => d.trim().startsWith('img-src'));
+  assert.equal(img.trim(), "img-src 'self' data: blob: https://tile.openstreetmap.org");
+  assert.match(csp, /script-src 'self'(;|$)/); // nenhum script de fora nem inline
+  assert.match(csp, /default-src 'self'/);
+});
+
 test('JSON malformado → 400 INVALID_JSON', async () => {
   const res = await fetch(`${base}/api/v1/health`, {
     method: 'POST',
