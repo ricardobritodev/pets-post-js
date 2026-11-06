@@ -21,7 +21,11 @@ adoção), com o parceiro (mapa) e para comprar um produto (loja).
 # .env (dev) ou /etc/petspost/petspost.env (produção)
 CONTACT_WHATSAPP=(11) 91234-5678
 ```
-Depois, reinicie a API (`npm run dev` em dev; `sudo systemctl restart petspost` em produção).
+Depois, **reinicie a API**: em dev, pare o `npm run dev` (Ctrl+C) e rode de novo; em produção,
+`sudo systemctl restart petspost`. O `node --watch` do dev recarrega quando o código muda, mas **não** quando
+o `.env` muda.
+
+Para conferir: `curl localhost:3000/api/v1/site` deve mostrar o link `wa.me` em vez de `null`.
 
 ## Testes
 - `apps/api/test/app.test.js`: rota sem número (`null`, sem cookie de sessão), número válido virando link com a

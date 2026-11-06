@@ -22,4 +22,5 @@ Regras: BR-CONTACT-002 · Convenções: [conventions.md](conventions.md)
   grandes) e `aria-label` sempre.
 - Aparece em todas as páginas que usam o layout comum, **menos** no painel admin.
 - Abre em nova aba (`target=_blank`, `rel=noopener noreferrer`). No celular, o link `wa.me` abre o app.
-- O front guarda a configuração por 5 minutos (`sessionStorage`), para não buscar a cada página.
+- O front guarda a configuração por 5 minutos (`sessionStorage`), para não buscar a cada página. Só guarda quando
+  há número: sem número, busca de novo a cada página, e configurar o `CONTACT_WHATSAPP` aparece no próximo carregamento.

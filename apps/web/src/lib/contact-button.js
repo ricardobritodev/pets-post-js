@@ -19,9 +19,12 @@ export function siteConfig() {
       if (cached && Date.now() - cached.at < CACHE_MS) return cached.data;
     } catch { /* sessionStorage indisponível ou corrompido: busca de novo */ }
     const data = await api('/site');
-    try {
-      sessionStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), data }));
-    } catch { /* sem cache, tudo bem */ }
+    // Só guarda quando há número: assim, configurar o CONTACT_WHATSAPP aparece no próximo carregamento.
+    if (data?.contact?.whatsappUrl) {
+      try {
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), data }));
+      } catch { /* sem cache, tudo bem */ }
+    }
     return data;
   })().catch(() => ({ contact: { whatsappUrl: null } }));
   return pending;
