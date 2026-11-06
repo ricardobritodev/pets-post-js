@@ -34,4 +34,4 @@ Regras citadas (`BR-*`, `PERM-*`) estão em [`../specs/domain`](../specs/domain/
 | 6 — Adoção e parceiros | ✅ concluída (ver `doc/features/006-adocao-parceiros.md`) |
 | 7 — Admin e deploy | 🟡 admin e kit de deploy prontos; falta subir no VPS (ver `doc/features/007-admin-deploy.md`) |
 | 7b — Loja (vitrine) | ✅ concluída (ver `doc/features/008-loja.md`) |
-| 8 — Chatbot de ajuda (FAQ) | 🔜 em andamento |
+| 8 — Chatbot de ajuda (FAQ) | ✅ concluída (ver `doc/features/010-ajuda-faq.md`) |

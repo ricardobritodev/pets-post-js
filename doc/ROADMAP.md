@@ -66,9 +66,9 @@ Legenda: ✅ concluída · 🔜 próxima · ⬜ pendente
 | 7b.3 | Cadastro de produtos no painel admin | ✅ |
 | 7b.4 | Header novo: busca da loja em destaque e menu na faixa laranja | ✅ |
 
-## Etapa 8 — Chatbot de ajuda: FAQ dentro do site (ADR 007) 🔜
-| 8.1 | Conteúdo do FAQ + correspondência local (acentos, plural, sinônimos) | ⬜ |
-| 8.2 | Janela de ajuda flutuante com links + página `/ajuda` | ⬜ |
+## Etapa 8 — Chatbot de ajuda: FAQ dentro do site (ADR 007) ✅
+| 8.1 | Conteúdo do FAQ + correspondência local (acentos, plural, sinônimos) | ✅ |
+| 8.2 | Janela de ajuda flutuante com links + página `/ajuda` | ✅ |
 
 > O plano antigo (bot no Telegram, LLM, RAG, similaridade de fotos; ADRs 004/005) foi substituído em
 > 2026-11-06 pela ADR 007.
