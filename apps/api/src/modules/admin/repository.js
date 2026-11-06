@@ -127,5 +127,6 @@ export function createAdminRepository(db) {
     createPartner: (data) => db.partner.create({ data, select: partnerSelect }),
     updatePartner: (id, data) => db.partner.update({ where: { id }, data, select: partnerSelect }),
     deletePartner: (id) => db.partner.delete({ where: { id } }),
+    countPartnerProducts: (id) => db.product.count({ where: { partnerId: id } }),
   };
 }

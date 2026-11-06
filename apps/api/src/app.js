@@ -37,6 +37,9 @@ import { partnersRouter } from './modules/partners/router.js';
 import { createAdminRepository } from './modules/admin/repository.js';
 import { createAdminService } from './modules/admin/service.js';
 import { adminRouter } from './modules/admin/router.js';
+import { createProductRepository } from './modules/store/repository.js';
+import { createStoreService, createAdminProductService } from './modules/store/service.js';
+import { storeRouter, adminProductsRouter } from './modules/store/router.js';
 import { webRouter } from './web/router.js';
 
 /**
@@ -126,6 +129,16 @@ export function createApp({ config, db, logger, securityLog, sessionStore, limit
 
   // Painel admin (PERM-003). Desativar usuário encerra as sessões dele (BR-ADMIN-005).
   const adminService = createAdminService({ admin: createAdminRepository(db), geocoder, sessions: sessionStore, securityLog });
+  // Loja (Etapa 7b): vitrine pública + cadastro no admin, com as mesmas peças de fotos.
+  const productRepository = createProductRepository(db);
+  const storeService = createStoreService({ products: productRepository });
+  const productPhotos = createPhotoService({
+    photos: createPhotoRepository(db, { model: 'productPhoto', ownerKey: 'productId' }),
+    storage,
+    logger,
+  });
+  app.use('/api/v1/store', storeRouter({ service: storeService }));
+  app.use('/api/v1/admin/products', adminProductsRouter({ service: createAdminProductService({ products: productRepository, photos: productPhotos }), limits }));
   app.use('/api/v1/admin', adminRouter({ service: adminService }));
   app.use('/api/v1/cep', cepRouter({ cep, limits }));
 
@@ -141,7 +154,7 @@ export function createApp({ config, db, logger, securityLog, sessionStore, limit
   if (webDistDir) {
     app.use(webRouter({
       distDir: webDistDir,
-      og: { post: postService, adoption: adoptionService },
+      og: { post: postService, adoption: adoptionService, product: storeService },
       publicUrl: config.PUBLIC_URL,
       cache: config.NODE_ENV === 'production',
       onError: (err) => logger.error({ err }, 'erro ao montar página'),

@@ -53,8 +53,25 @@ export function adoptionMeta(adoption, publicUrl) {
   };
 }
 
+/**
+ * Meta tags de um produto da loja.
+ * @param {{ id: number, name: string, description: string|null, categoryLabel: string, finalPriceCents: number,
+ *           partner: { name: string }|null, primaryPhoto: { url: string }|null }} product
+ * @param {string|undefined} publicUrl
+ */
+export function productMeta(product, publicUrl) {
+  const price = (product.finalPriceCents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  const seller = product.partner ? ` em ${product.partner.name}` : '';
+  return {
+    title: `${product.name} · ${price} · Pets Post`,
+    description: truncate(`${product.categoryLabel} por ${price}${seller}. ${product.description ?? ''}`, 200),
+    url: absolute(`/loja/produto/${product.id}`, publicUrl),
+    image: product.primaryPhoto ? absolute(product.primaryPhoto.url, publicUrl) : null,
+  };
+}
+
 /** Qual função monta as meta tags de cada tipo de página (page-routes.js → `og`). */
-export const META_BUILDERS = Object.freeze({ post: postMeta, adoption: adoptionMeta });
+export const META_BUILDERS = Object.freeze({ post: postMeta, adoption: adoptionMeta, product: productMeta });
 
 /**
  * Troca o <title> e insere as meta tags no lugar do marcador.

@@ -101,8 +101,14 @@ export function createAdminService({ admin, geocoder, sessions, securityLog }) {
       return { partner: toAdminPartner(partner), geocoded };
     },
 
+    /** BR-STORE-008 — parceiro com produtos na loja não pode ser excluído. */
     async deletePartner(id) {
       if (!id || !(await admin.findPartner(id))) throw notFound('Parceiro');
+      const products = await admin.countPartnerProducts(id);
+      if (products > 0) {
+        throw new HttpError(409, 'CONFLICT',
+          `Este parceiro tem ${products} produto(s) na loja. Exclua ou troque o parceiro dos produtos antes. Para tirar do mapa, desative.`);
+      }
       await admin.deletePartner(id);
     },
   };

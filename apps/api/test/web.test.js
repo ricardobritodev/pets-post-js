@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import express from 'express';
 import { resolvePage } from '@petspost/web/page-routes';
-import { injectMeta, postMeta, adoptionMeta, escapeHtml, truncate, META_MARKER } from '../src/web/meta.js';
+import { injectMeta, postMeta, adoptionMeta, productMeta, escapeHtml, truncate, META_MARKER } from '../src/web/meta.js';
 import { webRouter } from '../src/web/router.js';
 import { HttpError } from '../src/middleware/errors.js';
 
@@ -52,6 +52,17 @@ const adoption = {
   location: 'Pinheiros, São Paulo, SP',
   primaryPhoto: null,
 };
+
+test('ADR 002 productMeta: nome, preço final em R$ e o parceiro', () => {
+  const m = productMeta({
+    id: 9, name: 'Ração Premium 10 kg', description: 'Para cães adultos.', categoryLabel: 'Ração',
+    finalPriceCents: 15990, partner: { name: 'Bom Pet' }, primaryPhoto: { url: '/uploads/r.jpg' },
+  }, 'https://www.petspost.com.br');
+  assert.match(m.title, /^Ração Premium 10 kg · R\$\s15\.990?,90 · Pets Post$|^Ração Premium 10 kg · R\$\s159,90 · Pets Post$/);
+  assert.match(m.description, /^Ração por R\$\s159,90 em Bom Pet\. Para cães adultos\.$/);
+  assert.equal(m.url, 'https://www.petspost.com.br/loja/produto/9');
+  assert.equal(m.image, 'https://www.petspost.com.br/uploads/r.jpg');
+});
 
 test('ADR 002 adoptionMeta: título "Para adoção" e URL /adocao/:id', () => {
   const m = adoptionMeta(adoption, 'https://www.petspost.com.br');
