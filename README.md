@@ -168,7 +168,13 @@ npm run test:integration -- --test-name-pattern="BR-DATA"   # filtrar
 | `npm run db:seed:partners` | Parceiros reais de SP (pode rodar em produção) |
 | `npm run db:baseline -- --url ...` | Adota um banco Flask existente (relatório; `--apply` executa) |
 | `npm run db:studio` | Abre o Prisma Studio (interface web do banco) |
+| `npm run admin:create -w @petspost/api -- --email ... --name ...` | Cria ou promove um admin (pede a senha; serve em produção) |
 | `npm run geo:backfill -w @petspost/api` | Mostra os posts e adoções sem coordenadas; com `-- --apply`, geocodifica (1 por segundo) |
+
+## Deploy (produção)
+
+VPS na Hostinger com Ubuntu 24.04, Nginx, Node e MySQL. O passo a passo completo, com os scripts de
+preparação, deploy, rollback e backup, está em [`deploy/README.md`](deploy/README.md).
 
 ## Estrutura do projeto
 

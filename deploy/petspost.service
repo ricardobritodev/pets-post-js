@@ -1,0 +1,35 @@
+# systemd — processo da API + front (T7.10). Instalado pelo setup-server.sh em
+# /etc/systemd/system/petspost.service.
+[Unit]
+Description=Pets Post (API + front)
+After=network-online.target mysql.service
+Wants=network-online.target
+Requires=mysql.service
+
+[Service]
+Type=simple
+User=petspost
+Group=petspost
+WorkingDirectory=/srv/petspost/current
+EnvironmentFile=/etc/petspost/petspost.env
+ExecStart=/usr/bin/node apps/api/src/server.js
+Restart=always
+RestartSec=3
+# O server.js fecha o banco e as sessões no SIGTERM.
+KillSignal=SIGTERM
+TimeoutStopSec=15
+
+# Proteções: o processo só escreve na pasta de fotos.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/petspost/uploads
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

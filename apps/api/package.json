@@ -8,7 +8,8 @@
     "dev": "node --watch --env-file-if-exists=../../.env src/server.js",
     "start": "node --env-file-if-exists=../../.env src/server.js",
     "test": "node --test",
-    "geo:backfill": "node --env-file-if-exists=../../.env scripts/geocode-missing.js"
+    "geo:backfill": "node --env-file-if-exists=../../.env scripts/geocode-missing.js",
+    "admin:create": "node --env-file-if-exists=../../.env scripts/create-admin.js"
   },
   "dependencies": {
     "@petspost/contracts": "0.1.0",
