@@ -10,8 +10,9 @@ import { icon } from './icons.js';
  * @param {{
  *   basePath: string,        // URL da página, ex.: '/posts/'
  *   apiPath: string,         // rota da API, ex.: '/posts'
- *   filters: Array<{ field: string, query: string, api: string, values: string[] }>,
- *     // field = name do <select>; query = nome na URL da página; api = nome na API
+ *   filters: Array<{ field: string, query: string, api: string, values?: string[] }>,
+ *     // field = name do campo no form; query = nome na URL da página; api = nome na API;
+ *     // sem `values` = texto livre (ex.: busca)
  *   form: HTMLFormElement, list: HTMLElement, pager: HTMLElement, count: HTMLElement,
  *   clearButton?: HTMLElement,
  *   renderGrid: (items: object[], empty: HTMLElement) => HTMLElement,
@@ -29,7 +30,7 @@ export function createListingPage(options) {
     const state = { page: Math.max(1, Number.parseInt(q.get('page'), 10) || 1) };
     for (const f of filters) {
       const value = q.get(f.query) ?? q.get(f.api);
-      state[f.field] = f.values.includes(value) ? value : '';
+      state[f.field] = f.values ? (f.values.includes(value) ? value : '') : (value ?? '').trim().slice(0, 100);
     }
     return state;
   }
@@ -106,10 +107,18 @@ export function createListingPage(options) {
   const cleared = () => Object.fromEntries([...filters.map((f) => [f.field, '']), ['page', 1]]);
 
   form.addEventListener('change', () => navigate(fromForm()));
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    navigate(fromForm());
+  });
   clearButton?.addEventListener('click', () => navigate(cleared()));
   window.addEventListener('popstate', () => load(readState()));
 
-  return { start: () => load(readState()) };
+  return {
+    start: () => load(readState()),
+    /** Troca alguns filtros (ex.: atalho de categoria) e volta para a página 1. */
+    set: (changes) => navigate({ ...fromForm(), ...changes, page: 1 }),
+  };
 }
 
 /** Estado vazio padrão das listas. */

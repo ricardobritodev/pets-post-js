@@ -14,6 +14,7 @@ const TABS = [
   { href: '/admin/posts', label: 'Posts', iconName: 'megaphone' },
   { href: '/admin/adocao', label: 'Adoção', iconName: 'home' },
   { href: '/admin/parceiros', label: 'Parceiros', iconName: 'building-plus' },
+  { href: '/admin/produtos', label: 'Loja', iconName: 'shopping-bag' },
 ];
 
 const isCurrentTab = (href) =>

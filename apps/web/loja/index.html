@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loja · Pets Post</title>
+    <meta name="description" content="Ração, petiscos, brinquedos e acessórios dos petshops parceiros do Pets Post. Você compra direto na loja do parceiro." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script type="module" src="/src/pages/store.js"></script>
+  </head>
+  <body class="flex min-h-screen flex-col bg-stone-50 text-stone-800 antialiased">
+    <div id="app-header"></div>
+    <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
+      <div id="app-flash" class="mb-6 space-y-2" aria-live="polite"></div>
+
+      <section class="store-hero">
+        <div>
+          <h1 class="text-2xl font-bold sm:text-3xl">Loja dos parceiros</h1>
+          <p class="mt-1 text-stone-600">Produtos dos petshops parceiros do Pets Post. Você escolhe aqui e compra direto na loja deles.</p>
+        </div>
+        <a href="/mapa" class="btn btn-outline btn-sm"><i data-icon="map" data-size="16"></i> Ver parceiros no mapa</a>
+      </section>
+
+      <nav id="category-chips" class="mb-6 flex gap-2 overflow-x-auto pb-1" aria-label="Categorias"></nav>
+
+      <div class="grid gap-6 lg:grid-cols-[15rem_1fr]">
+        <form id="filters" class="card h-fit space-y-4 p-4 sm:p-4" role="search">
+          <div>
+            <label for="q" class="label">Buscar</label>
+            <input id="q" name="q" type="search" maxlength="100" class="input" placeholder="Nome do produto" />
+          </div>
+          <div>
+            <label for="category" class="label">Categoria</label>
+            <select id="category" name="category" class="input">
+              <option value="">Todas</option>
+              <option value="food">Ração</option>
+              <option value="treats">Petiscos</option>
+              <option value="toys">Brinquedos</option>
+              <option value="hygiene">Higiene e beleza</option>
+              <option value="health">Farmácia e saúde</option>
+              <option value="accessories">Coleiras e acessórios</option>
+              <option value="beds">Camas e casinhas</option>
+            </select>
+          </div>
+          <div>
+            <label for="pet_type" class="label">Para qual pet</label>
+            <select id="pet_type" name="pet_type" class="input">
+              <option value="">Todos</option>
+              <option value="dog">Cachorro</option>
+              <option value="cat">Gato</option>
+              <option value="bird">Pássaro</option>
+              <option value="other">Outros</option>
+            </select>
+          </div>
+          <div>
+            <label for="sort" class="label">Ordenar por</label>
+            <select id="sort" name="sort" class="input">
+              <option value="">Destaques</option>
+              <option value="price_asc">Menor preço</option>
+              <option value="price_desc">Maior preço</option>
+              <option value="newest">Mais novos</option>
+            </select>
+          </div>
+          <input type="hidden" id="partner" name="partner" />
+          <button type="button" id="clear-filters" class="btn btn-ghost w-full">Limpar filtros</button>
+        </form>
+
+        <div>
+          <p id="result-count" class="mb-3 text-sm text-stone-600" aria-live="polite"></p>
+          <div id="products" aria-live="polite" aria-busy="true"><p class="text-stone-500">Carregando produtos…</p></div>
+          <nav id="pagination" class="mt-8 flex flex-wrap items-center justify-center gap-2" aria-label="Paginação"></nav>
+        </div>
+      </div>
+    </main>
+    <footer id="app-footer" class="border-t border-stone-200 bg-white"></footer>
+  </body>
+</html>

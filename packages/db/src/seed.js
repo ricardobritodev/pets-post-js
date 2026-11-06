@@ -84,6 +84,27 @@ export async function seedPartners(db, list) {
   return result;
 }
 
+/**
+ * Produtos da loja (Etapa 7b). Chave natural: `products.name`. O parceiro vem pelo nome
+ * (`partnerName`); se ele não existir, o produto é pulado.
+ * @param {import('@prisma/client').PrismaClient} db
+ * @param {Array<{ name: string, partnerName: string }>} list
+ * @returns {Promise<SeedResult>}
+ */
+export async function seedProducts(db, list) {
+  const result = { created: 0, skipped: 0 };
+  for (const { partnerName, ...data } of list) {
+    const partner = await db.partner.findFirst({ where: { name: partnerName }, select: { id: true } });
+    if (!partner || (await db.product.findFirst({ where: { name: data.name }, select: { id: true } }))) {
+      result.skipped++;
+      continue;
+    }
+    await db.product.create({ data: { ...data, partnerId: partner.id } });
+    result.created++;
+  }
+  return result;
+}
+
 /** Formata um SeedResult para log: "users: 4 criados, 0 já existiam". */
 export const formatResult = (label, { created, skipped }) =>
   `  ${label}: ${created} criado(s), ${skipped} já existia(m)`;

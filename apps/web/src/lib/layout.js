@@ -9,32 +9,49 @@ import { flash, takeFlashes } from './flash.js';
 import { el } from './dom.js';
 import { icon } from './icons.js';
 
-/** Links do menu. Novos módulos entram aqui conforme forem migrados (Etapas 4–6). */
+/**
+ * Menu da faixa laranja. A organização (logo + busca grande + conta em cima, menu embaixo) segue o
+ * jeito das lojas pet; cores, textos e ícones são do Pets Post.
+ */
 const NAV = [
-  { href: '/', label: 'Início' },
-  { href: '/posts/', label: 'Posts' },
-  { href: '/adocao/', label: 'Adoção' },
-  { href: '/mapa', label: 'Mapa' },
-  { href: '/sobre', label: 'Sobre' },
+  { href: '/', label: 'Início', iconName: 'home' },
+  { href: '/posts/', label: 'Perdidos e encontrados', iconName: 'megaphone' },
+  { href: '/adocao/', label: 'Adoção', iconName: 'heart' },
+  { href: '/loja', label: 'Loja', iconName: 'shopping-bag' },
+  { href: '/mapa', label: 'Mapa de parceiros', iconName: 'map' },
+  { href: '/sobre', label: 'Sobre', iconName: 'info' },
 ];
 
 const isCurrent = (href) =>
   href === '/' ? location.pathname === '/' : location.pathname.startsWith(href.replace(/\/$/, ''));
 
-function navLinks(className) {
-  return NAV.map(({ href, label }) =>
-    el('a', { href, class: className, ...(isCurrent(href) && { 'aria-current': 'page' }) }, label),
+function navLinks(className, { withIcons = false } = {}) {
+  return NAV.map(({ href, label, iconName }) =>
+    el('a', { href, class: className, ...(isCurrent(href) && { 'aria-current': 'page' }) },
+      withIcons && icon(iconName, { size: 16 }), label),
   );
 }
 
-const publishCta = () => el('a', { href: '/posts/criar', class: 'btn btn-primary btn-sm' }, '+ Publicar anúncio');
+/** Busca da loja (vai para /loja?q=). */
+function searchForm(id) {
+  const q = location.pathname.startsWith('/loja') ? new URLSearchParams(location.search).get('q') ?? '' : '';
+  return el('form', { action: '/loja', method: 'get', role: 'search', class: 'header-search' },
+    el('label', { for: id, class: 'sr-only' }, 'Buscar produtos na loja'),
+    el('input', { id, name: 'q', type: 'search', value: q, maxlength: '100', class: 'header-search-input', placeholder: 'Buscar na loja: ração, petiscos, brinquedos…' }),
+    el('button', { type: 'submit', class: 'header-search-button', 'aria-label': 'Buscar' }, icon('search', { size: 18 })),
+  );
+}
+
+const publishCta = () => el('a', { href: '/posts/criar', class: 'btn btn-primary btn-sm whitespace-nowrap' }, icon('plus', { size: 16 }), 'Publicar anúncio');
 
 function authArea(user) {
   if (!user) {
     return [
       publishCta(),
-      el('a', { href: '/login/', class: 'nav-link' }, 'Entrar'),
-      el('a', { href: '/cadastro/', class: 'btn btn-outline btn-sm' }, 'Criar conta'),
+      el('a', { href: '/login/', class: 'header-account' }, icon('user', { size: 20 }),
+        el('span', { class: 'leading-tight' }, el('span', { class: 'block text-xs text-stone-500' }, 'Olá! Faça seu'), 'login'),
+      ),
+      el('a', { href: '/cadastro/', class: 'btn btn-outline btn-sm whitespace-nowrap' }, 'Criar conta'),
     ];
   }
   const onLogout = async (event) => {
@@ -50,7 +67,11 @@ function authArea(user) {
   };
   return [
     publishCta(),
-    el('span', { class: 'text-sm text-stone-600', 'data-user-name': '' }, `Olá, ${user.name.split(' ')[0]}`),
+    el('span', { class: 'header-account' }, icon('user', { size: 20 }),
+      el('span', { class: 'leading-tight' },
+        el('span', { class: 'block text-xs text-stone-500' }, 'Olá,'),
+        el('span', { 'data-user-name': '' }, user.name.split(' ')[0])),
+    ),
     user.role === 'admin' && el('a', { href: '/admin', class: 'badge hover:bg-brand-100', title: 'Painel administrativo' }, 'admin'),
     el('button', { type: 'button', class: 'btn btn-ghost btn-sm', onclick: onLogout }, 'Sair'),
   ];
@@ -58,12 +79,14 @@ function authArea(user) {
 
 function renderHeader(user) {
   const menuId = 'mobile-menu';
-  const mobile = el('div', { id: menuId, class: 'hidden border-t border-stone-200 px-4 py-3 sm:hidden' },
-    el('nav', { class: 'flex flex-col gap-2', 'aria-label': 'Menu' }, ...navLinks('nav-link'), ...authArea(user)),
+  const mobile = el('div', { id: menuId, class: 'hidden border-t border-stone-200 bg-white px-4 py-3 lg:hidden' },
+    searchForm('header-search-mobile'),
+    el('nav', { class: 'mt-3 flex flex-col gap-1', 'aria-label': 'Menu' }, ...navLinks('mobile-nav-link', { withIcons: true })),
+    el('div', { class: 'mt-3 flex flex-wrap items-center gap-3 border-t border-stone-100 pt-3' }, ...authArea(user)),
   );
   const toggle = el('button', {
     type: 'button',
-    class: 'btn btn-ghost btn-sm sm:hidden',
+    class: 'btn btn-ghost btn-sm lg:hidden',
     'aria-controls': menuId,
     'aria-expanded': 'false',
     'aria-label': 'Abrir menu',
@@ -73,12 +96,15 @@ function renderHeader(user) {
     },
   }, icon('bars-3', { size: 22 }));
 
-  return el('header', { class: 'border-b border-stone-200 bg-white' },
-    el('div', { class: 'mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3' },
-      el('a', { href: '/', class: 'inline-flex items-center gap-2 text-xl font-bold text-brand-700' }, icon('paw', { size: 26 }), 'Pets Post'),
-      el('nav', { class: 'hidden items-center gap-6 sm:flex', 'aria-label': 'Principal' }, ...navLinks('nav-link')),
-      el('div', { class: 'hidden items-center gap-3 sm:flex' }, ...authArea(user)),
-      toggle,
+  return el('header', { class: 'bg-white shadow-sm' },
+    el('div', { class: 'mx-auto flex max-w-6xl items-center gap-4 px-4 py-3' },
+      el('a', { href: '/', class: 'inline-flex shrink-0 items-center gap-2 text-xl font-bold text-brand-700' }, icon('paw', { size: 28 }), 'Pets Post'),
+      el('div', { class: 'hidden flex-1 lg:block' }, searchForm('header-search')),
+      el('div', { class: 'ml-auto hidden items-center gap-3 lg:flex' }, ...authArea(user)),
+      el('div', { class: 'ml-auto lg:hidden' }, toggle),
+    ),
+    el('nav', { class: 'header-nav hidden lg:block', 'aria-label': 'Principal' },
+      el('div', { class: 'mx-auto flex max-w-6xl items-center gap-1 px-4' }, ...navLinks('header-nav-link', { withIcons: true })),
     ),
     mobile,
   );

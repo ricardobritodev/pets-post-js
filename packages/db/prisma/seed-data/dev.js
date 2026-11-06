@@ -176,3 +176,20 @@ export const partners = [
     phone: '(11) 91111-6666',
   },
 ];
+
+/**
+ * Produtos de exemplo da loja (Etapa 7b), só nos parceiros fictícios acima. Nomes genéricos, sem
+ * marca, para não parecer anúncio de loja real. Preços em centavos.
+ */
+export const products = [
+  { partnerName: 'Petshop Amigo Fiel', name: 'Ração Premium Cães Adultos 10 kg', category: 'food', petType: 'dog', priceCents: 18990, promoPriceCents: 15990, stock: 12, isFeatured: true, description: 'Ração completa para cães adultos de porte médio, com proteína de frango e arroz.' },
+  { partnerName: 'Petshop Amigo Fiel', name: 'Ração Gatos Castrados 3 kg', category: 'food', petType: 'cat', priceCents: 8990, stock: 20, description: 'Fórmula com controle de peso para gatos castrados.' },
+  { partnerName: 'Petshop Amigo Fiel', name: 'Petisco Bifinho de Carne 500 g', category: 'treats', petType: 'dog', priceCents: 2490, stock: 40, description: 'Petisco macio para recompensa no adestramento.' },
+  { partnerName: 'Petshop Amigo Fiel', name: 'Bolinha de Borracha com Guizo', category: 'toys', petType: null, priceCents: 1590, promoPriceCents: 990, stock: 0, description: 'Brinquedo resistente para cães e gatos. Esgotado no momento.' },
+  { partnerName: 'Petshop Amigo Fiel', name: 'Coleira Peitoral Ajustável M', category: 'accessories', petType: 'dog', priceCents: 6990, stock: 8, description: 'Peitoral acolchoado com regulagem e argola para guia.' },
+  { partnerName: 'PetCenter Curitiba', name: 'Arranhador Torre com Plataforma', category: 'toys', petType: 'cat', priceCents: 21990, promoPriceCents: 17990, stock: 3, isFeatured: true, description: 'Arranhador de sisal com duas plataformas e brinquedo pendurado.' },
+  { partnerName: 'PetCenter Curitiba', name: 'Shampoo Neutro para Pets 500 ml', category: 'hygiene', petType: null, priceCents: 3290, stock: 15, description: 'Shampoo hipoalergênico, sem perfume forte.' },
+  { partnerName: 'PetCenter Curitiba', name: 'Cama Redonda Pelúcia G', category: 'beds', petType: null, priceCents: 14990, stock: 5, description: 'Cama macia com borda alta, lavável na máquina.' },
+  { partnerName: 'PetCenter Curitiba', name: 'Mistura de Sementes para Calopsita 1 kg', category: 'food', petType: 'bird', priceCents: 2790, stock: 25, description: 'Mistura de sementes selecionadas para calopsitas e periquitos.' },
+  { partnerName: 'PetCenter Curitiba', name: 'Vermífugo para Cães até 10 kg', category: 'health', petType: 'dog', priceCents: 3990, stock: 10, description: 'Consulte o veterinário antes de usar.' },
+];

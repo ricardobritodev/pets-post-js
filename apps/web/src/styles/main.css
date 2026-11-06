@@ -171,6 +171,63 @@
   }
 
   /* Mapa do detalhe. `isolate` segura o z-index alto do Leaflet dentro do card. */
+  /* Header (Etapa 7b): logo + busca + conta em cima, menu na faixa laranja embaixo */
+  .header-search {
+    @apply relative flex w-full;
+  }
+  .header-search-input {
+    @apply w-full rounded-full border-2 border-brand-500 bg-white py-2 pl-4 pr-12 text-sm text-stone-900 outline-none
+      placeholder:text-stone-400 focus:ring-4 focus:ring-brand-500/20;
+  }
+  .header-search-button {
+    @apply absolute right-1 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-brand-600 text-white hover:bg-brand-700;
+  }
+  .header-account {
+    @apply inline-flex items-center gap-2 text-sm font-semibold text-stone-700 hover:text-brand-700;
+  }
+  .header-nav {
+    @apply bg-brand-600;
+  }
+  .header-nav-link {
+    @apply inline-flex items-center gap-1.5 border-b-2 border-transparent px-3 py-2.5 text-sm font-medium text-white/90
+      hover:bg-brand-700 hover:text-white aria-[current=page]:border-white aria-[current=page]:text-white;
+  }
+  .mobile-nav-link {
+    @apply flex items-center gap-2 rounded-lg px-2 py-2 font-medium text-stone-700 hover:bg-brand-50
+      aria-[current=page]:bg-brand-50 aria-[current=page]:text-brand-700;
+  }
+
+  /* Loja (Etapa 7b) */
+  .store-hero {
+    @apply mb-6 flex flex-wrap items-end justify-between gap-4 rounded-2xl bg-gradient-to-r from-brand-50 to-white p-6;
+  }
+  .product-card {
+    @apply flex flex-col overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md;
+  }
+  .product-card-image {
+    @apply aspect-square w-full bg-white object-contain p-2;
+  }
+  .product-flag {
+    @apply inline-flex items-center gap-1 rounded-full bg-brand-600 px-2 py-0.5 text-[11px] font-semibold text-white shadow;
+  }
+  .product-flag-muted {
+    @apply bg-stone-700;
+  }
+  .price-block {
+    @apply flex flex-wrap items-baseline gap-x-2;
+  }
+  .price-old {
+    @apply text-xs text-stone-400 line-through;
+  }
+  .price-final {
+    @apply text-lg font-bold text-stone-900;
+  }
+  .price-off {
+    @apply rounded bg-found-600 px-1.5 py-0.5 text-xs font-bold text-white;
+  }
+  .price-block-lg .price-old { @apply text-sm; }
+  .price-block-lg .price-final { @apply text-3xl text-brand-700; }
+
   /* Painel admin (Etapa 7) */
   .admin-tabs {
     @apply flex flex-wrap gap-1 border-b border-stone-200;

@@ -8,7 +8,7 @@
  * As URLs do sistema antigo foram mantidas (links já compartilhados no WhatsApp).
  */
 
-/** @typedef {{ page: string, params: Record<string, string>, og?: 'post' | 'adoption' }} PageMatch */
+/** @typedef {{ page: string, params: Record<string, string>, og?: 'post' | 'adoption' | 'product' }} PageMatch */
 
 const ROUTES = [
   { re: /^\/$/, page: 'index.html' },
@@ -21,12 +21,17 @@ const ROUTES = [
   { re: /^\/adocao\/(?<id>\d+)\/editar\/?$/, page: 'adocao/form.html' },
   { re: /^\/adocao\/(?<id>\d+)\/?$/, page: 'adocao/detalhe.html', og: 'adoption' },
   { re: /^\/mapa\/?$/, page: 'mapa/index.html' },
+  { re: /^\/loja\/?$/, page: 'loja/index.html' },
+  { re: /^\/loja\/produto\/(?<id>\d+)\/?$/, page: 'loja/produto.html', og: 'product' },
   { re: /^\/admin\/?$/, page: 'admin/index.html' },
   { re: /^\/admin\/usuarios\/?$/, page: 'admin/usuarios.html' },
   { re: /^\/admin\/(posts|adocao)\/?$/, page: 'admin/anuncios.html' },
   { re: /^\/admin\/parceiros\/?$/, page: 'admin/parceiros.html' },
   { re: /^\/admin\/parceiros\/criar\/?$/, page: 'admin/parceiro-form.html' },
   { re: /^\/admin\/parceiros\/(?<id>\d+)\/editar\/?$/, page: 'admin/parceiro-form.html' },
+  { re: /^\/admin\/produtos\/?$/, page: 'admin/produtos.html' },
+  { re: /^\/admin\/produtos\/criar\/?$/, page: 'admin/produto-form.html' },
+  { re: /^\/admin\/produtos\/(?<id>\d+)\/editar\/?$/, page: 'admin/produto-form.html' },
   { re: /^\/sobre\/?$/, page: 'sobre/index.html' },
   { re: /^\/login\/?$/, page: 'login/index.html' },
   { re: /^\/cadastro\/?$/, page: 'cadastro/index.html' },
@@ -49,6 +54,10 @@ export const PAGE_INPUTS = Object.freeze({
   adoptionDetail: 'adocao/detalhe.html',
   adoptionForm: 'adocao/form.html',
   mapa: 'mapa/index.html',
+  store: 'loja/index.html',
+  product: 'loja/produto.html',
+  adminProducts: 'admin/produtos.html',
+  adminProductForm: 'admin/produto-form.html',
   adminDashboard: 'admin/index.html',
   adminUsers: 'admin/usuarios.html',
   adminListings: 'admin/anuncios.html',

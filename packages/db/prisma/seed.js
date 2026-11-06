@@ -11,6 +11,7 @@ import {
   seedPetPosts,
   seedAdoptionPosts,
   seedPartners,
+  seedProducts,
   formatResult,
 } from '../src/seed.js';
 import * as dev from './seed-data/dev.js';
@@ -31,6 +32,7 @@ try {
   console.log(formatResult('posts perdidos/encontrados', await seedPetPosts(prisma, dev.petPosts)));
   console.log(formatResult('anúncios de adoção', await seedAdoptionPosts(prisma, dev.adoptionPosts)));
   console.log(formatResult('parceiros', await seedPartners(prisma, dev.partners)));
+  console.log(formatResult('produtos da loja', await seedProducts(prisma, dev.products)));
   console.log(`[seed] Concluído. Admin: ${dev.DEV_ADMIN.email} / ${dev.DEV_ADMIN.password}`);
 } catch (err) {
   console.error('[seed] Falhou:', err);

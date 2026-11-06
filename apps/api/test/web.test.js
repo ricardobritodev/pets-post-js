@@ -29,6 +29,9 @@ test('resolvePage: adoção e mapa com as URLs do sistema antigo', () => {
   assert.equal(resolvePage('/adocao').page, 'adocao/index.html');
   assert.equal(resolvePage('/adocao/').page, 'adocao/index.html');
   assert.equal(resolvePage('/mapa').page, 'mapa/index.html');
+  assert.equal(resolvePage('/loja').page, 'loja/index.html');
+  assert.deepEqual(resolvePage('/loja/produto/9'), { page: 'loja/produto.html', params: { id: '9' }, og: 'product' });
+  assert.equal(resolvePage('/admin/produtos/criar').page, 'admin/produto-form.html');
   assert.equal(resolvePage('/adocao/abc'), null);
 });
 
@@ -58,7 +61,7 @@ test('ADR 002 productMeta: nome, preço final em R$ e o parceiro', () => {
     id: 9, name: 'Ração Premium 10 kg', description: 'Para cães adultos.', categoryLabel: 'Ração',
     finalPriceCents: 15990, partner: { name: 'Bom Pet' }, primaryPhoto: { url: '/uploads/r.jpg' },
   }, 'https://www.petspost.com.br');
-  assert.match(m.title, /^Ração Premium 10 kg · R\$\s15\.990?,90 · Pets Post$|^Ração Premium 10 kg · R\$\s159,90 · Pets Post$/);
+  assert.match(m.title, /^Ração Premium 10 kg · R\$\s159,90 · Pets Post$/);
   assert.match(m.description, /^Ração por R\$\s159,90 em Bom Pet\. Para cães adultos\.$/);
   assert.equal(m.url, 'https://www.petspost.com.br/loja/produto/9');
   assert.equal(m.image, 'https://www.petspost.com.br/uploads/r.jpg');
