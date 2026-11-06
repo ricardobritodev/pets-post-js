@@ -32,6 +32,18 @@ test('resolvePage: adoção e mapa com as URLs do sistema antigo', () => {
   assert.equal(resolvePage('/adocao/abc'), null);
 });
 
+test('resolvePage: painel admin com as URLs do sistema antigo', () => {
+  assert.equal(resolvePage('/admin').page, 'admin/index.html');
+  assert.equal(resolvePage('/admin/').page, 'admin/index.html');
+  assert.equal(resolvePage('/admin/usuarios').page, 'admin/usuarios.html');
+  assert.equal(resolvePage('/admin/posts').page, 'admin/anuncios.html');
+  assert.equal(resolvePage('/admin/adocao').page, 'admin/anuncios.html');
+  assert.equal(resolvePage('/admin/parceiros').page, 'admin/parceiros.html');
+  assert.equal(resolvePage('/admin/parceiros/criar').page, 'admin/parceiro-form.html');
+  assert.deepEqual(resolvePage('/admin/parceiros/4/editar'), { page: 'admin/parceiro-form.html', params: { id: '4' } });
+  assert.equal(resolvePage('/admin/qualquer'), null);
+});
+
 const adoption = {
   id: 3,
   title: 'Gatinha Mel',

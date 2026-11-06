@@ -171,6 +171,42 @@
   }
 
   /* Mapa do detalhe. `isolate` segura o z-index alto do Leaflet dentro do card. */
+  /* Painel admin (Etapa 7) */
+  .admin-tabs {
+    @apply flex flex-wrap gap-1 border-b border-stone-200;
+  }
+  .admin-tab {
+    @apply -mb-px inline-flex items-center gap-1.5 border-b-2 border-transparent px-3 py-2 text-sm font-medium text-stone-600
+      hover:text-brand-700 aria-[current=page]:border-brand-600 aria-[current=page]:text-brand-700;
+  }
+  .admin-toolbar {
+    @apply mb-3 flex flex-col gap-2 sm:flex-row;
+  }
+  .admin-table-box {
+    @apply mt-2 overflow-x-auto rounded-xl border border-stone-200 bg-white;
+  }
+  .admin-table {
+    @apply w-full text-left text-sm;
+  }
+  .admin-table th {
+    @apply bg-stone-50 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-stone-500;
+  }
+  .admin-table td {
+    @apply border-t border-stone-100 px-3 py-2 align-top;
+  }
+  .stat-card {
+    @apply flex flex-col rounded-xl border border-stone-200 bg-white p-4 shadow-sm transition hover:border-brand-500;
+  }
+  .stat-value {
+    @apply text-2xl font-bold text-stone-800;
+  }
+  .stat-label {
+    @apply text-sm text-stone-500;
+  }
+  .stat-lost .stat-value { @apply text-lost-600; }
+  .stat-found .stat-value { @apply text-found-600; }
+  .stat-muted .stat-value { @apply text-stone-400; }
+
   /* Mapa de parceiros (Etapa 6). Cores por tipo iguais às do Flask. */
   .partners-map {
     @apply isolate h-[65vh] min-h-96 w-full overflow-hidden rounded-xl border border-stone-200;

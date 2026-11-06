@@ -51,7 +51,7 @@ function authArea(user) {
   return [
     publishCta(),
     el('span', { class: 'text-sm text-stone-600', 'data-user-name': '' }, `Olá, ${user.name.split(' ')[0]}`),
-    user.role === 'admin' && el('span', { class: 'badge' }, 'admin'),
+    user.role === 'admin' && el('a', { href: '/admin', class: 'badge hover:bg-brand-100', title: 'Painel administrativo' }, 'admin'),
     el('button', { type: 'button', class: 'btn btn-ghost btn-sm', onclick: onLogout }, 'Sair'),
   ];
 }

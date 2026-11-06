@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel administrativo · Admin · Pets Post</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script type="module" src="/src/pages/admin-dashboard.js"></script>
+  </head>
+  <body class="flex min-h-screen flex-col bg-stone-50 text-stone-800 antialiased">
+    <div id="app-header"></div>
+    <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
+      <div id="app-flash" class="mb-6 space-y-2" aria-live="polite"></div>
+      <div id="admin-tabs" class="mb-6"></div>
+      <div id="admin-root" hidden>
+        <h1 id="admin-title" class="mb-6 text-3xl font-bold">Painel administrativo</h1>
+        <div id="admin-content"><div id="admin-table"></div></div>
+      </div>
+    </main>
+    <footer id="app-footer" class="border-t border-stone-200 bg-white"></footer>
+  </body>
+</html>
