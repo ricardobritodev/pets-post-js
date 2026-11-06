@@ -25,6 +25,7 @@
 | 409 | `CONFLICT` | ex.: email já cadastrado |
 | 411 | `LENGTH_REQUIRED` | upload sem `Content-Length` |
 | 413 | `PAYLOAD_TOO_LARGE` | upload acima de 8 MB (BR-PHOTO-003) |
+| 422 | `IMPORT_FAILED` | importar produto de um link não deu certo (site bloqueou, sem dados do produto…) |
 | 429 | `RATE_LIMITED` | limite excedido |
 | 500 | `INTERNAL` | erro inesperado (mensagem genérica em produção) |
 | 502/503 | `UPSTREAM_ERROR` / — | serviço externo ou banco fora |

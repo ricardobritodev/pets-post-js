@@ -1,6 +1,6 @@
 # API — Loja (vitrine de produtos dos parceiros)
 
-Regras: BR-STORE-001..008 · Permissões: PERM-003 (cadastro) · Convenções: [conventions.md](conventions.md) ·
+Regras: BR-STORE-001..011 · Permissões: PERM-003 (cadastro) · Convenções: [conventions.md](conventions.md) ·
 Contratos: `packages/contracts/src/store.js`
 
 **É uma vitrine, não um e-commerce:** o Pets Post mostra o produto com foto e preço, e o botão leva para a
@@ -33,6 +33,8 @@ loja do parceiro. Não tem carrinho, pagamento nem pedido aqui. Cada produto per
 - `finalPriceCents` = promocional quando existe, senão o normal. `discountPercent` arredonda para baixo;
   `null` sem promoção (BR-STORE-003).
 - `inStock` = estoque > 0. Produto esgotado continua na vitrine, com o aviso (BR-STORE-004).
+
+- `priceCheckedAt`: quando o preço foi conferido (BR-STORE-011). A vitrine mostra "Preço consultado em…".
 
 ### Product (detalhe) = ProductCard +
 ```json
@@ -67,6 +69,17 @@ loja do parceiro. Não tem carrinho, pagamento nem pedido aqui. Cada produto per
 | `PATCH /api/v1/admin/products/:id` | edita (subconjunto) → `{ product }` |
 | `DELETE /api/v1/admin/products/:id` | exclui; fotos e arquivos saem junto → 204 |
 | `POST /api/v1/admin/products/:id/photos` · `DELETE .../photos/:photoId` | fotos (até 6), mesmas regras dos anúncios (BR-PHOTO-*) |
+
+### Importar de um link (BR-STORE-009/010)
+| Rota | O que faz |
+|---|---|
+| `POST /api/v1/admin/products/import` `{ url }` | lê a página e devolve um **rascunho**: `{ draft: { name, description, priceCents, inStock, url, category, petType, siteName }, images: [{ url, thumb }], warnings: [] }`. `category`/`petType` são **sugestões** pelo nome (podem vir `null`). `thumb` é uma miniatura `data:` para pré-visualizar sem carregar a imagem de fora (CSP). Erros: 400 `VALIDATION_ERROR` (link inválido) · 422 `IMPORT_FAILED` com a mensagem (site bloqueou, não achou o produto, sem preço…) |
+| `POST /api/v1/admin/products/:id/photos/import` `{ urls: string[] }` | baixa as fotos escolhidas (até completar 6) e salva como as enviadas (BR-PHOTO-*); resposta igual ao envio de fotos: `{ product, rejected }` |
+| `POST /api/v1/admin/products/:id/refresh` | lê de novo o `url` do produto e atualiza o preço, o estoque e o `priceCheckedAt`: `{ product, changed: { priceCents?: [antes, depois], inStock?: [antes, depois] } }`. Sem `url` → 400; site falhou → 422 `IMPORT_FAILED` (o produto não muda) |
+
+- Limite: 10 importações por minuto e 100 por hora por IP (`limits.import`).
+- O preço importado é o "por" da loja. A promoção ("de/por") fica para o admin preencher, porque as lojas não
+  publicam o "de" num formato padrão.
 
 `productSchema` (BR-STORE-006/007): `partnerId` (parceiro existente), `name` (obrigatório, 150), `description`
 (até 5000), `category`, `petType?`, `priceCents` (inteiro > 0, até R$ 100.000), `promoPriceCents?` (menor que o

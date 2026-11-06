@@ -87,6 +87,9 @@ Origem: engenharia reversa do projeto Flask (`pets-post/app/**`).
 | BR-STORE-006 | Só o admin cadastra, edita e exclui produtos (PERM-003). Todo produto pertence a um parceiro existente. | ✅ |
 | BR-STORE-007 | Até 6 fotos por produto, com as mesmas regras e o mesmo serviço dos anúncios (BR-PHOTO-*). | ✅ |
 | BR-STORE-008 | Excluir um parceiro com produtos é bloqueado (409); é preciso excluir ou mover os produtos antes. | ✅ |
+| BR-STORE-009 | Importar produto de um link (só admin): o servidor lê a página **uma vez** e preenche um rascunho para revisão (nada é salvo sem o admin confirmar). Lê os dados que a loja publica (schema.org `Product` em JSON-LD; senão Open Graph). Site que bloqueia ou não tem os dados → mensagem clara, sem erro. Não tenta burlar bloqueio de robôs. | 🟡 |
+| BR-STORE-010 | Busca segura de páginas e fotos: só `https`, porta 443, sem endereços internos (localhost, rede privada, link-local…) mesmo depois de redirecionamento, até 3 redirecionamentos, 8 s de tempo, até 3 MB de página e 8 MB por foto, User-Agent identificado do Pets Post. | 🟡 |
+| BR-STORE-011 | Todo produto guarda a data em que o preço foi conferido (`priceCheckedAt`): ao criar, ao mudar o preço e ao "Atualizar do link". A vitrine mostra "Preço consultado em DD/MM/AAAA — confirme na loja". | 🟡 |
 
 ## Ajuda / FAQ — BR-FAQ
 Detalhes em [specs/site/faq.md](../site/faq.md) (ADR 007).

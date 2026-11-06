@@ -13,3 +13,12 @@ Vitrine, não e-commerce: produto com foto e preço, e o botão leva para a loja
 - [x] **L7 — Documentar** `doc/features/008-loja.md`.
 
 > Concluída em 2026-11-06 (doc/features/008-loja.md).
+
+## Importar de um link (pedido de 2026-11-06)
+- [x] **I1 — Spec**: BR-STORE-009..011 e rotas de importação em `specs/api/store.md`.
+- [ ] **I2 — Banco**: `products.price_checked_at` (migration `4_price_checked_at`).
+- [ ] **I3 — Leitor** (JSON-LD/Open Graph) + busca segura (anti-SSRF) + sugestão de categoria/pet, com testes.
+- [ ] **I4 — API**: importar rascunho, baixar fotos do link, "Atualizar do link".
+- [ ] **I5 — Front**: "Importar de um link" no formulário do admin; "Preço consultado em…" na vitrine.
+- [ ] **I6 — Documentar** em `doc/features/008-loja.md`.
+- [ ] *(depois, se quiser)* Botão no navegador "Enviar para o Pets Post" para sites que bloqueiam leitura automática.
