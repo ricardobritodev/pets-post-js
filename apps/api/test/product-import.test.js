@@ -377,3 +377,27 @@ test('BR-STORE-014 erro de certificado tem mensagem própria; nunca desliga a co
     .fetchUrl('https://loja.com.br/x').catch(() => {});
   assert.notEqual(seen[0]?.rejectUnauthorized, false);
 });
+
+test('BR-STORE-015 429 em servidor de fotos da lista (VTEX): as fotos que faltam vão para o navegador baixar', async () => {
+  const png = await sharp({ create: { width: 900, height: 900, channels: 3, background: '#3366ff' } }).png().toBuffer();
+  const imgs = ['https://loja.vteximg.com.br/arquivos/ids/1/a.png', 'https://loja.vteximg.com.br/arquivos/ids/2/b.png', 'https://loja.vteximg.com.br/arquivos/ids/3/c.png'];
+  const page = `<script type="application/ld+json">{"@type":"Product","name":"Coleira","image":${JSON.stringify(imgs)},"offers":{"price":"68.90"}}</script>`;
+  const fetcher = {
+    async fetchUrl(url) {
+      if (url === 'https://loja.com.br/coleira') return { url, status: 200, contentType: 'text/html', body: Buffer.from(page) };
+      return url.endsWith('a.png') ? { url, status: 200, contentType: 'image/png', body: png } : { url, status: 429, contentType: 'text/plain', body: Buffer.from('') };
+    },
+  };
+  const { images, pendingImages, warnings } = await createProductImporter({ fetcher }).draft('https://loja.com.br/coleira');
+  assert.equal(images.length, 1);
+  assert.deepEqual(pendingImages, imgs.slice(1));
+  assert.deepEqual(warnings, []); // o front avisa se o navegador também não conseguir
+
+  const outra = { async fetchUrl(url) {
+    if (url === 'https://loja.com.br/coleira') return { url, status: 200, contentType: 'text/html', body: Buffer.from(page.replaceAll('loja.vteximg.com.br', 'cdn.loja.com.br')) };
+    return { url, status: 429, contentType: 'text/plain', body: Buffer.from('') };
+  } };
+  const semLista = await createProductImporter({ fetcher: outra }).draft('https://loja.com.br/coleira');
+  assert.deepEqual(semLista.pendingImages, []); // fora da lista: envio manual
+  assert.match(semLista.warnings[0], /envie as fotos à mão/);
+});

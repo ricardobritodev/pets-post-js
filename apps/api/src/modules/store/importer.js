@@ -2,7 +2,7 @@
  * importer.js — Importa produto de um link (BR-STORE-009/010): busca segura + leitura da página.
  */
 import sharp from 'sharp';
-import { suggestCategory, suggestPetType, PHOTO_POLICY } from '@petspost/domain';
+import { suggestCategory, suggestPetType, PHOTO_POLICY, browserCanFetchImage } from '@petspost/domain';
 import { HttpError } from '../../middleware/errors.js';
 import { SafeFetchError } from '../../lib/safe-fetch.js';
 import { parseProductPage } from '../../lib/product-page.js';
@@ -128,7 +128,8 @@ export function createProductImporter({ fetcher, now = Date.now }) {
       const p = await readPage(url);
       const images = [];
       let limited = false;
-      for (const imageUrl of p.imageUrls) {
+      let pendingImages = [];
+      for (const [i, imageUrl] of p.imageUrls.entries()) {
         try {
           const { buffer } = await downloadImage(imageUrl);
           const thumb = await sharp(buffer, { limitInputPixels: PHOTO_POLICY.maxPixels }).rotate()
@@ -138,6 +139,8 @@ export function createProductImporter({ fetcher, now = Date.now }) {
           // foto que não abre não entra na lista; 429 = parar de pedir (BR-STORE-010)
           if (err.rateLimited) {
             limited = true;
+            // BR-STORE-015: as que o navegador do admin pode baixar vão para o front tentar
+            pendingImages = p.imageUrls.slice(i).filter(browserCanFetchImage);
             break;
           }
         }
@@ -145,10 +148,11 @@ export function createProductImporter({ fetcher, now = Date.now }) {
       const warnings = [];
       if (p.priceCents == null) warnings.push('Não encontrei o preço na página: preencha à mão.');
       if (p.inStock === false) warnings.push('A loja informa que o produto está esgotado.');
-      if (limited) {
+      // com pendingImages, quem avisa é o front, e só se o navegador também não conseguir (BR-STORE-015)
+      if (limited && !pendingImages.length) {
         warnings.push(`O site ${hostOf(p.url ?? url)} limitou o acesso de robôs às fotos agora (429)${images.length ? ' e algumas fotos ficaram de fora' : ''}. `
           + 'Tente buscar de novo em alguns minutos ou envie as fotos à mão.');
-      } else if (!images.length) warnings.push('Não consegui pegar fotos desta página: envie à mão, se quiser.');
+      } else if (!limited && !images.length) warnings.push('Não consegui pegar fotos desta página: envie à mão, se quiser.');
       const text = `${p.name} ${p.description}`;
       return {
         draft: {
@@ -163,6 +167,7 @@ export function createProductImporter({ fetcher, now = Date.now }) {
           sellerName: p.sellerName, // BR-STORE-013
         },
         images,
+        pendingImages,
         warnings,
       };
     },

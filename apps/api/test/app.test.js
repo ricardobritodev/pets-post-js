@@ -117,3 +117,34 @@ test('BR-CONTACT-002 número inválido impede a API de subir, com mensagem clara
     assert.throws(() => loadConfig({ NODE_ENV: 'test', CONTACT_WHATSAPP: bad }), /CONTACT_WHATSAPP: número inválido/, bad);
   }
 });
+
+test('BR-STORE-015 CSP: páginas /admin podem baixar fotos dos servidores da lista; o resto do site não', async () => {
+  const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const dir = mkdtempSync(join(tmpdir(), 'petspost-csp-'));
+  mkdirSync(join(dir, 'admin'));
+  for (const f of ['index.html', '404.html', '500.html', 'admin/produto-form.html']) writeFileSync(join(dir, f), '<html><head><!--app-meta--></head></html>');
+  const srv = createApp({ config, db: fakeDb, webDistDir: dir }).listen(0);
+  await new Promise((r) => srv.once('listening', r));
+  const at = `http://127.0.0.1:${srv.address().port}`;
+  const cspOf = async (path) => {
+    const res = await fetch(`${at}${path}`);
+    return Object.fromEntries(res.headers.get('content-security-policy').split(';').map((d) => {
+      const [name, ...values] = d.trim().split(/\s+/);
+      return [name, values.join(' ')];
+    }));
+  };
+  try {
+    const admin = await cspOf('/admin/produtos/criar');
+    assert.equal(admin['connect-src'], "'self' https://*.vteximg.com.br https://*.vtexassets.com");
+    assert.equal(admin['script-src'], "'self'"); // o resto da política é igual
+    assert.equal(admin['img-src'], "'self' data: blob: https://tile.openstreetmap.org");
+    for (const path of ['/', '/pagina-que-nao-existe', '/api/v1/health', '/administrador']) {
+      assert.equal((await cspOf(path))['connect-src'], "'self'", path);
+    }
+  } finally {
+    srv.close();
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

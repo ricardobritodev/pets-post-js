@@ -7,6 +7,7 @@
 import { fileURLToPath } from 'node:url';
 import express from 'express';
 import helmet from 'helmet';
+import { BROWSER_IMAGE_HOSTS } from '@petspost/domain';
 import cookieParser from 'cookie-parser';
 import { healthRouter } from './routes/health.js';
 import { siteRouter } from './routes/site.js';
@@ -79,23 +80,27 @@ export function createApp({ config, db, logger, securityLog, sessionStore, limit
 
   // CSP final (T7.8): nada inline, nada de fora, a não ser os "tiles" do mapa (OpenStreetMap) e a
   // prévia das fotos antes do envio (blob:). O build do Vite não tem script nem estilo inline.
+  const cspDirectives = {
+    'default-src': ["'self'"],
+    'script-src': ["'self'"],
+    'style-src': ["'self'"],
+    'img-src': ["'self'", 'data:', 'blob:', 'https://tile.openstreetmap.org'],
+    'connect-src': ["'self'"],
+    'font-src': ["'self'", 'data:'],
+    'object-src': ["'none'"],
+    'base-uri': ["'self'"],
+    'form-action': ["'self'"],
+    'frame-ancestors': ["'none'"],
+  };
   app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        'default-src': ["'self'"],
-        'script-src': ["'self'"],
-        'style-src': ["'self'"],
-        'img-src': ["'self'", 'data:', 'blob:', 'https://tile.openstreetmap.org'],
-        'connect-src': ["'self'"],
-        'font-src': ["'self'", 'data:'],
-        'object-src': ["'none'"],
-        'base-uri': ["'self'"],
-        'form-action': ["'self'"],
-        'frame-ancestors': ["'none'"],
-      },
-    },
+    contentSecurityPolicy: { directives: cspDirectives },
     // A política de uso dos tiles do OpenStreetMap exige o Referer; manda só a origem, não a URL inteira.
     referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  }));
+  // BR-STORE-015: só nas páginas do painel, o navegador do admin pode baixar fotos dos servidores da lista
+  // (quando a loja limita o nosso servidor). O resto do site continua sem acesso a nada de fora.
+  app.use('/admin', helmet.contentSecurityPolicy({
+    directives: { ...cspDirectives, 'connect-src': ["'self'", ...BROWSER_IMAGE_HOSTS.map((h) => `https://${h}`)] },
   }));
   app.use(express.json({ limit: '100kb' }));
 
