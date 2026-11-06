@@ -69,12 +69,25 @@ export function createApp({ config, db, logger, securityLog, sessionStore, limit
   // Atrás do Nginx em produção: enxergar IP real (rate limit, logs).
   if (config.NODE_ENV === 'production') app.set('trust proxy', 1);
 
-  // CSP padrão do helmet + o que o front precisa: prévia das fotos antes do envio (blob:) e os
-  // "tiles" do mapa do OpenStreetMap (Etapa 5).
+  // CSP final (T7.8): nada inline, nada de fora, a não ser os "tiles" do mapa (OpenStreetMap) e a
+  // prévia das fotos antes do envio (blob:). O build do Vite não tem script nem estilo inline.
   app.use(helmet({
     contentSecurityPolicy: {
-      directives: { 'img-src': ["'self'", 'data:', 'blob:', 'https://tile.openstreetmap.org'] },
+      directives: {
+        'default-src': ["'self'"],
+        'script-src': ["'self'"],
+        'style-src': ["'self'"],
+        'img-src': ["'self'", 'data:', 'blob:', 'https://tile.openstreetmap.org'],
+        'connect-src': ["'self'"],
+        'font-src': ["'self'", 'data:'],
+        'object-src': ["'none'"],
+        'base-uri': ["'self'"],
+        'form-action': ["'self'"],
+        'frame-ancestors': ["'none'"],
+      },
     },
+    // A política de uso dos tiles do OpenStreetMap exige o Referer; manda só a origem, não a URL inteira.
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   }));
   app.use(express.json({ limit: '100kb' }));
 
@@ -131,6 +144,7 @@ export function createApp({ config, db, logger, securityLog, sessionStore, limit
       og: { post: postService, adoption: adoptionService },
       publicUrl: config.PUBLIC_URL,
       cache: config.NODE_ENV === 'production',
+      onError: (err) => logger.error({ err }, 'erro ao montar página'),
     }));
   }
   app.use(errorHandler({ config, logger }));

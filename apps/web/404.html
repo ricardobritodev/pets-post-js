@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Página não encontrada · Pets Post</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script type="module" src="/src/pages/error-page.js"></script>
+  </head>
+  <body class="flex min-h-screen flex-col bg-stone-50 text-stone-800 antialiased">
+    <div id="app-header"></div>
+    <main class="mx-auto w-full max-w-lg flex-1 px-4 py-16">
+      <div id="app-flash" class="mb-6 space-y-2" aria-live="polite"></div>
+      <section class="card text-center">
+        <div class="text-brand-600"><i data-icon="paw" data-size="56" class="mx-auto"></i></div>
+        <p class="mt-4 text-sm font-semibold uppercase tracking-wide text-brand-600">Erro 404</p>
+        <h1 class="mt-1 text-2xl font-bold">Página não encontrada</h1>
+        <p class="mt-2 text-stone-600">Esse endereço não existe ou mudou de lugar. Que tal procurar por aqui?</p>
+        <div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+          <a href="/" class="btn btn-primary"><i data-icon="home" data-size="18"></i> Início</a>
+          <a href="/posts/" class="btn btn-outline">Pets perdidos e encontrados</a>
+          <a href="/adocao/" class="btn btn-outline">Adoção</a>
+        </div>
+      </section>
+    </main>
+    <footer id="app-footer" class="border-t border-stone-200 bg-white"></footer>
+  </body>
+</html>

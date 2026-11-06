@@ -110,6 +110,8 @@ before(async () => {
   mkdirSync(join(dir, 'assets'));
   const page = (name) => `<html><head><title>${name}</title>${META_MARKER}</head><body>${name}</body></html>`;
   writeFileSync(join(dir, 'index.html'), page('home'));
+  writeFileSync(join(dir, '404.html'), page('nao-encontrada'));
+  writeFileSync(join(dir, '500.html'), page('erro-interno'));
   writeFileSync(join(dir, 'posts/detalhe.html'), page('detalhe'));
   writeFileSync(join(dir, 'sobre/index.html'), page('sobre'));
   writeFileSync(join(dir, 'adocao/detalhe.html'), page('adocao'));
@@ -124,6 +126,7 @@ before(async () => {
   const adoptions = {
     get: async (id) => {
       if (id === 3) return adoption;
+      if (id === 666) throw new Error('banco fora do ar');
       throw new HttpError(404, 'NOT_FOUND', 'x');
     },
   };
@@ -165,13 +168,28 @@ test('ADR 002 /adocao/:id recebe Open Graph da adoção; inexistente → 404 sem
   assert.doesNotMatch(await missing.text(), /og:title/);
 });
 
+test('T7.9 erro inesperado numa página → página 500, sem detalhes do erro', async () => {
+  const res = await fetch(`${base}/adocao/666`);
+  assert.equal(res.status, 500);
+  const html = await res.text();
+  assert.match(html, /erro-interno/);
+  assert.doesNotMatch(html, /banco fora do ar/);
+  assert.equal(res.headers.get('cache-control'), 'no-store');
+});
+
 test('páginas, assets com cache longo, 404 e redirects das URLs antigas', async () => {
   assert.match(await (await fetch(`${base}/sobre`)).text(), /sobre/);
   const asset = await fetch(`${base}/assets/app-abc123.js`);
   assert.equal(asset.status, 200);
   assert.match(asset.headers.get('cache-control'), /max-age=31536000.*immutable/);
   assert.equal((await fetch(`${base}/assets/nao-existe.js`)).status, 404);
-  assert.equal((await fetch(`${base}/pagina-que-nao-existe`)).status, 404);
+  const missing = await fetch(`${base}/pagina-que-nao-existe`);
+  assert.equal(missing.status, 404);
+  assert.match(await missing.text(), /nao-encontrada/); // T7.9: página 404 de verdade
   const legacy = await fetch(`${base}/auth/login`, { redirect: 'manual' });
   assert.deepEqual([legacy.status, legacy.headers.get('location')], [301, '/login/']);
+  const withNext = await fetch(`${base}/auth/login?next=/posts/criar`, { redirect: 'manual' });
+  assert.equal(withNext.headers.get('location'), '/login/?next=/posts/criar'); // mantém o ?next=
+  const logout = await fetch(`${base}/auth/logout`, { redirect: 'manual' });
+  assert.deepEqual([logout.status, logout.headers.get('location')], [301, '/']);
 });

@@ -6,7 +6,7 @@
  *   /posts/:id     → posts/detalhe.html com Open Graph do post
  *   /adocao/:id    → adocao/detalhe.html com Open Graph da adoção
  *   outras páginas → o HTML de page-routes.js
- *   URL desconhecida → 404 com a home (o front mostra o conteúdo padrão)
+ *   URL desconhecida → página 404 · erro inesperado → página 500 (T7.9)
  */
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -15,15 +15,21 @@ import { resolvePage, LEGACY_REDIRECTS } from '@petspost/web/page-routes';
 import { idParamSchema } from '@petspost/contracts';
 import { injectMeta, META_BUILDERS } from './meta.js';
 
+const queryOf = (req) => {
+  const i = req.originalUrl.indexOf('?');
+  return i === -1 ? '' : req.originalUrl.slice(i);
+};
+
 /**
  * @param {{
  *   distDir: string,
  *   og: Record<'post' | 'adoption', { get: (id: number, viewer: null) => Promise<object> }>,
  *   publicUrl?: string,
  *   cache?: boolean,
+ *   onError?: (err: Error) => void, // log do erro antes de mostrar a página 500
  * }} deps `og`: o serviço que busca o anúncio de cada tipo de página com Open Graph
  */
-export function webRouter({ distDir, og, publicUrl, cache = true }) {
+export function webRouter({ distDir, og, publicUrl, cache = true, onError }) {
   const router = Router();
   const files = new Map();
 
@@ -42,11 +48,11 @@ export function webRouter({ distDir, og, publicUrl, cache = true }) {
   router.get(/.*/, async (req, res, next) => {
     try {
       const legacy = LEGACY_REDIRECTS[req.path.replace(/\/$/, '')];
-      if (legacy) return res.redirect(301, legacy);
+      if (legacy) return res.redirect(301, `${legacy}${queryOf(req)}`); // mantém ?next=
 
       const match = resolvePage(req.path);
       res.set('Cache-Control', 'no-cache');
-      if (!match) return res.status(404).type('html').send(await html('index.html'));
+      if (!match) return res.status(404).type('html').send(await html('404.html'));
 
       let page = await html(match.page);
       if (match.og) {
@@ -61,6 +67,18 @@ export function webRouter({ distDir, og, publicUrl, cache = true }) {
       res.type('html').send(page);
     } catch (err) {
       next(err);
+    }
+  });
+
+  // Erro numa página HTML → página 500 (a API continua respondendo JSON pelo errorHandler).
+  // eslint-disable-next-line no-unused-vars
+  router.use(async (err, req, res, next) => {
+    if (req.path.startsWith('/api/') || res.headersSent) return next(err);
+    onError?.(err);
+    try {
+      res.status(500).set('Cache-Control', 'no-store').type('html').send(await html('500.html'));
+    } catch {
+      res.status(500).type('text').send('Erro interno. Tente de novo em instantes.');
     }
   });
 

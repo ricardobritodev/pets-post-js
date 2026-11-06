@@ -55,12 +55,22 @@ test('headers de segurança (helmet) presentes e x-powered-by ausente', async ()
   assert.equal(res.headers.get('x-powered-by'), null);
 });
 
-test('CSP libera só o necessário para as fotos (blob:) e o mapa (tiles do OSM)', async () => {
-  const csp = (await fetch(`${base}/api/v1/health`)).headers.get('content-security-policy');
-  const img = csp.split(';').find((d) => d.trim().startsWith('img-src'));
-  assert.equal(img.trim(), "img-src 'self' data: blob: https://tile.openstreetmap.org");
-  assert.match(csp, /script-src 'self'(;|$)/); // nenhum script de fora nem inline
-  assert.match(csp, /default-src 'self'/);
+test('T7.8 CSP final: nada inline nem de fora, só os tiles do mapa e blob: das fotos', async () => {
+  const res = await fetch(`${base}/api/v1/health`);
+  const csp = Object.fromEntries(res.headers.get('content-security-policy').split(';').map((d) => {
+    const [name, ...values] = d.trim().split(/\s+/);
+    return [name, values.join(' ')];
+  }));
+  assert.equal(csp['img-src'], "'self' data: blob: https://tile.openstreetmap.org");
+  assert.equal(csp['script-src'], "'self'");
+  assert.equal(csp['style-src'], "'self'"); // sem 'unsafe-inline'
+  assert.equal(csp['connect-src'], "'self'");
+  assert.equal(csp['frame-ancestors'], "'none'");
+  assert.equal(csp['object-src'], "'none'");
+  assert.equal(csp['script-src-attr'], "'none'");
+  assert.ok(!res.headers.get('content-security-policy').includes('unsafe'));
+  // OpenStreetMap exige Referer nos tiles; só a origem vai junto
+  assert.equal(res.headers.get('referrer-policy'), 'strict-origin-when-cross-origin');
 });
 
 test('JSON malformado → 400 INVALID_JSON', async () => {

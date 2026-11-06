@@ -20,11 +20,15 @@ function pageRoutes() {
         const url = new URL(req.url, 'http://dev');
         const to = LEGACY_REDIRECTS[url.pathname.replace(/\/$/, '')];
         if (to) {
-          res.writeHead(301, { Location: to });
+          res.writeHead(301, { Location: `${to}${url.search}` }); // mantém ?next=
           return res.end();
         }
         const match = resolvePage(url.pathname);
         if (match) req.url = `/${match.page}${url.search}`;
+        // URL de página desconhecida → 404 (arquivos do Vite, /api e /uploads seguem normais).
+        else if (!/[.@]/.test(url.pathname) && !/^\/(api|uploads|static|src|node_modules)\b/.test(url.pathname)) {
+          req.url = '/404.html';
+        }
         next();
       });
     },

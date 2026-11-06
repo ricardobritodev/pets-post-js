@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Algo deu errado · Pets Post</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- Sem layout dinâmico: se o servidor está com problema, a página não depende da API. -->
+    <script type="module" src="/src/pages/error-static.js"></script>
+  </head>
+  <body class="flex min-h-screen flex-col bg-stone-50 text-stone-800 antialiased">
+    <header class="border-b border-stone-200 bg-white">
+      <div class="mx-auto max-w-6xl px-4 py-3">
+        <a href="/" class="inline-flex items-center gap-2 text-xl font-bold text-brand-700"><i data-icon="paw" data-size="26"></i> Pets Post</a>
+      </div>
+    </header>
+    <main class="mx-auto w-full max-w-lg flex-1 px-4 py-16">
+      <section class="card text-center">
+        <div class="text-brand-600"><i data-icon="warning" data-size="56" class="mx-auto"></i></div>
+        <p class="mt-4 text-sm font-semibold uppercase tracking-wide text-brand-600">Erro 500</p>
+        <h1 class="mt-1 text-2xl font-bold">Algo deu errado do nosso lado</h1>
+        <p class="mt-2 text-stone-600">Já ficamos sabendo. Tente de novo em alguns instantes.</p>
+        <div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+          <a href="" class="btn btn-primary">Tentar de novo</a>
+          <a href="/" class="btn btn-outline">Ir para o início</a>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

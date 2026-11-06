@@ -36,6 +36,7 @@ const ROUTES = [
 export const LEGACY_REDIRECTS = Object.freeze({
   '/auth/login': '/login/',
   '/auth/register': '/cadastro/',
+  '/auth/logout': '/', // no Flask era um POST; se alguém abrir o link, volta para a home
 });
 
 /** Páginas que entram no build do Vite (chave = nome do chunk). */
@@ -56,6 +57,8 @@ export const PAGE_INPUTS = Object.freeze({
   sobre: 'sobre/index.html',
   login: 'login/index.html',
   cadastro: 'cadastro/index.html',
+  notFound: '404.html',
+  serverError: '500.html',
 });
 
 /**
