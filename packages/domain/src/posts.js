@@ -25,3 +25,15 @@ export function postWhatsappMessage(post) {
   const who = post.petName || label('petType', post.petType);
   return `Olá! Vi seu anúncio no Pets Post:\n*${label('status', post.status)} — ${who}*\nGostaria de saber mais informações. 🐾`;
 }
+
+/**
+ * Mensagem do WhatsApp no detalhe da adoção (specs/api/adoption.md).
+ * @param {{ petName?: string|null, petType: string }} adoption
+ */
+export function adoptionWhatsappMessage(adoption) {
+  const who = adoption.petName || label('petType', adoption.petType);
+  return `Olá! Vi no Pets Post que *${who}* está para adoção.\nGostaria de saber mais. 🐾`;
+}
+
+/** Mensagem do WhatsApp no popup do mapa de parceiros (specs/api/partners.md). */
+export const PARTNER_WHATSAPP_MESSAGE = 'Olá! Encontrei vocês no mapa do Pets Post e gostaria de mais informações. 🐾';

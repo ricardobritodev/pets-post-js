@@ -40,3 +40,26 @@ export const partnerTypeSchema = z.enum(PARTNER_TYPES);
 
 /** Paginação via query string (?page=2). Valores inválidos viram 1. */
 export const pageQuerySchema = z.coerce.number().int().min(1).catch(1);
+
+/** Campo opcional de enum: vazio vira null. */
+export const optionalEnum = (schema) =>
+  z
+    .union([z.literal(''), schema])
+    .optional()
+    .nullable()
+    .transform((v) => (v ? v : null));
+
+/** Email opcional: vazio vira null; preenchido precisa ser válido (BR-VAL-002). */
+export const optionalEmail = z
+  .union([z.literal(''), emailSchema])
+  .optional()
+  .nullable()
+  .transform((v) => (v ? v : null));
+
+/** Enum de query que vira undefined quando inválido (filtros inválidos são ignorados, BR-POST-003). */
+export const lenientEnum = (values) => z.enum(values).optional().catch(undefined);
+
+/** Booleano de formulário: aceita true/false, "true"/"false", "on" (checkbox) e vazio (= false). */
+export const formBoolean = z
+  .union([z.boolean(), z.enum(['true', 'false', 'on', ''])])
+  .transform((v) => v === true || v === 'true' || v === 'on');

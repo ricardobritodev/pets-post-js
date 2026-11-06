@@ -8,28 +8,15 @@ import { PET_TYPES, POST_STATUSES } from '@petspost/domain';
 import {
   requiredText,
   optionalText,
+  optionalEnum,
+  optionalEmail,
+  lenientEnum,
   phoneSchema,
-  emailSchema,
   petTypeSchema,
   petSizeSchema,
   postStatusSchema,
   pageQuerySchema,
 } from './common.js';
-
-/** Campo opcional de enum: vazio vira null. */
-const optionalEnum = (schema) =>
-  z
-    .union([z.literal(''), schema])
-    .optional()
-    .nullable()
-    .transform((v) => (v ? v : null));
-
-/** Email opcional: vazio vira null; preenchido precisa ser válido (BR-VAL-002). */
-const optionalEmail = z
-  .union([z.literal(''), emailSchema])
-  .optional()
-  .nullable()
-  .transform((v) => (v ? v : null));
 
 const postFields = {
   title: requiredText(150, 'O título é obrigatório.'),
@@ -54,9 +41,6 @@ export const updatePostSchema = z
   .object(postFields)
   .partial()
   .refine((d) => Object.keys(d).length > 0, { message: 'Nada para atualizar.' });
-
-/** Enum de query que vira undefined quando inválido (BR-POST-003: inválidos são ignorados). */
-const lenientEnum = (values) => z.enum(values).optional().catch(undefined);
 
 /**
  * BR-POST-003 — filtros da listagem. Aceita `pet_type` (links antigos) além de `petType`.
