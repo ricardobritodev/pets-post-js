@@ -51,6 +51,17 @@ enum PartnerType {
   vet_clinic
 }
 
+// Loja (Etapa 7b · specs/api/store.md · BR-STORE-002)
+enum ProductCategory {
+  food
+  treats
+  toys
+  hygiene
+  health
+  accessories
+  beds
+}
+
 // ---------- Tabelas ----------
 
 model User {
@@ -173,7 +184,50 @@ model Partner {
   isActive    Boolean     @default(true) @map("is_active")
   createdAt   DateTime    @default(now()) @map("created_at") @db.DateTime(0)
 
+  products Product[]
+
   @@map("partners")
+}
+
+// Produtos da vitrine (Etapa 7b). Tabelas novas da v2 — não existem no banco do Flask.
+// Preço em centavos (BR-STORE-003). Parceiro com produtos não pode ser excluído (BR-STORE-008).
+model Product {
+  id              Int             @id @default(autoincrement())
+  name            String          @db.VarChar(150)
+  description     String?         @db.Text
+  category        ProductCategory
+  petType         PetType?        @map("pet_type")
+  priceCents      Int             @map("price_cents")
+  promoPriceCents Int?            @map("promo_price_cents")
+  stock           Int             @default(0)
+  url             String?         @db.VarChar(500)
+  isActive        Boolean         @default(true) @map("is_active")
+  isFeatured      Boolean         @default(false) @map("is_featured")
+  createdAt       DateTime        @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt       DateTime?       @updatedAt @map("updated_at") @db.DateTime(0)
+
+  partnerId Int     @map("partner_id")
+  partner   Partner @relation(fields: [partnerId], references: [id], onDelete: Restrict)
+
+  photos ProductPhoto[]
+
+  @@index([partnerId])
+  @@index([isActive, category])
+  @@map("products")
+}
+
+model ProductPhoto {
+  id        Int      @id @default(autoincrement())
+  filename  String   @db.VarChar(256)
+  url       String   @db.VarChar(512)
+  isPrimary Boolean  @default(false) @map("is_primary")
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(0)
+
+  productId Int     @map("product_id")
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("product_photos")
 }
 
 // Sessões do express-session (migration M-05 · specs/api/auth.md).

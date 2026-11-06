@@ -47,6 +47,8 @@ export async function clearDatabase(db) {
     db.adoptionPhoto.deleteMany(),
     db.petPost.deleteMany(),
     db.adoptionPost.deleteMany(),
+    db.productPhoto.deleteMany(),
+    db.product.deleteMany(), // antes dos parceiros (FK RESTRICT, BR-STORE-008)
     db.partner.deleteMany(),
     db.user.deleteMany(),
   ]);
