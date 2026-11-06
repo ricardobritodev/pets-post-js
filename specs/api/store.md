@@ -1,6 +1,6 @@
 # API — Loja (vitrine de produtos dos parceiros)
 
-Regras: BR-STORE-001..014 · Permissões: PERM-003 (cadastro) · Convenções: [conventions.md](conventions.md) ·
+Regras: BR-STORE-001..015 · Permissões: PERM-003 (cadastro) · Convenções: [conventions.md](conventions.md) ·
 Contratos: `packages/contracts/src/store.js`
 
 **É uma vitrine, não um e-commerce:** o Pets Post mostra o produto com foto e preço, e o botão leva para a
@@ -76,7 +76,7 @@ loja do parceiro. Não tem carrinho, pagamento nem pedido aqui. Cada produto per
 ### Importar de um link (BR-STORE-009/010)
 | Rota | O que faz |
 |---|---|
-| `POST /api/v1/admin/products/import` `{ url }` | lê a página e devolve um **rascunho**: `{ draft: { name, description, priceCents, inStock, url, category, petType, siteName, sellerName, partnerId, newPartner }, partnerMatches: [{ id, name, isActive }], images: [{ url, thumb }], warnings: [] }`. `sellerName` vem do `offers.seller` da página (pode ser `null`). `partnerId`/`partnerMatches` (BR-STORE-012): parceiros com o mesmo domínio do link; `partnerId` é o escolhido (pelo site ou pelo nome); sem nenhum, `partnerId: null` e `newPartner: { name, website }` (a loja que será cadastrada ao salvar). `category`/`petType` são **sugestões** pelo nome (podem vir `null`). `thumb` é uma miniatura `data:` para pré-visualizar sem carregar a imagem de fora (CSP). Preço ou fotos que não vierem viram `warnings` (o admin completa). Erros: 400 `VALIDATION_ERROR` (link inválido) · 422 `IMPORT_FAILED` com a mensagem (site bloqueou, endereço não permitido, não achou o produto…) |
+| `POST /api/v1/admin/products/import` `{ url }` | lê a página e devolve um **rascunho**: `{ draft: { name, description, priceCents, inStock, url, category, petType, siteName, sellerName, partnerId, newPartner }, partnerMatches: [{ id, name, isActive }], images: [{ url, thumb }], pendingImages: [url], warnings: [] }`. `pendingImages` (BR-STORE-015): fotos que o servidor não pôde baixar (429) e que o navegador do admin pode baixar (servidores da lista `BROWSER_IMAGE_HOSTS`); o front baixa e envia pelo `POST .../photos` normal. `sellerName` vem do `offers.seller` da página (pode ser `null`). `partnerId`/`partnerMatches` (BR-STORE-012): parceiros com o mesmo domínio do link; `partnerId` é o escolhido (pelo site ou pelo nome); sem nenhum, `partnerId: null` e `newPartner: { name, website }` (a loja que será cadastrada ao salvar). `category`/`petType` são **sugestões** pelo nome (podem vir `null`). `thumb` é uma miniatura `data:` para pré-visualizar sem carregar a imagem de fora (CSP). Preço ou fotos que não vierem viram `warnings` (o admin completa). Erros: 400 `VALIDATION_ERROR` (link inválido) · 422 `IMPORT_FAILED` com a mensagem (site bloqueou, endereço não permitido, não achou o produto…) |
 | `POST /api/v1/admin/products/:id/photos/import` `{ urls: string[] }` | baixa as fotos escolhidas (até completar 6) e salva como as enviadas (BR-PHOTO-*); resposta igual ao envio de fotos: `{ product, rejected }` |
 | `POST /api/v1/admin/products/:id/refresh` | lê de novo o `url` do produto e atualiza o preço, o estoque e o `priceCheckedAt`: `{ product, changed: { priceCents?: [antes, depois], inStock?: [antes, depois] } }`. Sem `url` → 400; site falhou → 422 `IMPORT_FAILED` (o produto não muda) |
 
