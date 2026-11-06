@@ -6,12 +6,15 @@ import { createApp } from '../src/app.js';
 import { loadConfig } from '../src/config.js';
 
 /** Sobe a app numa porta livre. Devolve { base, close, events }. */
-export async function startApp({ db, limits, configOverrides = {} } = {}) {
+export async function startApp({ db, limits, storage, configOverrides = {} } = {}) {
   const config = loadConfig({ NODE_ENV: 'test', SESSION_SECRET: 'x'.repeat(40), ...configOverrides });
   const events = [];
   const securityLog = (event, fields) => events.push({ event, ...fields });
-  const app = createApp({ config, db, securityLog, limits });
+  const app = createApp({ config, db, securityLog, limits, storage });
   const server = app.listen(0);
+  // Com --test-name-pattern o node pode rodar o before() e pular o after(): sem unref, o
+  // servidor aberto segura o processo e o teste nunca termina.
+  server.unref();
   await new Promise((r) => server.once('listening', r));
   return {
     base: `http://127.0.0.1:${server.address().port}`,
@@ -28,7 +31,7 @@ export function createClient(base) {
     cookies: jar,
     lastSetCookies: [],
 
-    async request(method, path, { json, csrf = true, headers = {} } = {}) {
+    async request(method, path, { json, form, csrf = true, headers = {} } = {}) {
       const h = { accept: 'application/json', ...headers };
       if (jar.size) h.cookie = [...jar].map(([k, v]) => `${k}=${v}`).join('; ');
       if (json !== undefined) h['content-type'] = 'application/json';
@@ -37,7 +40,7 @@ export function createClient(base) {
       const res = await fetch(`${base}/api/v1${path}`, {
         method,
         headers: h,
-        body: json !== undefined ? JSON.stringify(json) : undefined,
+        body: form ?? (json !== undefined ? JSON.stringify(json) : undefined), // FormData: o fetch monta o multipart
       });
       client.lastSetCookies = res.headers.getSetCookie();
       for (const c of client.lastSetCookies) {
@@ -57,6 +60,7 @@ export function createClient(base) {
     post: (path, json, opts) => client.request('POST', path, { ...opts, json }),
     patch: (path, json, opts) => client.request('PATCH', path, { ...opts, json }),
     del: (path, opts) => client.request('DELETE', path, opts),
+    upload: (path, form, opts) => client.request('POST', path, { ...opts, form }),
 
     /** Atalho: pega o token CSRF e loga. */
     async loginAs(email, password = 'Senha@123') {
@@ -76,7 +80,7 @@ export function createClient(base) {
 }
 
 export const BIG_LIMIT = { perMinute: 10_000, perHour: 10_000 };
-export const LOOSE_LIMITS = { login: BIG_LIMIT, register: BIG_LIMIT, csrf: BIG_LIMIT };
+export const LOOSE_LIMITS = { login: BIG_LIMIT, register: BIG_LIMIT, csrf: BIG_LIMIT, upload: BIG_LIMIT, cep: BIG_LIMIT };
 
 export const validUser = (over = {}) => ({
   name: 'Maria Silva',

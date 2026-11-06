@@ -23,6 +23,7 @@
 | 403 | `FORBIDDEN` | sem permissão |
 | 404 | `NOT_FOUND` | inexistente **ou** inativo sem permissão (PERM-002) |
 | 409 | `CONFLICT` | ex.: email já cadastrado |
+| 411 | `LENGTH_REQUIRED` | upload sem `Content-Length` |
 | 413 | `PAYLOAD_TOO_LARGE` | upload acima de 8 MB (BR-PHOTO-003) |
 | 429 | `RATE_LIMITED` | limite excedido |
 | 500 | `INTERNAL` | erro inesperado (mensagem genérica em produção) |

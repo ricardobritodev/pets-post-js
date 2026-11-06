@@ -16,7 +16,7 @@ before(async () => {
   app = await startApp({ db: prisma, limits: LOOSE });
 });
 after(async () => {
-  await app.close();
+  await app?.close(); // com --test-name-pattern o before pode nem rodar
   await prisma.$disconnect();
 });
 beforeEach(async () => {
@@ -291,7 +291,8 @@ describe('BR-AUTH-007 rate limit', () => {
 
   test('BR-AUTH-007 limites padrão da spec', async () => {
     const { DEFAULT_LIMITS } = await import('../src/middleware/rate-limit.js');
-    assert.deepEqual(DEFAULT_LIMITS, {
+    const { login, register, csrf } = DEFAULT_LIMITS; // os outros limites (fotos, CEP) têm teste próprio
+    assert.deepEqual({ login, register, csrf }, {
       login: { perMinute: 10, perHour: 50 },
       register: { perMinute: 5, perHour: 20 },
       csrf: { perMinute: 30, perHour: 300 },

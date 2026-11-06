@@ -38,6 +38,7 @@ export default defineConfig({
     proxy: {
       '/api': 'http://localhost:3000',
       '/uploads': 'http://localhost:3000',
+      '/static/uploads': 'http://localhost:3000', // fotos antigas do Flask
     },
   },
   build: {

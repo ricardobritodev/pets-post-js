@@ -12,6 +12,8 @@ export const DEFAULT_LIMITS = Object.freeze({
   register: { perMinute: 5, perHour: 20 },
   // GET /auth/csrf grava uma sessão anônima: limitar evita lotar a tabela `sessions`.
   csrf: { perMinute: 30, perHour: 300 },
+  // Re-codificar imagem gasta CPU: limita os envios de fotos.
+  upload: { perMinute: 20, perHour: 200 },
 });
 
 const json429 = (_req, res) =>

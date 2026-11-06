@@ -18,7 +18,7 @@ before(async () => {
   hash = await hashPassword('Senha@123');
 });
 after(async () => {
-  await app.close();
+  await app?.close(); // com --test-name-pattern o before pode nem rodar
   await prisma.$disconnect();
 });
 beforeEach(async () => {

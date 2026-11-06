@@ -7,8 +7,13 @@ import { toPostCard, toPostDetail } from './presenter.js';
 
 const notFound = () => new HttpError(404, 'NOT_FOUND', 'Anúncio não encontrado.');
 
-/** @param {{ posts: ReturnType<typeof import('./repository.js').createPostRepository> }} deps */
-export function createPostService({ posts }) {
+/**
+ * @param {{
+ *   posts: ReturnType<typeof import('./repository.js').createPostRepository>,
+ *   photos: ReturnType<typeof import('../photos/service.js').createPhotoService>,
+ * }} deps
+ */
+export function createPostService({ posts, photos }) {
   /**
    * Garante que o usuário pode gerenciar o post.
    * Inexistente → 404. Inativo de outra pessoa → 404 (PERM-002, não revela). Ativo de outra → 403 (PERM-001).
@@ -20,7 +25,13 @@ export function createPostService({ posts }) {
     return info;
   }
 
+  /** Detalhe atualizado depois de mexer nas fotos. */
+  const freshDetail = async (id, viewer) => toPostDetail(await posts.findDetail(id), viewer);
+
   return {
+    /** Usado pela rota de upload antes de ler os arquivos (não processa upload de quem não pode). */
+    checkManage: (id, viewer) => assertManageable(id, viewer),
+
     async list(query) {
       const page = await posts.listPublic(query);
       return { ...page, items: page.items.map(toPostCard) };
@@ -52,10 +63,26 @@ export function createPostService({ posts }) {
       return toPostDetail(await posts.update(id, data), viewer);
     },
 
-    /** BR-POST-006 */
+    /** BR-POST-006 + BR-PHOTO-007 — os registros saem por CASCADE; os arquivos, depois. */
     async remove(id, viewer) {
       await assertManageable(id, viewer);
+      const files = await photos.filenamesOf(id);
       await posts.delete(id);
+      await photos.removeFiles(files);
+    },
+
+    /** BR-PHOTO-001..006 */
+    async addPhotos(id, viewer, files) {
+      await assertManageable(id, viewer);
+      const { saved, rejected } = await photos.add(id, files);
+      return { saved, rejected, post: await freshDetail(id, viewer) };
+    },
+
+    /** BR-PHOTO-002/007 */
+    async removePhoto(id, photoId, viewer) {
+      await assertManageable(id, viewer);
+      await photos.remove(id, photoId);
+      return freshDetail(id, viewer);
     },
 
     /** BR-POST-005 — idempotente. */

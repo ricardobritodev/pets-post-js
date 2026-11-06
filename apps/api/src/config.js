@@ -15,6 +15,8 @@ const schema = z
     PUBLIC_URL: z.url().optional(),
     // Pasta do build do Vite servida pelo Express (padrão em produção: apps/web/dist).
     WEB_DIST_DIR: z.string().optional(),
+    // Pasta das fotos enviadas (ADR 006). Padrão: apps/api/uploads
+    UPLOAD_DIR: z.string().optional(),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV !== 'production') return;
