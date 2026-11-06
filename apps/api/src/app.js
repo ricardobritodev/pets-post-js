@@ -9,6 +9,7 @@ import express from 'express';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { healthRouter } from './routes/health.js';
+import { siteRouter } from './routes/site.js';
 import { notFound, errorHandler } from './middleware/errors.js';
 import { sessionMiddleware, csrf as createCsrf } from './middleware/session.js';
 import { loadUser } from './middleware/auth.js';
@@ -95,6 +96,7 @@ export function createApp({ config, db, logger, securityLog, sessionStore, limit
   app.use(express.json({ limit: '100kb' }));
 
   app.use('/api/v1/health', healthRouter({ db }));
+  app.use('/api/v1/site', siteRouter({ config })); // antes da sessão: não cria sessão para visitante
 
   // --- Sessão, CSRF e usuário logado (specs/api/auth.md) ---
   const users = createUserRepository(db);

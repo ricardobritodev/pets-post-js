@@ -4,6 +4,10 @@
  */
 import { randomBytes } from 'node:crypto';
 import { z } from 'zod';
+import { toWhatsappUrl } from '@petspost/domain';
+
+/** BR-CONTACT-002 — mensagem padrão do botão flutuante. */
+export const DEFAULT_CONTACT_MESSAGE = 'Olá! Vim pelo site do Pets Post e gostaria de ajuda.';
 
 const schema = z
   .object({
@@ -20,8 +24,14 @@ const schema = z
     // Geocodificação via Nominatim (specs/api/geo.md). Padrão: ligada, menos em NODE_ENV=test.
     GEOCODER_ENABLED: z.enum(['true', 'false']).optional(),
     GEOCODER_USER_AGENT: z.string().min(5).optional(),
+    // Botão flutuante "Fale com a gente" (BR-CONTACT-002). Sem número, o botão não aparece.
+    CONTACT_WHATSAPP: z.string().trim().optional(),
+    CONTACT_WHATSAPP_MESSAGE: z.string().trim().max(300).optional(),
   })
   .superRefine((env, ctx) => {
+    if (env.CONTACT_WHATSAPP && !toWhatsappUrl(env.CONTACT_WHATSAPP)) {
+      ctx.addIssue({ code: 'custom', path: ['CONTACT_WHATSAPP'], message: 'número inválido para WhatsApp (use DDD + número, ex.: (11) 91234-5678)' });
+    }
     if (env.NODE_ENV !== 'production') return;
     if (!env.DATABASE_URL) {
       ctx.addIssue({ code: 'custom', path: ['DATABASE_URL'], message: 'obrigatória em produção' });
@@ -39,6 +49,9 @@ export function loadConfig(source = process.env) {
     throw new Error(`Configuração inválida:\n${details}\nConfira o arquivo .env (veja .env.example).`);
   }
   const data = { ...result.data };
+  data.CONTACT_WHATSAPP_URL = data.CONTACT_WHATSAPP
+    ? toWhatsappUrl(data.CONTACT_WHATSAPP, data.CONTACT_WHATSAPP_MESSAGE || DEFAULT_CONTACT_MESSAGE)
+    : null;
   data.GEOCODER_ENABLED = (data.GEOCODER_ENABLED ?? (data.NODE_ENV === 'test' ? 'false' : 'true')) === 'true';
   // Fora de produção, sem SESSION_SECRET: gera um aleatório (as sessões somem ao reiniciar).
   if (!data.SESSION_SECRET) {

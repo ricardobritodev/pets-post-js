@@ -86,3 +86,34 @@ test('JSON malformado → 400 INVALID_JSON', async () => {
 test('config: produção sem DATABASE_URL/SESSION_SECRET falha na inicialização', () => {
   assert.throws(() => loadConfig({ NODE_ENV: 'production' }), /DATABASE_URL[\s\S]*SESSION_SECRET/);
 });
+
+test('BR-CONTACT-002 GET /site sem número configurado → whatsappUrl null', async () => {
+  const res = await fetch(`${base}/api/v1/site`);
+  assert.equal(res.status, 200);
+  assert.deepEqual(await res.json(), { contact: { whatsappUrl: null } });
+  assert.match(res.headers.get('cache-control'), /max-age=300/);
+  assert.equal(res.headers.get('set-cookie'), null); // não cria sessão
+});
+
+test('BR-CONTACT-002 número configurado vira link wa.me com a mensagem padrão (ou a configurada)', async () => {
+  const cfg = loadConfig({ NODE_ENV: 'test', CONTACT_WHATSAPP: '(11) 91234-5678' });
+  // codificação igual à do urllib.parse.quote do Flask (BR-CONTACT-001): "!" vira %21
+  assert.equal(cfg.CONTACT_WHATSAPP_URL, 'https://wa.me/5511912345678?text=Ol%C3%A1%21%20Vim%20pelo%20site%20do%20Pets%20Post%20e%20gostaria%20de%20ajuda.');
+  const custom = loadConfig({ NODE_ENV: 'test', CONTACT_WHATSAPP: '5511912345678', CONTACT_WHATSAPP_MESSAGE: 'Oi, quero ajuda' });
+  assert.equal(custom.CONTACT_WHATSAPP_URL, 'https://wa.me/5511912345678?text=Oi%2C%20quero%20ajuda');
+
+  const srv = createApp({ config: cfg, db: fakeDb }).listen(0);
+  await new Promise((r) => srv.once('listening', r));
+  try {
+    const body = await (await fetch(`http://127.0.0.1:${srv.address().port}/api/v1/site`)).json();
+    assert.equal(body.contact.whatsappUrl, cfg.CONTACT_WHATSAPP_URL);
+  } finally {
+    srv.close();
+  }
+});
+
+test('BR-CONTACT-002 número inválido impede a API de subir, com mensagem clara', () => {
+  for (const bad of ['0800 123 4567', '9999-9999', 'abc']) {
+    assert.throws(() => loadConfig({ NODE_ENV: 'test', CONTACT_WHATSAPP: bad }), /CONTACT_WHATSAPP: número inválido/, bad);
+  }
+});
