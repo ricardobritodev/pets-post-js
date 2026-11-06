@@ -31,9 +31,9 @@ Procedimento: [`packages/db/scripts/BASELINE.md`](../../packages/db/scripts/BASE
 ## Passo 2 — Correções planejadas (migrations futuras)
 | # | Mudança | Motivo |
 |---|---|---|
-| M-01 | `FLOAT` → `DOUBLE` nas coordenadas | precisão |
+| M-01 | ~~`FLOAT` → `DOUBLE` nas coordenadas~~ ✅ migration `2_coords_double` (Etapa 5) | precisão |
 | M-02 | ~~`ON DELETE CASCADE` nas FKs de fotos~~ ✅ feito no baseline (já estava no `0_init`) | integridade |
-| M-03 | Unificar `photos` + `adoption_photos` (Q-002) | remover duplicação |
+| M-03 | Unificar `photos` + `adoption_photos` (Q-002: adiada para depois da virada, para manter o rollback) | remover duplicação |
 | M-04 | Índices `(is_active, is_resolved, created_at)` e `(is_active, is_adopted, created_at)` | listagens |
 | M-05 | ~~Tabela `sessions` (express-session store)~~ ✅ migration `1_sessions` (Etapa 3) | sessões persistentes |
 

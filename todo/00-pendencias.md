@@ -8,15 +8,13 @@
   Fecha a validação da ADR 003.
 
 ## Decisões de produto
-- [ ] **Q-001 — Limite de fotos: 5 ou 6?** Proposta: 6 (é o que roda em produção).
-  Ao decidir: atualizar `BR-PHOTO-001` e `PHOTO_POLICY.maxPerPost`.
-- [ ] **Q-002 — Unificar `photos` + `adoption_photos`?** Proposta: sim, na Etapa 5 (migration M-03).
+- [x] **Q-001 — Limite de fotos: 5 ou 6?** *(2026-11-06: 6, é o que roda em produção; `PHOTO_POLICY.maxPerPost` já era 6)*
+- [x] **Q-002 — Unificar `photos` + `adoption_photos`?** *(2026-11-06: não por enquanto. As tabelas ficam como no Flask para o rollback continuar possível; o serviço de fotos é genérico e serve as duas. M-03 fica para depois da virada)*
 - [ ] **Q-003 — Reaproveitar o banco de produção ou começar banco novo e importar?**
   Proposta: reaproveitar. Procedimento pronto e testado em banco simulado (`npm run db:baseline`);
   falta testar num dump real.
 - [ ] **Q-004 — Hospedagem da v2** (mesmo servidor/Nginx do Flask?). Afeta Etapa 7.
-- [ ] **Q-005 — Uploads: continuar em disco ou ir para S3/R2?** Proposta: disco na
-  paridade, nuvem depois.
+- [x] **Q-005 — Uploads: continuar em disco ou ir para S3/R2?** *(2026-11-06: disco, atrás de uma interface `storage` pequena; trocar por S3/R2 depois é só outra implementação. Ver ADR 006)*
 
 ## Dívida técnica conhecida
 - [ ] **D-01 —** `npm audit`: 3 alertas *high* em `deepmerge-ts` (CLI do Prisma 6, só dev).

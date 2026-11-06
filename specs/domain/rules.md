@@ -43,20 +43,21 @@ Origem: engenharia reversa do projeto Flask (`pets-post/app/**`).
 ## Fotos — BR-PHOTO
 | ID | Regra | Status |
 |---|---|---|
-| BR-PHOTO-001 | Máximo de **6** fotos por anúncio (criação e edição). Excedentes na edição são ignoradas com aviso. | 🟡 ⚠️ ver Q-001 |
-| BR-PHOTO-002 | A primeira foto enviada é a principal. Se a principal for removida, a primeira restante vira principal. Sem foto marcada, a primeira é usada. | ✅ escolha da principal · 🟡 upload/remoção (Etapa 5) |
-| BR-PHOTO-003 | Extensões aceitas: png, jpg, jpeg, gif, webp. Requisição de até 8 MB. | 🟡 |
-| BR-PHOTO-004 | Toda imagem é re-codificada no servidor: rejeita não-imagem, rejeita > 20 MP, converte para RGB, redimensiona para no máx. 800 px de largura, qualidade 85. O arquivo original nunca é salvo. | 🟡 |
-| BR-PHOTO-005 | Nome do arquivo = UUID aleatório; o nome enviado pelo usuário é descartado. | 🟡 |
-| BR-PHOTO-006 | Falha em uma foto não impede salvar o anúncio (aviso ao usuário). | 🟡 |
+| BR-PHOTO-001 | Máximo de **6** fotos por anúncio (criação e edição). Excedentes são ignoradas com aviso. *(Q-001 decidida: 6)* | 🟡 |
+| BR-PHOTO-002 | A primeira foto enviada é a principal. Se a principal for removida, a primeira restante vira principal. Sem foto marcada, a primeira é usada. | 🟡 |
+| BR-PHOTO-003 | Extensões aceitas: png, jpg, jpeg, gif, webp. Requisição de até 8 MB (413 acima disso). | 🟡 |
+| BR-PHOTO-004 | Toda imagem é re-codificada no servidor: rejeita não-imagem (o conteúdo manda, não a extensão), rejeita > 20 MP, aplica a rotação do EXIF, converte para RGB (fundo branco no lugar da transparência), redimensiona para no máx. 800 px de largura e salva em **JPEG** qualidade 85, **sem metadados** (o EXIF pode ter o GPS da casa de quem tirou a foto). O arquivo original nunca é salvo. GIF animado vira o primeiro quadro. | 🟡 |
+| BR-PHOTO-005 | Nome do arquivo = UUID aleatório + `.jpg`; o nome enviado pelo usuário é descartado. | 🟡 |
+| BR-PHOTO-006 | Falha em uma foto não impede salvar o anúncio nem as outras fotos (aviso ao usuário). | 🟡 |
+| BR-PHOTO-007 | Remover uma foto apaga o registro **e** o arquivo. Excluir o anúncio apaga os arquivos de todas as fotos. Falha ao apagar o arquivo só gera log, não erro. | 🟡 |
 
 ## Geolocalização — BR-GEO
 | ID | Regra | Status |
 |---|---|---|
-| BR-GEO-001 | Endereço é geocodificado via Nominatim (OSM), restrito ao Brasil, timeout 5 s. Falha não impede salvar (fica sem coordenadas). | 🟡 |
-| BR-GEO-002 | Geocodificar **apenas** se o endereço mudou ou não há coordenadas. *(correção — o Flask geocodificava sempre na edição de posts)* | 🟡 |
+| BR-GEO-001 | Endereço é geocodificado via Nominatim (OSM), restrito ao Brasil, timeout 5 s, **depois** de responder ao usuário. Falha não impede salvar (fica sem coordenadas). | 🟡 |
+| BR-GEO-002 | Geocodificar **apenas** se o endereço mudou ou não há coordenadas. Endereço mudou → as coordenadas antigas são apagadas na hora. *(correção — o Flask geocodificava sempre na edição de posts)* | 🟡 |
 | BR-GEO-003 | Respeitar 1 requisição/s ao Nominatim (fila) e User-Agent identificado. *(correção)* | 🟡 |
-| BR-GEO-004 | `GET /api/cep/:cep` consulta ViaCEP; aceita 8 dígitos (máscara ignorada); devolve só logradouro, bairro, localidade, uf; 400 formato inválido, 404 não encontrado, 502 serviço fora; 30 req/min por IP. | 🟡 |
+| BR-GEO-004 | `GET /api/v1/cep/:cep` consulta ViaCEP; aceita 8 dígitos (máscara ignorada); devolve só logradouro, bairro, cidade e UF; 400 formato inválido, 404 não encontrado, 502 serviço fora; 30 req/min por IP. | 🟡 |
 
 ## Parceiros — BR-PARTNER
 | ID | Regra | Status |
@@ -92,5 +93,5 @@ Origem: engenharia reversa do projeto Flask (`pets-post/app/**`).
 ## Questões em aberto
 | ID | Pergunta | Proposta |
 |---|---|---|
-| Q-001 | Limite de fotos: README/model do Flask dizem 5, forms/rotas aplicam 6. | Manter **6** (é o que roda em produção). |
-| Q-002 | Unificar `photos` + `adoption_photos` e `pet_posts` + `adoption_posts`? | Unificar fotos na Etapa de mídia; manter posts separados. |
+| Q-001 | Limite de fotos: README/model do Flask dizem 5, forms/rotas aplicam 6. | ✅ **6** (é o que roda em produção) · 2026-11-06 |
+| Q-002 | Unificar `photos` + `adoption_photos` e `pet_posts` + `adoption_posts`? | ✅ **Não por enquanto** (2026-11-06): as tabelas ficam como no Flask, para o rollback continuar possível. O serviço de fotos é genérico e a adoção (Etapa 6) usa o mesmo código com a outra tabela. M-03 fica para depois da virada. |
