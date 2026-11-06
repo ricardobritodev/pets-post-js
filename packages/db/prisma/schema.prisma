@@ -203,6 +203,8 @@ model Product {
   url             String?         @db.VarChar(500)
   isActive        Boolean         @default(true) @map("is_active")
   isFeatured      Boolean         @default(false) @map("is_featured")
+  // Quando o preço foi conferido (BR-STORE-011): ao criar, ao mudar o preço e ao "Atualizar do link".
+  priceCheckedAt  DateTime?       @map("price_checked_at") @db.DateTime(0)
   createdAt       DateTime        @default(now()) @map("created_at") @db.DateTime(0)
   updatedAt       DateTime?       @updatedAt @map("updated_at") @db.DateTime(0)
 
