@@ -34,6 +34,9 @@ import { adoptionRouter, meAdoptionRouter } from './modules/adoption/router.js';
 import { createPartnerRepository } from './modules/partners/repository.js';
 import { createPartnerService } from './modules/partners/service.js';
 import { partnersRouter } from './modules/partners/router.js';
+import { createAdminRepository } from './modules/admin/repository.js';
+import { createAdminService } from './modules/admin/service.js';
+import { adminRouter } from './modules/admin/router.js';
 import { webRouter } from './web/router.js';
 
 /**
@@ -81,7 +84,8 @@ export function createApp({ config, db, logger, securityLog, sessionStore, limit
   const users = createUserRepository(db);
   const csrf = createCsrf({ config });
   app.use('/api', cookieParser());
-  app.use('/api', sessionMiddleware({ config, store: sessionStore ?? new PrismaSessionStore(db) }));
+  sessionStore ??= new PrismaSessionStore(db);
+  app.use('/api', sessionMiddleware({ config, store: sessionStore }));
   app.use('/api', csrf.protect); // BR-AUTH-012: POST/PUT/PATCH/DELETE exigem X-CSRF-Token
   app.use('/api', loadUser({ users }));
 
@@ -106,6 +110,10 @@ export function createApp({ config, db, logger, securityLog, sessionStore, limit
   app.use('/api/v1/me', meAdoptionRouter({ service: adoptionService }));
 
   app.use('/api/v1/partners', partnersRouter({ service: createPartnerService({ partners: createPartnerRepository(db) }) }));
+
+  // Painel admin (PERM-003). Desativar usuário encerra as sessões dele (BR-ADMIN-005).
+  const adminService = createAdminService({ admin: createAdminRepository(db), geocoder, sessions: sessionStore, securityLog });
+  app.use('/api/v1/admin', adminRouter({ service: adminService }));
   app.use('/api/v1/cep', cepRouter({ cep, limits }));
 
   app.use('/api', notFound);
