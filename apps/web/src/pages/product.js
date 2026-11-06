@@ -4,7 +4,7 @@
 import '../styles/main.css';
 import { api } from '../lib/api.js';
 import { mountLayout } from '../lib/layout.js';
-import { el } from '../lib/dom.js';
+import { el, formatDate } from '../lib/dom.js';
 import { icon } from '../lib/icons.js';
 import { gallery } from '../lib/gallery.js';
 import { row, loadDetail } from '../lib/detail-parts.js';
@@ -22,6 +22,8 @@ function buyBox(p) {
     el('h1', { class: 'text-2xl font-bold leading-tight' }, p.name),
     priceBlock(p, { large: true }),
     p.discountPercent != null && el('p', { class: 'text-sm text-found-600' }, `Economia de ${formatBRL(p.priceCents - p.finalPriceCents)}`),
+    // BR-STORE-011 — o preço é o que a loja mostrava na data da consulta.
+    p.priceCheckedAt && el('p', { class: 'text-xs text-stone-500' }, `Preço consultado em ${formatDate(p.priceCheckedAt)}. Confirme na loja antes de comprar.`),
     el('p', { class: `flex items-center gap-1.5 text-sm font-medium ${p.inStock ? 'text-found-600' : 'text-lost-600'}` },
       icon(p.inStock ? 'check-circle' : 'x-circle', { size: 16 }),
       p.inStock ? `Em estoque (${p.stock} ${p.stock === 1 ? 'unidade' : 'unidades'} no parceiro)` : 'Esgotado no momento'),

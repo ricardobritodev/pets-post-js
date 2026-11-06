@@ -8,10 +8,11 @@ import { api, ApiError } from '../lib/api.js';
 import { mountAdmin } from '../lib/admin.js';
 import { showFlash } from '../lib/layout.js';
 import { flash } from '../lib/flash.js';
-import { el } from '../lib/dom.js';
+import { el, formatDate } from '../lib/dom.js';
 import { clearErrors, showFieldErrors, setFieldError, withSubmitting } from '../lib/forms.js';
 import { createPhotoPicker } from '../lib/photo-picker.js';
 import { syncPhotos } from '../lib/photo-sync.js';
+import { icon } from '../lib/icons.js';
 
 const editId = Number(/^\/admin\/produtos\/(\d+)\/editar/.exec(location.pathname)?.[1]) || null;
 const TEXT_FIELDS = ['partnerId', 'name', 'description', 'category', 'petType', 'stock', 'url'];
@@ -67,6 +68,100 @@ function buildForm(partners) {
   );
 }
 
+/**
+ * Quadro "Importar de um link" (BR-STORE-009): busca o rascunho na API e preenche o formulário.
+ * As fotos da loja aparecem como miniaturas (data:, sem carregar nada de fora) para marcar quais entram.
+ * @returns {{ node: HTMLElement, selectedImageUrls: () => string[] }}
+ */
+function importBox(form) {
+  const urlInput = el('input', { id: 'import-url', type: 'url', class: 'input', placeholder: 'https://loja-do-parceiro.com.br/produto/…', maxlength: '2000' });
+  const status = el('p', { class: 'text-sm', 'aria-live': 'polite' });
+  const gallery = el('div', { class: 'grid grid-cols-3 gap-2 sm:grid-cols-6' });
+  const galleryBox = el('div', { class: 'space-y-2', hidden: true },
+    el('p', { class: 'text-sm font-medium' }, 'Fotos da loja (marque as que entram no produto):'), gallery);
+  let images = [];
+
+  const button = el('button', {
+    type: 'button',
+    class: 'btn btn-outline shrink-0',
+    onclick: async () => {
+      button.disabled = true;
+      status.className = 'text-sm text-stone-500';
+      status.textContent = 'Lendo a página da loja…';
+      try {
+        const { draft, images: found, warnings } = await api('/admin/products/import', { method: 'POST', json: { url: urlInput.value } });
+        form.elements.name.value = draft.name ?? '';
+        form.elements.description.value = draft.description ?? '';
+        form.elements.url.value = draft.url ?? '';
+        if (draft.priceCents != null) form.elements.priceCents.value = centsToInput(draft.priceCents);
+        if (draft.category) form.elements.category.value = draft.category;
+        if (draft.petType) form.elements.petType.value = draft.petType;
+        if (draft.inStock === false) form.elements.stock.value = '0';
+        else if (draft.inStock === true && Number(form.elements.stock.value) === 0) form.elements.stock.value = '1';
+        images = found.map((img, i) => ({ ...img, checked: i < 6 }));
+        gallery.replaceChildren(...images.map((img, i) =>
+          el('label', { class: 'photo-tile cursor-pointer' },
+            el('img', { src: img.thumb, alt: `Foto ${i + 1} da loja` }),
+            el('input', {
+              type: 'checkbox', class: 'absolute left-1 top-1 size-5 accent-brand-600', checked: img.checked,
+              'aria-label': `Usar a foto ${i + 1}`, onchange: (e) => { img.checked = e.currentTarget.checked; },
+            }))));
+        galleryBox.hidden = images.length === 0;
+        status.className = 'text-sm text-found-600';
+        status.textContent = `Dados de ${draft.siteName} preenchidos. Confira tudo, escolha o parceiro e salve.`;
+        for (const w of warnings) showFlash(w, 'warning');
+        if (!form.elements.category.value) setFieldError(form.elements.category, 'Não consegui adivinhar a categoria: escolha uma.');
+      } catch (err) {
+        status.className = 'text-sm text-lost-600';
+        status.textContent = err instanceof ApiError ? err.message : 'Sem conexão com o servidor.';
+      } finally {
+        button.disabled = false;
+      }
+    },
+  }, icon('search', { size: 16 }), 'Buscar');
+
+  const node = el('fieldset', { class: 'card space-y-3 border-brand-500/40 bg-brand-50/40' },
+    el('legend', { class: 'flex items-center gap-2 text-lg font-semibold' }, icon('arrow-right', { class: 'text-brand-600' }), 'Importar de um link'),
+    el('p', { class: 'text-sm text-stone-600' },
+      'Cole o link do produto na loja do parceiro: nome, descrição, preço e fotos são preenchidos para você revisar. ',
+      'Alguns sites não permitem leitura automática; nesses, preencha à mão.'),
+    el('div', { class: 'flex flex-col gap-2 sm:flex-row' }, urlInput, button),
+    status,
+    galleryBox,
+  );
+  return { node, selectedImageUrls: () => images.filter((i) => i.checked).map((i) => i.url) };
+}
+
+/** "Atualizar do link" (BR-STORE-011), só na edição de produto com link. */
+function refreshBox(product, form) {
+  if (!product?.url) return null;
+  const info = el('p', { class: 'text-sm text-stone-600' },
+    `Preço consultado em ${formatDate(product.priceCheckedAt ?? product.updatedAt)}.`);
+  const button = el('button', {
+    type: 'button',
+    class: 'btn btn-outline btn-sm',
+    onclick: async () => {
+      button.disabled = true;
+      try {
+        const { product: fresh, changed } = await api(`/admin/products/${product.id}/refresh`, { method: 'POST' });
+        form.elements.priceCents.value = centsToInput(fresh.priceCents);
+        form.elements.promoPriceCents.value = centsToInput(fresh.promoPriceCents);
+        form.elements.stock.value = String(fresh.stock);
+        info.textContent = `Preço consultado em ${formatDate(fresh.priceCheckedAt)}.`;
+        const notes = [];
+        if (changed.priceCents) notes.push(`preço de ${centsToInput(changed.priceCents[0])} para ${centsToInput(changed.priceCents[1])}`);
+        if (changed.inStock) notes.push(changed.inStock[1] ? 'voltou a ter estoque' : 'ficou esgotado na loja');
+        showFlash(notes.length ? `Atualizado pelo link: ${notes.join(', ')}.` : 'Conferido no link: nada mudou.', notes.length ? 'success' : 'info');
+      } catch (err) {
+        showFlash(err instanceof ApiError ? err.message : 'Sem conexão com o servidor.', 'danger');
+      } finally {
+        button.disabled = false;
+      }
+    },
+  }, icon('arrow-uturn-left', { size: 16 }), 'Atualizar do link');
+  return el('div', { class: 'card flex flex-wrap items-center justify-between gap-3 p-4 sm:p-4' }, info, button);
+}
+
 /** Lê o formulário; preço inválido vira erro no campo (e devolve null). */
 function readForm(form) {
   const data = Object.fromEntries(TEXT_FIELDS.map((n) => [n, form.elements[n].value]));
@@ -108,7 +203,8 @@ if (await mountAdmin()) {
         el('a', { href: '/admin/parceiros/criar', class: 'btn btn-primary mt-5' }, 'Novo parceiro')));
     } else {
       const form = buildForm(partners);
-      content.replaceChildren(form);
+      const importer = importBox(form);
+      content.replaceChildren(...[editId ? refreshBox(product, form) : importer.node, form].filter(Boolean));
       if (product) {
         document.title = 'Editar produto · Admin · Pets Post';
         document.getElementById('admin-title').textContent = 'Editar produto';
@@ -133,6 +229,17 @@ if (await mountAdmin()) {
               json: data,
             });
             const problems = await syncPhotos(`/admin/products/${saved.id}`, picker, (t) => (submitButton.textContent = t));
+            // Fotos escolhidas na importação: o servidor baixa e trata como as enviadas (BR-PHOTO-*).
+            const imported = editId ? [] : importer.selectedImageUrls();
+            if (imported.length) {
+              submitButton.textContent = 'Baixando as fotos da loja…';
+              try {
+                const { rejected } = await api(`/admin/products/${saved.id}/photos/import`, { method: 'POST', json: { urls: imported } });
+                problems.push(...rejected.map((r) => r.message));
+              } catch (err) {
+                problems.push(err instanceof ApiError ? err.message : 'Não consegui baixar as fotos da loja.');
+              }
+            }
             flash(editId ? `Produto "${saved.name}" atualizado.` : `Produto "${saved.name}" cadastrado.`, 'success');
             if (problems.length) flash(`Algumas fotos não entraram: ${problems.join(' · ')}`, 'warning');
             location.assign('/admin/produtos');
