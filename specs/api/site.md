@@ -18,8 +18,8 @@ Regras: BR-CONTACT-002 · Convenções: [conventions.md](conventions.md)
 | `CONTACT_WHATSAPP_MESSAGE` | `Olá! Quero ajuda com um anúncio.` | opcional, até 300 caracteres |
 
 ## Front
-- Botão redondo verde fixo no canto inferior direito, com o texto "Fale com a gente" (que aparece em telas
-  grandes) e `aria-label` sempre.
+- Botão redondo verde fixo no canto inferior **esquerdo** (na mesma altura do botão "Ajuda", que fica no direito),
+  com o **logo do WhatsApp**, o texto "Fale com a gente" (em telas grandes) e `aria-label` sempre.
 - Aparece em todas as páginas que usam o layout comum, **menos** no painel admin.
 - Abre em nova aba (`target=_blank`, `rel=noopener noreferrer`). No celular, o link `wa.me` abre o app.
 - O front guarda a configuração por 5 minutos (`sessionStorage`), para não buscar a cada página. Só guarda quando

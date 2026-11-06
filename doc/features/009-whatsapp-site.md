@@ -3,7 +3,8 @@
 **Data:** 2026-11-06 · **Specs:** [site.md](../../specs/api/site.md) · [rules.md](../../specs/domain/rules.md) (BR-CONTACT-002)
 
 ## O que foi entregue
-- **Botão flutuante verde** no canto inferior direito de todas as páginas públicas. Ele abre uma conversa no
+- **Botão flutuante verde com o logo do WhatsApp** no canto inferior **esquerdo** de todas as páginas públicas
+  (o botão "Ajuda" fica no direito, na mesma altura). Ele abre uma conversa no
   WhatsApp **do Pets Post** com a mensagem pronta: "Olá! Vim pelo site do Pets Post e gostaria de ajuda.".
   No desktop aparece como "Fale com a gente"; no celular, um círculo com o ícone. Não aparece no painel admin.
 - **O número vem da configuração (`CONTACT_WHATSAPP`), não do código:** dá para trocar sem novo deploy, só

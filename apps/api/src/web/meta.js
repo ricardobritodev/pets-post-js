@@ -18,6 +18,9 @@ export function truncate(text, max) {
   return `${cut.slice(0, cut.lastIndexOf(' ') > max * 0.6 ? cut.lastIndexOf(' ') : cut.length)}…`;
 }
 
+/** Imagem da prévia quando o anúncio/produto não tem foto: o ícone do Pets Post (apps/web/public/brand). */
+export const DEFAULT_OG_IMAGE = '/brand/apple-touch-icon.png';
+
 /** URL absoluta (og:image e og:url precisam ser absolutas). */
 const absolute = (path, publicUrl) => (publicUrl && path ? new URL(path, publicUrl).toString() : path);
 
@@ -34,7 +37,7 @@ export function postMeta(post, publicUrl) {
     title,
     description,
     url: absolute(`/posts/${post.id}`, publicUrl),
-    image: post.primaryPhoto ? absolute(post.primaryPhoto.url, publicUrl) : null,
+    image: absolute(post.primaryPhoto?.url ?? DEFAULT_OG_IMAGE, publicUrl),
   };
 }
 
@@ -49,7 +52,7 @@ export function adoptionMeta(adoption, publicUrl) {
     title: `Para adoção: ${adoption.title} · Pets Post`,
     description: truncate(`${adoption.petTypeLabel} · ${adoption.location}. ${adoption.description}`, 200),
     url: absolute(`/adocao/${adoption.id}`, publicUrl),
-    image: adoption.primaryPhoto ? absolute(adoption.primaryPhoto.url, publicUrl) : null,
+    image: absolute(adoption.primaryPhoto?.url ?? DEFAULT_OG_IMAGE, publicUrl),
   };
 }
 
@@ -66,7 +69,7 @@ export function productMeta(product, publicUrl) {
     title: `${product.name} · ${price} · Pets Post`,
     description: truncate(`${product.categoryLabel} por ${price}${seller}. ${product.description ?? ''}`, 200),
     url: absolute(`/loja/produto/${product.id}`, publicUrl),
-    image: product.primaryPhoto ? absolute(product.primaryPhoto.url, publicUrl) : null,
+    image: absolute(product.primaryPhoto?.url ?? DEFAULT_OG_IMAGE, publicUrl),
   };
 }
 
@@ -88,7 +91,8 @@ export function injectMeta(html, meta) {
     `<meta property="og:description" content="${escapeHtml(meta.description)}" />`,
     meta.url && `<meta property="og:url" content="${escapeHtml(meta.url)}" />`,
     meta.image && `<meta property="og:image" content="${escapeHtml(meta.image)}" />`,
-    `<meta name="twitter:card" content="${meta.image ? 'summary_large_image' : 'summary'}" />`,
+    // Foto do anúncio → cartão grande; ícone padrão (quadrado e pequeno) → cartão simples.
+    `<meta name="twitter:card" content="${meta.image && !meta.image.endsWith(DEFAULT_OG_IMAGE) ? 'summary_large_image' : 'summary'}" />`,
   ].filter(Boolean);
 
   return html

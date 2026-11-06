@@ -73,7 +73,7 @@ test('ADR 002 adoptionMeta: título "Para adoção" e URL /adocao/:id', () => {
   assert.equal(m.title, 'Para adoção: Gatinha Mel · Pets Post');
   assert.equal(m.description, 'Gato · Pinheiros, São Paulo, SP. Carinhosa e castrada.');
   assert.equal(m.url, 'https://www.petspost.com.br/adocao/3');
-  assert.equal(m.image, null);
+  assert.equal(m.image, 'https://www.petspost.com.br/brand/apple-touch-icon.png'); // sem foto → ícone do Pets Post
 });
 
 const post = {
@@ -93,7 +93,8 @@ test('ADR 002 postMeta monta título, descrição curta e URLs absolutas', () =>
   assert.match(m.description, /^Cachorro · São Paulo, SP\. Fugiu/);
   assert.equal(m.url, 'https://www.petspost.com.br/posts/7');
   assert.equal(m.image, 'https://www.petspost.com.br/uploads/rex.jpg');
-  assert.equal(postMeta({ ...post, primaryPhoto: null }).image, null);
+  // sem foto: a prévia do WhatsApp mostra o ícone do Pets Post (antes ficava sem imagem)
+  assert.equal(postMeta({ ...post, primaryPhoto: null }, 'https://x.com').image, 'https://x.com/brand/apple-touch-icon.png');
 });
 
 test('ADR 002 injectMeta troca o <title>, insere og:* e escapa HTML (sem XSS)', () => {

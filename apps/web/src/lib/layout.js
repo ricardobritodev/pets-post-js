@@ -100,7 +100,9 @@ function renderHeader(user) {
 
   return el('header', { class: 'bg-white shadow-sm' },
     el('div', { class: 'mx-auto flex max-w-6xl items-center gap-4 px-4 py-3' },
-      el('a', { href: '/', class: 'inline-flex shrink-0 items-center gap-2 text-xl font-bold text-brand-700' }, icon('paw', { size: 28 }), 'Pets Post'),
+      // Logo original do projeto (apps/web/public/brand, vindo de static/images do Flask).
+      el('a', { href: '/', class: 'shrink-0', 'aria-label': 'Pets Post, página inicial' },
+        el('img', { src: '/brand/logo.png', alt: 'Pets Post', width: '180', height: '36', class: 'h-9 w-auto' })),
       el('div', { class: 'hidden flex-1 lg:block' }, searchForm('header-search')),
       el('div', { class: 'ml-auto hidden items-center gap-3 lg:flex' }, ...authArea(user)),
       el('div', { class: 'ml-auto lg:hidden' }, toggle),
@@ -125,7 +127,9 @@ export function showFlash(message, type = 'info') {
 
 function renderFooter() {
   return el('div', { class: 'mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-6 text-sm text-stone-500' },
-    el('span', {}, `© ${new Date().getFullYear()} Pets Post · ajudando pets a voltarem para casa`),
+    el('span', { class: 'flex flex-wrap items-center gap-3' },
+      el('img', { src: '/brand/logo.png', alt: 'Pets Post', width: '150', height: '30', class: 'h-7 w-auto' }),
+      `© ${new Date().getFullYear()} · ajudando pets a voltarem para casa`),
     el('nav', { class: 'flex gap-4', 'aria-label': 'Rodapé' },
       el('a', { href: '/ajuda', class: 'hover:text-brand-700' }, 'Ajuda'),
       el('a', { href: '/sobre', class: 'hover:text-brand-700' }, 'Sobre'),

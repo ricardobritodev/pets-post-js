@@ -28,7 +28,7 @@ Regras: BR-FAQ-001..006 · ADR [007](../adr/007-chatbot-faq-no-site.md) · Conte
 | BR-FAQ-006 | O que a pessoa digita não sai do navegador. A conversa fica só na aba (`sessionStorage`) e some ao fechá-la. |
 
 ## Interface
-- **Botão "Ajuda"** (laranja) no canto inferior direito, **acima** do botão do WhatsApp. Abre uma janela com:
+- **Botão "Ajuda"** (laranja) no canto inferior direito; o do WhatsApp fica no esquerdo, na mesma altura. Abre uma janela com:
   - saudação e atalhos para os assuntos mais procurados;
   - campo "Digite sua dúvida";
   - respostas com os botões de link e "Perguntas relacionadas".

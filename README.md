@@ -176,6 +176,21 @@ npm run test:integration -- --test-name-pattern="BR-DATA"   # filtrar
 VPS na Hostinger com Ubuntu 24.04, Nginx, Node e MySQL. O passo a passo completo, com os scripts de
 preparação, deploy, rollback e backup, está em [`deploy/README.md`](deploy/README.md).
 
+## Logos e ícones
+
+- **Logos do Pets Post:** ficam em `apps/web/public/brand/` (vieram de `app/static/images` do Flask). O que está
+  em `public/` é copiado para o build sem mudar o nome e servido na raiz, ex.: `/brand/logo.png`.
+  | Arquivo | Onde aparece |
+  |---|---|
+  | `logo.png` | header e rodapé |
+  | `logo-white.png` | topo laranja da janela de ajuda (fundos coloridos) |
+  | `favicon.png` / `apple-touch-icon.png` | ícone da aba e da tela inicial do celular (todas as páginas) |
+  | `apple-touch-icon.png` | prévia do WhatsApp de anúncios e produtos **sem foto** |
+- **Para trocar um logo:** substitua o arquivo com o mesmo nome (de preferência numa versão maior ou em SVG, para
+  ficar nítido em telas de alta resolução) e rode `npm run build`.
+- **Ícones da interface:** SVG em `apps/web/src/lib/icon-data.js` (Heroicons + desenhos próprios). O logo do
+  WhatsApp é usado só nos botões que abrem uma conversa nele.
+
 ## Estrutura do projeto
 
 ```
