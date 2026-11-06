@@ -8,6 +8,7 @@ import { getMe, logout } from './session.js';
 import { flash, takeFlashes } from './flash.js';
 import { el } from './dom.js';
 import { icon } from './icons.js';
+import { mountContactButton } from './contact-button.js';
 
 /**
  * Menu da faixa laranja. A organização (logo + busca grande + conta em cima, menu embaixo) segue o
@@ -140,5 +141,6 @@ export async function mountLayout() {
   document.getElementById('app-header')?.replaceChildren(renderHeader(user));
   document.getElementById('app-footer')?.replaceChildren(renderFooter());
   for (const { message, type } of takeFlashes()) showFlash(message, type);
+  mountContactButton(); // BR-CONTACT-002 (não espera: o botão aparece quando a configuração chegar)
   return user;
 }

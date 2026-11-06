@@ -19,6 +19,7 @@ O **que deve ser feito** (regras, contratos) fica em [`../specs`](../specs/READM
 | 006 | [Adoção e mapa de parceiros](features/006-adocao-parceiros.md) | 6 | 2026-11-06 |
 | 007 | [Painel admin e preparação do deploy](features/007-admin-deploy.md) | 7 | 2026-11-06 |
 | 008 | [Loja: vitrine de produtos dos parceiros](features/008-loja.md) | 7b | 2026-11-06 |
+| 009 | [Botão de WhatsApp do site](features/009-whatsapp-site.md) | — | 2026-11-06 |
 
 ## Como documentar uma feature nova
 Crie `features/NNN-nome.md` usando o modelo abaixo e adicione na tabela acima.

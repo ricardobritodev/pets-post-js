@@ -57,6 +57,9 @@ sudo -u petspost bash /tmp/petspost/deploy/deploy.sh
 ```
 Teste pelo IP: `curl http://IP_DO_VPS/api/v1/health/db` → `{"status":"ok","db":"up"}`.
 
+Botão "Fale com a gente" (WhatsApp do Pets Post): edite `/etc/petspost/petspost.env`, descomente
+`CONTACT_WHATSAPP=(11) 9XXXX-XXXX` com o número de vocês e rode `sudo systemctl restart petspost`.
+
 Crie o admin e os parceiros:
 ```bash
 sudo -u petspost bash -c 'set -a; source /etc/petspost/petspost.env; cd /srv/petspost/current &&

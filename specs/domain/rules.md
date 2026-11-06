@@ -74,7 +74,7 @@ Origem: engenharia reversa do projeto Flask (`pets-post/app/**`).
 | BR-VAL-002 | Email válido, normalizado para minúsculas. | ✅ |
 | BR-VAL-003 | Campos de texto opcionais: string vazia é salva como `null`; todos os textos com trim. | ✅ |
 | BR-CONTACT-001 | Link WhatsApp: adiciona 55 em números com DDD (10–11 dígitos), aceita 55+DDD (12–13), rejeita 0800/0300 e números sem DDD; mensagem codificada como `urllib.parse.quote`. | ✅ |
-| BR-CONTACT-002 | Botão flutuante "Fale com a gente" em todas as páginas públicas: abre uma conversa no WhatsApp **do Pets Post**, com a mensagem pronta. O número vem de `CONTACT_WHATSAPP` (configuração, não código); sem número válido, o botão não aparece. Não aparece no painel admin. | 🟡 |
+| BR-CONTACT-002 | Botão flutuante "Fale com a gente" em todas as páginas públicas: abre uma conversa no WhatsApp **do Pets Post**, com a mensagem pronta. O número vem de `CONTACT_WHATSAPP` (configuração, não código); sem número válido, o botão não aparece. Não aparece no painel admin. | ✅ |
 
 ## Loja (vitrine) — BR-STORE
 | ID | Regra | Status |

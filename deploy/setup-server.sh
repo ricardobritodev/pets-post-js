@@ -63,6 +63,8 @@ SESSION_SECRET=$(openssl rand -hex 32)
 PUBLIC_URL=https://${DOMAIN}
 UPLOAD_DIR=/var/lib/petspost/uploads
 GEOCODER_USER_AGENT=PetsPost/2.0 (projeto-academico; contato: ${CONTACT})
+# Botão flutuante de WhatsApp do site (BR-CONTACT-002): descomente e coloque o número.
+# CONTACT_WHATSAPP=(11) 91234-5678
 ENV
   chown root:petspost "$ENV_FILE"
   chmod 640 "$ENV_FILE"

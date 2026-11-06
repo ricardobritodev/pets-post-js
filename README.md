@@ -211,6 +211,7 @@ Detalhes em [specs/README.md](specs/README.md).
 | `test:integration` diz `BR-DATA-005` | Falta `DATABASE_URL_TEST` no `.env`, ou o nome do banco não termina em `_test` |
 | `Foreign key constraint violated` ao excluir post no banco Flask | Rode o baseline (alinha as FKs com CASCADE) |
 | Mapa de parceiros vazio | Rode `npm run db:seed:partners` (30 parceiros de SP) |
+| Botão "Fale com a gente" não aparece | Falta `CONTACT_WHATSAPP` no `.env` (o número de WhatsApp do Pets Post); reinicie a API |
 | Loja vazia | Em dev, `npm run db:seed` cria produtos de exemplo; em produção, cadastre em `/admin/produtos` |
 | Post sem mapa no detalhe | O endereço ainda não foi geocodificado (leva alguns segundos), o Nominatim não achou, ou `GEOCODER_ENABLED=false`. Para posts antigos: `npm run geo:backfill -w @petspost/api -- --apply` |
 | Foto recusada com "Arquivo não é uma imagem válida" | O arquivo não é PNG/JPG/GIF/WEBP de verdade (ex.: HEIC do iPhone renomeado). Exporte como JPG |
