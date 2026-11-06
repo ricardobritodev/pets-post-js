@@ -18,6 +18,7 @@ alteração na spec (com justificativa) antes.
 | `domain/` | Entidades, regras de negócio, matriz de permissões |
 | `data/` | Plano de migração do banco herdado |
 | `api/` | Convenções HTTP e contrato de cada rota |
+| `site/` | Comportamento de recursos do front (ex.: FAQ / chatbot de ajuda) |
 | `adr/` | Decisões de arquitetura (Architecture Decision Records) |
 
 Para localizar onde uma regra é testada:

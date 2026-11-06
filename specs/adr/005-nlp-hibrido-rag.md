@@ -1,6 +1,6 @@
 # ADR 005 — NLP híbrido: node-nlp local + SQL + LLM/RAG
 
-**Status:** proposta (Etapa 8+)
+**Status:** substituída pela [ADR 007](007-chatbot-faq-no-site.md) (2026-11-06): o chatbot virou um FAQ dentro do site.
 
 | Necessidade | Ferramenta |
 |---|---|

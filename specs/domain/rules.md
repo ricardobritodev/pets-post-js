@@ -88,6 +88,18 @@ Origem: engenharia reversa do projeto Flask (`pets-post/app/**`).
 | BR-STORE-007 | Até 6 fotos por produto, com as mesmas regras e o mesmo serviço dos anúncios (BR-PHOTO-*). | ✅ |
 | BR-STORE-008 | Excluir um parceiro com produtos é bloqueado (409); é preciso excluir ou mover os produtos antes. | ✅ |
 
+## Ajuda / FAQ — BR-FAQ
+Detalhes em [specs/site/faq.md](../site/faq.md) (ADR 007).
+
+| ID | Regra | Status |
+|---|---|---|
+| BR-FAQ-001 | Comparação ignora acentos, maiúsculas, pontuação, plural e palavras vazias; entende sinônimos. | 🟡 |
+| BR-FAQ-002 | Palavras-chave pesam mais que exemplos; resposta só acima de uma nota mínima. | 🟡 |
+| BR-FAQ-003 | A resposta vem com até 3 perguntas relacionadas. | 🟡 |
+| BR-FAQ-004 | Sem resposta boa: assuntos mais procurados + WhatsApp. | 🟡 |
+| BR-FAQ-005 | Todo link interno do FAQ existe no mapa de páginas. | 🟡 |
+| BR-FAQ-006 | O texto digitado não sai do navegador; a conversa fica só na aba. | 🟡 |
+
 ## Admin — BR-ADMIN
 | ID | Regra | Status |
 |---|---|---|
