@@ -45,3 +45,23 @@ test('centavos → texto', () => {
   assert.equal(centsToInput(18990), '189,90');
   assert.equal(centsToInput(null), '');
 });
+
+test('BR-STORE-009 sugestão de categoria e de pet pelo nome do produto', async () => {
+  const { suggestCategory, suggestPetType } = await import('../src/index.js');
+  const cases = [
+    ['Ração Úmida GranPlus Menu para Cães Adultos Sachê Sabor Carne', 'food', 'dog'],
+    ['Areia Higiênica para Gatos 4kg', 'hygiene', 'cat'],
+    ['Bifinho Sabor Carne 65g', 'treats', null],
+    ['Bolinha de Tênis para Cachorro', 'toys', 'dog'],
+    ['Antipulgas para Cães de 10 a 20 kg', 'health', 'dog'],
+    ['Cama Pet Retangular Cinza', 'beds', null],
+    ['Coleira Ajustável Azul', 'accessories', null],
+    ['Mistura de Sementes para Calopsitas', 'food', 'bird'],
+    ['Comedouro Inox para Cães e Gatos', 'accessories', null],
+    ['Produto misterioso', null, null],
+  ];
+  for (const [name, category, pet] of cases) {
+    assert.equal(suggestCategory(name), category, `${name} (categoria)`);
+    assert.equal(suggestPetType(name), pet, `${name} (pet)`);
+  }
+});

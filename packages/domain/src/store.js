@@ -62,3 +62,36 @@ export const formatBRL = (cents) =>
 
 /** Centavos → "1234,56" (para preencher o campo do formulário). */
 export const centsToInput = (cents) => (cents == null ? '' : (cents / 100).toFixed(2).replace('.', ','));
+
+const fold = (s) => String(s ?? '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+
+/** Palavras do nome do produto → categoria (BR-STORE-009: só sugestão, o admin confirma). Ordem importa. */
+const CATEGORY_HINTS = [
+  ['health', /\b(antipulgas?|vermifugo|carrapat\w*|remedio|medicamento|suplemento|vitamina|pomada|coleira antipulgas)\b/],
+  ['beds', /\b(cama|caminha|casinha|casa para|colchonete|almofada|toca)\b/],
+  ['hygiene', /\b(shampoo|condicionador|tapete higienico|areia|granulado|lenco|perfume|colonia|escova de dente|creme dental|higien\w*)\b/],
+  ['treats', /\b(petisco|bifinho|snack|biscoito|osso|palito|sache petisco|stick)\b/],
+  ['toys', /\b(brinquedo|bola|bolinha|mordedor|pelucia|varinha|arranhador|corda)\b/],
+  ['accessories', /\b(coleira|guia|peitoral|comedouro|bebedouro|caixa de transporte|transporte|roupa|plaquinha|focinheira)\b/],
+  ['food', /\b(racao|alimento|sache|umida|seca|patê|pate|lata|graos|sementes|mistura)\b/],
+];
+
+const PET_HINTS = [
+  ['cat', /\b(gatos?|gatas?|felinos?|cat)\b/],
+  ['dog', /\b(caes|cao|cachorros?|caninos?|dog|filhotes de caes)\b/],
+  ['bird', /\b(passaros?|aves?|calopsitas?|periquitos?|canarios?|papagaios?)\b/],
+  ['other', /\b(roedores?|hamsters?|coelhos?|peixes?|aquario|repteis?|tartarugas?)\b/],
+];
+
+/** Sugere a categoria pelo texto (nome/descrição). null se não reconhecer. */
+export function suggestCategory(text) {
+  const t = fold(text);
+  return CATEGORY_HINTS.find(([, re]) => re.test(t))?.[0] ?? null;
+}
+
+/** Sugere o tipo de pet. null = não deu para saber (ou serve para todos). */
+export function suggestPetType(text) {
+  const t = fold(text);
+  const found = PET_HINTS.filter(([, re]) => re.test(t)).map(([pet]) => pet);
+  return found.length === 1 ? found[0] : null; // "cães e gatos" → null (todos os pets)
+}
