@@ -49,11 +49,12 @@ Legenda: ✅ concluída · 🔜 próxima · ⬜ pendente
 | 5.4 | Mapa Leaflet nas páginas de detalhe | ✅ |
 | 5.5 | Migration M-01 (coordenadas em `DOUBLE`) | ✅ |
 
-## Etapa 6 — Adoção e parceiros 🔜
-| 6.1 | CRUD de adoção + marcar adotado (BR-ADOPT-*) | ⬜ |
-| 6.2 | Mapa de parceiros + `GET /partners` (BR-PARTNER-001) | ⬜ |
+## Etapa 6 — Adoção e parceiros ✅
+| 6.1 | CRUD de adoção + marcar adotado (BR-ADOPT-*) | ✅ |
+| 6.2 | Mapa de parceiros + `GET /partners` (BR-PARTNER-001) | ✅ |
+| 6.3 | Busca "perto de mim" com Haversine (BR-PARTNER-003) | ✅ |
 
-## Etapa 7 — Admin e cutover
+## Etapa 7 — Admin e cutover 🔜
 | 7.1 | Dashboard, usuários, moderação, parceiros (BR-ADMIN-*) | ⬜ |
 | 7.2 | Express serve o build do Vite em produção; CSP final | 🟡 serve o build + OG (Etapa 4) e CSP com fotos/mapa (Etapa 5); falta revisar no deploy |
 | 7.3 | Migração de uploads, deploy paralelo, troca de DNS | ⬜ |

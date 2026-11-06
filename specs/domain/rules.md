@@ -36,10 +36,10 @@ Origem: engenharia reversa do projeto Flask (`pets-post/app/**`).
 ## Adoção — BR-ADOPT
 | ID | Regra | Status |
 |---|---|---|
-| BR-ADOPT-001 | Campos obrigatórios: título, descrição, tipo, localização, telefone. Castrado/vacinado padrão false. | 🟡 |
-| BR-ADOPT-002 | Listagem: `isActive=true` e `isAdopted=false`, filtro `petType`, 12 por página. | 🟡 |
-| BR-ADOPT-003 | Marcar como adotado encerra o anúncio (sai das listagens), mas o link continua abrindo, com o aviso "adotado". Repetir não dá erro. | 🟡 |
-| BR-ADOPT-004 | Castrado e vacinado aparecem como selos no card e no detalhe; requisitos do adotante são texto livre opcional (até 2000 caracteres). | 🟡 |
+| BR-ADOPT-001 | Campos obrigatórios: título, descrição, tipo, localização, telefone. Castrado/vacinado padrão false. | ✅ |
+| BR-ADOPT-002 | Listagem: `isActive=true` e `isAdopted=false`, filtro `petType`, 12 por página. | ✅ |
+| BR-ADOPT-003 | Marcar como adotado encerra o anúncio (sai das listagens), mas o link continua abrindo, com o aviso "adotado". Repetir não dá erro. | ✅ |
+| BR-ADOPT-004 | Castrado e vacinado aparecem como selos no card e no detalhe; requisitos do adotante são texto livre opcional (até 2000 caracteres). | ✅ |
 
 ## Fotos — BR-PHOTO
 | ID | Regra | Status |
@@ -63,9 +63,9 @@ Origem: engenharia reversa do projeto Flask (`pets-post/app/**`).
 ## Parceiros — BR-PARTNER
 | ID | Regra | Status |
 |---|---|---|
-| BR-PARTNER-001 | Mapa público lista apenas parceiros `isActive=true` **com** coordenadas. | 🟡 |
-| BR-PARTNER-002 | CRUD exclusivo de admin; site precisa ser URL http/https. *(cadastro na Etapa 7; a API pública já esconde site que não é http/https)* | 🟡 |
-| BR-PARTNER-003 | Busca "perto de mim": distância em linha reta (Haversine) a partir de `lat`/`lng`, raio padrão 10 km (1 a 100), do mais perto para o mais longe. | 🟡 |
+| BR-PARTNER-001 | Mapa público lista apenas parceiros `isActive=true` **com** coordenadas. | ✅ |
+| BR-PARTNER-002 | CRUD exclusivo de admin; site precisa ser URL http/https. *(cadastro na Etapa 7; a API pública já esconde site que não é http/https)* | 🟡 API pública ✅ · cadastro na Etapa 7 |
+| BR-PARTNER-003 | Busca "perto de mim": distância em linha reta (Haversine) a partir de `lat`/`lng`, raio padrão 10 km (1 a 100), do mais perto para o mais longe. | ✅ |
 
 ## Validação e contato — BR-VAL / BR-CONTACT
 | ID | Regra | Status |

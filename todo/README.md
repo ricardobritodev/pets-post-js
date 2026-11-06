@@ -30,5 +30,6 @@ Regras citadas (`BR-*`, `PERM-*`) estão em [`../specs/domain`](../specs/domain/
 | 3 — Autenticação | ✅ concluída (ver `doc/features/003-autenticacao.md`) |
 | 4 — Posts | ✅ concluída (ver `doc/features/004-posts.md`) |
 | 5 — Mídia e geo | ✅ concluída (ver `doc/features/005-midia-geo.md`) |
-| 6 — Adoção e parceiros | 🔜 próxima |
-| 7 e 8 | ⬜ |
+| 6 — Adoção e parceiros | ✅ concluída (ver `doc/features/006-adocao-parceiros.md`) |
+| 7 — Admin e deploy | 🔜 próxima |
+| 8 — Chatbot e IA | ⬜ |
