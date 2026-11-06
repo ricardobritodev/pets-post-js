@@ -16,6 +16,8 @@ export const DEFAULT_LIMITS = Object.freeze({
   upload: { perMinute: 20, perHour: 200 },
   // BR-GEO-004 — consulta de CEP (cada uma vira uma chamada ao ViaCEP).
   cep: { perMinute: 30, perHour: 300 },
+  // BR-STORE-009 — importar produto de um link (cada uma acessa um site de fora).
+  import: { perMinute: 10, perHour: 100 },
 });
 
 const json429 = (_req, res) =>

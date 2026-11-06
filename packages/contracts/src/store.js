@@ -81,3 +81,13 @@ export const updateProductSchema = z
   .partial()
   .refine((d) => Object.values(d).some((v) => v !== undefined), { message: 'Nada para atualizar.' })
   .refine(promoBelowPrice, promoIssue);
+
+/** BR-STORE-009 — link para importar. A checagem de segurança (https, endereço público) é no servidor. */
+export const productImportSchema = z.object({
+  url: z.string({ message: 'Cole o link do produto.' }).trim().min(1, 'Cole o link do produto.').max(2000, 'Link longo demais.'),
+});
+
+/** Fotos escolhidas na importação (até 6). */
+export const photoImportSchema = z.object({
+  urls: z.array(z.string().trim().max(2000)).min(1, 'Escolha ao menos uma foto.').max(6, 'No máximo 6 fotos.'),
+});

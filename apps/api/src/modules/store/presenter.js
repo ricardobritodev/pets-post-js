@@ -20,6 +20,7 @@ export function toProductCard(p) {
     discountPercent: discountPercent(p),
     inStock: p.stock > 0,
     isFeatured: p.isFeatured,
+    priceCheckedAt: p.priceCheckedAt ?? null, // BR-STORE-011
     primaryPhoto: primary ? { url: primary.url } : null,
     partner: p.partner ? { id: p.partner.id, name: p.partner.name } : null,
   };

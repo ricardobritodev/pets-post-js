@@ -10,7 +10,7 @@ const partnerSelect = {
 };
 const cardSelect = {
   id: true, name: true, category: true, petType: true, priceCents: true, promoPriceCents: true, stock: true,
-  isActive: true, isFeatured: true, createdAt: true, partnerId: true,
+  isActive: true, isFeatured: true, priceCheckedAt: true, createdAt: true, partnerId: true,
   photos: { select: photoSelect, orderBy: { id: 'asc' } },
   partner: partnerSelect,
 };

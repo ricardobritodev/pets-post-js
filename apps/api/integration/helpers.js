@@ -6,11 +6,11 @@ import { createApp } from '../src/app.js';
 import { loadConfig } from '../src/config.js';
 
 /** Sobe a app numa porta livre. Devolve { base, close, events }. */
-export async function startApp({ db, limits, storage, geocoder, cep, configOverrides = {} } = {}) {
+export async function startApp({ db, limits, storage, geocoder, cep, importer, configOverrides = {} } = {}) {
   const config = loadConfig({ NODE_ENV: 'test', SESSION_SECRET: 'x'.repeat(40), ...configOverrides });
   const events = [];
   const securityLog = (event, fields) => events.push({ event, ...fields });
-  const app = createApp({ config, db, securityLog, limits, storage, geocoder, cep });
+  const app = createApp({ config, db, securityLog, limits, storage, geocoder, cep, importer });
   const server = app.listen(0);
   // Com --test-name-pattern o node pode rodar o before() e pular o after(): sem unref, o
   // servidor aberto segura o processo e o teste nunca termina.
@@ -81,7 +81,7 @@ export function createClient(base) {
 }
 
 export const BIG_LIMIT = { perMinute: 10_000, perHour: 10_000 };
-export const LOOSE_LIMITS = { login: BIG_LIMIT, register: BIG_LIMIT, csrf: BIG_LIMIT, upload: BIG_LIMIT, cep: BIG_LIMIT };
+export const LOOSE_LIMITS = { login: BIG_LIMIT, register: BIG_LIMIT, csrf: BIG_LIMIT, upload: BIG_LIMIT, cep: BIG_LIMIT, import: BIG_LIMIT };
 
 export const validUser = (over = {}) => ({
   name: 'Maria Silva',

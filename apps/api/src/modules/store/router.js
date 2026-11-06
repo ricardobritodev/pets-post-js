@@ -2,7 +2,10 @@
  * Rotas /api/v1/store (pública) e /api/v1/admin/products — specs/api/store.md
  */
 import { Router } from 'express';
-import { storeQuerySchema, adminProductsQuerySchema, productSchema, updateProductSchema, idParamSchema } from '@petspost/contracts';
+import {
+  storeQuerySchema, adminProductsQuerySchema, productSchema, updateProductSchema, idParamSchema, productImportSchema, photoImportSchema,
+} from '@petspost/contracts';
+import { limitPerIp } from '../../middleware/rate-limit.js';
 import { validate } from '../../middleware/validate.js';
 import { requireAdmin } from '../../middleware/auth.js';
 import { mountPhotoRoutes } from '../photos/routes.js';
@@ -30,6 +33,11 @@ export function storeRouter({ service }) {
 export function adminProductsRouter({ service, limits }) {
   const router = Router();
   router.use(requireAdmin); // PERM-003 / BR-STORE-006
+  const importLimit = limitPerIp(limits.import); // cada chamada acessa um site de fora
+
+  // BR-STORE-009 — antes de '/:id' (não é um id)
+  router.post('/import', ...importLimit, validate(productImportSchema), async (req, res) => res.json(await service.importDraft(req.body.url)));
+
   router.get('/', validate(adminProductsQuerySchema, 'query'), async (req, res) => res.json(await service.list(req.validQuery)));
   router.get('/:id', async (req, res) => res.json({ product: await service.get(idOf(req)) }));
   router.post('/', validate(productSchema), async (req, res) => res.status(201).json({ product: await service.create(req.body) }));
@@ -37,6 +45,11 @@ export function adminProductsRouter({ service, limits }) {
   router.delete('/:id', async (req, res) => {
     await service.remove(idOf(req));
     res.status(204).end();
+  });
+  router.post('/:id/refresh', ...importLimit, async (req, res) => res.json(await service.refresh(idOf(req))));
+  router.post('/:id/photos/import', ...importLimit, validate(photoImportSchema), async (req, res) => {
+    const { saved, rejected, item } = await service.importPhotos(idOf(req), req.body.urls);
+    res.status(saved ? 201 : 200).json({ product: item, rejected });
   });
   mountPhotoRoutes(router, { service, limits, key: 'product' }); // BR-STORE-007
   return router;

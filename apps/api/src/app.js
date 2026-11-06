@@ -41,6 +41,8 @@ import { adminRouter } from './modules/admin/router.js';
 import { createProductRepository } from './modules/store/repository.js';
 import { createStoreService, createAdminProductService } from './modules/store/service.js';
 import { storeRouter, adminProductsRouter } from './modules/store/router.js';
+import { createProductImporter } from './modules/store/importer.js';
+import { createSafeFetcher } from './lib/safe-fetch.js';
 import { webRouter } from './web/router.js';
 
 /**
@@ -55,9 +57,10 @@ import { webRouter } from './web/router.js';
  *   storage?: ReturnType<typeof createDiskStorage>, // onde as fotos ficam (ADR 006)
  *   geocoder?: ReturnType<typeof createGeocoder> | null, // null = sem geocodificação
  *   cep?: ReturnType<typeof createCepClient>,
+ *   importer?: ReturnType<typeof createProductImporter>, // importar produto de um link (testes passam um falso)
  * }} deps
  */
-export function createApp({ config, db, logger, securityLog, sessionStore, limits, webDistDir, storage, geocoder, cep }) {
+export function createApp({ config, db, logger, securityLog, sessionStore, limits, webDistDir, storage, geocoder, cep, importer }) {
   const app = express();
   limits = { ...DEFAULT_LIMITS, ...limits }; // quem passa só alguns limites herda o resto
   logger ??= createLogger(config);
@@ -67,6 +70,7 @@ export function createApp({ config, db, logger, securityLog, sessionStore, limit
     geocoder = config.GEOCODER_ENABLED ? createGeocoder({ userAgent: config.GEOCODER_USER_AGENT, logger }) : null;
   }
   cep ??= createCepClient();
+  importer ??= createProductImporter({ fetcher: createSafeFetcher() });
 
   app.disable('x-powered-by');
 
@@ -140,7 +144,7 @@ export function createApp({ config, db, logger, securityLog, sessionStore, limit
     logger,
   });
   app.use('/api/v1/store', storeRouter({ service: storeService }));
-  app.use('/api/v1/admin/products', adminProductsRouter({ service: createAdminProductService({ products: productRepository, photos: productPhotos }), limits }));
+  app.use('/api/v1/admin/products', adminProductsRouter({ service: createAdminProductService({ products: productRepository, photos: productPhotos, importer }), limits }));
   app.use('/api/v1/admin', adminRouter({ service: adminService }));
   app.use('/api/v1/cep', cepRouter({ cep, limits }));
 
