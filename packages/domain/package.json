@@ -8,7 +8,8 @@
     ".": "./src/index.js",
     "./redirect": "./src/redirect.js",
     "./constants": "./src/constants.js",
-    "./posts": "./src/posts.js"
+    "./posts": "./src/posts.js",
+    "./store": "./src/store.js"
   },
   "scripts": {
     "test": "node --test"

@@ -5,3 +5,4 @@ export * from './geo.js';
 export * from './adoption.js';
 export * from './partners.js';
 export * from './admin.js';
+export * from './store.js';

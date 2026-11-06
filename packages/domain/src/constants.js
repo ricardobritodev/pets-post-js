@@ -8,6 +8,8 @@ export const POST_STATUSES = Object.freeze(['lost', 'found']);
 export const PET_TYPES = Object.freeze(['dog', 'cat', 'bird', 'other']);
 export const PET_SIZES = Object.freeze(['small', 'medium', 'large']);
 export const PARTNER_TYPES = Object.freeze(['foster_home', 'petshop', 'vet_clinic']);
+/** BR-STORE-002 — categorias da loja. */
+export const PRODUCT_CATEGORIES = Object.freeze(['food', 'treats', 'toys', 'hygiene', 'health', 'accessories', 'beds']);
 
 export const LABELS = Object.freeze({
   status: { lost: 'Perdido', found: 'Encontrado' },
@@ -17,6 +19,15 @@ export const LABELS = Object.freeze({
     foster_home: 'Lar Temporário',
     petshop: 'Petshop Parceiro',
     vet_clinic: 'Clínica Veterinária',
+  },
+  productCategory: {
+    food: 'Ração',
+    treats: 'Petiscos',
+    toys: 'Brinquedos',
+    hygiene: 'Higiene e beleza',
+    health: 'Farmácia e saúde',
+    accessories: 'Coleiras e acessórios',
+    beds: 'Camas e casinhas',
   },
 });
 
