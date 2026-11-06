@@ -210,3 +210,23 @@ cadastrada; usar o nome do domínio ou o nome da loja.
    Se já existir parceiro com esse site, ele é usado, sem duplicar.
 
 O nome da loja nova vem do vendedor da página, senão do `og:site_name` sem o slogan, senão do domínio.
+
+## Atualização (2026-11-06): fotos baixadas pelo navegador do admin (BR-STORE-015)
+
+**Pedido:** quando a Cobasi limita o servidor, deixar o navegador do admin baixar as fotos; nas lojas que não
+permitem, continua o envio manual.
+
+**Como funciona:**
+1. O servidor lê a página. Se as fotos respondem **429**, ele devolve no rascunho os endereços que o navegador pode
+   baixar (`pendingImages`): só os de servidores da lista `BROWSER_IMAGE_HOSTS` (VTEX: `*.vteximg.com.br`,
+   `*.vtexassets.com`), que permitem esse download (CORS `*`, conferido nos dois).
+2. O navegador do admin baixa as fotos (sem cookies, só JPEG/PNG/GIF/WEBP até 8 MB) e mostra as miniaturas para marcar.
+3. Ao salvar, elas vão pelo envio normal de fotos (800 px, JPEG, sem metadados).
+4. Loja fora da lista, ou foto que falhar também no navegador → aviso para enviar à mão.
+
+**Segurança:** a CSP só libera esses servidores no `connect-src` das páginas `/admin/*`. Vitrine, anúncios, mapa e
+o resto do site continuam sem acesso a nada de fora. O servidor continua se identificando como robô e respeitando o
+limite. Quem baixa no navegador é o admin, de verdade.
+
+**Testes:** lista e https (`packages/domain/test/store.test.js`), `pendingImages` só para servidores da lista
+(`apps/api/test/product-import.test.js`), CSP só no `/admin` (`apps/api/test/app.test.js`).

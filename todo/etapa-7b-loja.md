@@ -40,3 +40,4 @@ Vitrine, não e-commerce: produto com foto e preço, e o botão leva para a loja
 - [x] **T4 — Busca**: página grande lida até 3 MB, charset do `<meta>`, raízes do sistema e mensagem de certificado.
 - [x] **T5 — Documentar** em `doc/features/008-loja.md`.
 - [x] **T6 — Parceiro sem perguntar**: busca pelo nome (loja/domínio) e "Nova loja" cadastrada ao salvar (BR-STORE-012).
+- [x] **T7 — Fotos pelo navegador do admin** quando a loja limita o servidor (BR-STORE-015); fora da lista, envio manual.

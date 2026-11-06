@@ -68,6 +68,7 @@ Legenda: ✅ concluída · 🔜 próxima · ⬜ pendente
 | 7b.5 | Importar produto de um link + "Preço consultado em…" (BR-STORE-009..011) | ✅ |
 | 7b.6 | Loja identificada pelo link + "Vendido e entregue por" (BR-STORE-012/013) | ✅ |
 | 7b.7 | Importação tolerante aos formatos das lojas pet (BR-STORE-014) | ✅ |
+| 7b.8 | Fotos baixadas pelo navegador do admin quando a loja limita o servidor (BR-STORE-015) | ✅ |
 
 ## Etapa 8 — Chatbot de ajuda: FAQ dentro do site (ADR 007) ✅
 | 8.1 | Conteúdo do FAQ + correspondência local (acentos, plural, sinônimos) | ✅ |
