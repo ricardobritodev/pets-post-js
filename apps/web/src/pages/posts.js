@@ -6,6 +6,7 @@ import '../styles/main.css';
 import { api } from '../lib/api.js';
 import { mountLayout } from '../lib/layout.js';
 import { el } from '../lib/dom.js';
+import { icon } from '../lib/icons.js';
 import { renderGrid } from '../lib/post-card.js';
 
 const form = document.getElementById('filters');
@@ -57,15 +58,15 @@ function renderPager(state, { page, totalPages }) {
   const nums = [];
   for (let p = from; p <= to; p++) nums.push(pageLink(state, p, String(p), { current: p === page }));
   pager.replaceChildren(
-    pageLink(state, page - 1, '← Anterior', { disabled: page <= 1 }),
+    pageLink(state, page - 1, [icon('arrow-left', { size: 16 }), 'Anterior'], { disabled: page <= 1 }),
     ...nums,
-    pageLink(state, page + 1, 'Próxima →', { disabled: page >= totalPages }),
+    pageLink(state, page + 1, ['Próxima', icon('arrow-right', { size: 16 })], { disabled: page >= totalPages }),
   );
 }
 
 const empty = (filtered) =>
   el('div', { class: 'card text-center' },
-    el('div', { class: 'text-5xl', 'aria-hidden': 'true' }, '🔎'),
+    el('div', { class: 'text-brand-600' }, icon('search', { size: 48, class: 'mx-auto' })),
     el('h2', { class: 'mt-3 text-lg font-semibold' }, filtered ? 'Nenhum anúncio com esses filtros' : 'Nenhum anúncio ainda'),
     el('p', { class: 'mt-1 text-stone-600' },
       filtered ? 'Tente outra combinação ou limpe os filtros.' : 'Seja o primeiro a publicar um anúncio!'),

@@ -8,6 +8,7 @@
  */
 import { PHOTO_POLICY } from '@petspost/domain/constants';
 import { el } from './dom.js';
+import { icon } from './icons.js';
 
 /** Cada foto vai numa requisição própria, então o limite de 8 MB vale por arquivo (com folga para o multipart). */
 export const MAX_FILE_BYTES = PHOTO_POLICY.maxRequestBytes - 16 * 1024;
@@ -37,7 +38,7 @@ export function createPhotoPicker(root, { existing = [] } = {}) {
   const input = el('input', { type: 'file', id: 'photos', accept: ACCEPT, multiple: true, class: 'sr-only' });
   const zone = el('label', { class: 'upload-zone' },
     input,
-    el('span', { class: 'text-3xl', 'aria-hidden': 'true' }, '📷'),
+    el('span', { class: 'text-stone-400' }, icon('camera', { size: 32 })),
     el('span', { class: 'font-medium' }, 'Arraste as fotos aqui ou clique para escolher'),
     el('span', { class: 'text-sm text-stone-500' }, `Até ${max} fotos · PNG, JPG, GIF ou WEBP · até 8 MB cada`),
   );
@@ -93,7 +94,7 @@ export function createPhotoPicker(root, { existing = [] } = {}) {
               p.removed = !p.removed;
               render();
             },
-          }, p.removed ? '↺' : '×'),
+          }, icon(p.removed ? 'arrow-uturn-left' : 'x-mark', { size: 16 })),
         })),
       ...added.map((a, i) =>
         tile({
@@ -109,7 +110,7 @@ export function createPhotoPicker(root, { existing = [] } = {}) {
               added.splice(added.indexOf(a), 1);
               render();
             },
-          }, '×'),
+          }, icon('x-mark', { size: 16 })),
         })),
     ];
     grid.replaceChildren(...tiles);

@@ -7,6 +7,7 @@
 import { getMe, logout } from './session.js';
 import { flash, takeFlashes } from './flash.js';
 import { el } from './dom.js';
+import { icon } from './icons.js';
 
 /** Links do menu. Novos módulos entram aqui conforme forem migrados (Etapas 4–6). */
 const NAV = [
@@ -68,11 +69,11 @@ function renderHeader(user) {
       const open = mobile.classList.toggle('hidden') === false;
       e.currentTarget.setAttribute('aria-expanded', String(open));
     },
-  }, '☰');
+  }, icon('bars-3', { size: 22 }));
 
   return el('header', { class: 'border-b border-stone-200 bg-white' },
     el('div', { class: 'mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3' },
-      el('a', { href: '/', class: 'text-xl font-bold text-brand-700' }, '🐾 Pets Post'),
+      el('a', { href: '/', class: 'inline-flex items-center gap-2 text-xl font-bold text-brand-700' }, icon('paw', { size: 26 }), 'Pets Post'),
       el('nav', { class: 'hidden items-center gap-6 sm:flex', 'aria-label': 'Principal' }, ...navLinks('nav-link')),
       el('div', { class: 'hidden items-center gap-3 sm:flex' }, ...authArea(user)),
       toggle,
@@ -85,7 +86,7 @@ function renderHeader(user) {
 export function showFlash(message, type = 'info') {
   const area = document.getElementById('app-flash');
   if (!area) return;
-  const close = el('button', { type: 'button', class: 'flash-close', 'aria-label': 'Fechar' }, '×');
+  const close = el('button', { type: 'button', class: 'flash-close', 'aria-label': 'Fechar' }, icon('x-mark', { size: 16 }));
   const box = el('div', { class: `flash flash-${type}`, role: type === 'danger' ? 'alert' : 'status' },
     el('span', {}, message), close);
   close.addEventListener('click', () => box.remove());

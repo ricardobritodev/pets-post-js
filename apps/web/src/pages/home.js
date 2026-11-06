@@ -5,13 +5,14 @@ import '../styles/main.css';
 import { api } from '../lib/api.js';
 import { mountLayout } from '../lib/layout.js';
 import { el } from '../lib/dom.js';
+import { icon } from '../lib/icons.js';
 import { renderGrid } from '../lib/post-card.js';
 
 const box = document.getElementById('recent-posts');
 
 const empty = () =>
   el('div', { class: 'card text-center' },
-    el('div', { class: 'text-5xl', 'aria-hidden': 'true' }, '🐾'),
+    el('div', { class: 'text-brand-600' }, icon('paw', { size: 48, class: 'mx-auto' })),
     el('h3', { class: 'mt-3 text-lg font-semibold' }, 'Nenhum anúncio ainda'),
     el('p', { class: 'mt-1 text-stone-600' }, 'Seja o primeiro a publicar um anúncio e ajudar um pet a voltar para casa!'),
     el('a', { href: '/posts/criar', class: 'btn btn-primary mt-5' }, 'Criar primeiro anúncio'),

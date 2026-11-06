@@ -7,6 +7,7 @@ import { api, ApiError } from '../lib/api.js';
 import { mountLayout, showFlash } from '../lib/layout.js';
 import { flash } from '../lib/flash.js';
 import { el, formatDate } from '../lib/dom.js';
+import { icon } from '../lib/icons.js';
 import { statusBadge, petImage } from '../lib/post-card.js';
 
 const root = document.getElementById('post');
@@ -16,7 +17,7 @@ function notFound() {
   document.title = 'Anúncio não encontrado · Pets Post';
   root.replaceChildren(
     el('div', { class: 'card mx-auto max-w-lg text-center' },
-      el('div', { class: 'text-5xl', 'aria-hidden': 'true' }, '🐾'),
+      el('div', { class: 'text-brand-600' }, icon('paw', { size: 48, class: 'mx-auto' })),
       el('h1', { class: 'mt-3 text-xl font-bold' }, 'Anúncio não encontrado'),
       el('p', { class: 'mt-1 text-stone-600' }, 'Ele pode ter sido removido ou o link está incorreto.'),
       el('a', { href: '/posts/', class: 'btn btn-primary mt-5' }, 'Ver todos os anúncios'),
@@ -68,11 +69,11 @@ function ownerActions(post) {
       if (!confirm('Marcar este post como resolvido? O pet foi reencontrado!')) return;
       run(e.currentTarget, async () => {
         await api(`/posts/${post.id}/resolve`, { method: 'POST' });
-        flash('Que ótima notícia! O post foi marcado como resolvido. 🎉', 'success');
+        flash('Que ótima notícia! O post foi marcado como resolvido.', 'success');
         location.reload();
       });
     },
-  }, '✓ Marcar como resolvido');
+  }, icon('check-circle', { size: 16 }), 'Marcar como resolvido');
   const remove = el('button', {
     type: 'button',
     class: 'btn btn-danger btn-sm',
@@ -84,11 +85,11 @@ function ownerActions(post) {
         location.assign('/posts/');
       });
     },
-  }, '🗑 Excluir');
+  }, icon('trash', { size: 16 }), 'Excluir');
 
   return el('div', { class: 'card flex flex-wrap items-center gap-2 p-4 sm:p-4' },
     el('span', { class: 'mr-auto text-sm text-stone-600' }, 'Este anúncio é seu.'),
-    el('a', { href: `/posts/${post.id}/editar`, class: 'btn btn-outline btn-sm' }, '✏️ Editar'),
+    el('a', { href: `/posts/${post.id}/editar`, class: 'btn btn-outline btn-sm' }, icon('pencil', { size: 16 }), 'Editar'),
     !post.isResolved && resolve,
     remove,
   );
@@ -105,7 +106,7 @@ function locationCard(post) {
       .catch(() => mapBox.replaceChildren(el('p', { class: 'p-4 text-sm text-stone-500' }, 'Não foi possível carregar o mapa.')));
   }
   return el('section', { class: 'card space-y-3' },
-    el('h2', { class: 'text-lg font-semibold' }, '📍 Localização'),
+    el('h2', { class: 'flex items-center gap-2 text-lg font-semibold' }, icon('map-pin', { class: 'text-brand-600' }), 'Localização'),
     el('p', { class: 'text-stone-700' }, el('span', { class: 'text-stone-500' }, `${label}: `), post.lastSeenLocation),
     mapBox || el('p', { class: 'text-sm text-stone-500' }, 'O mapa aparece quando o endereço for localizado.'),
   );
@@ -113,13 +114,13 @@ function locationCard(post) {
 
 function contactCard(post) {
   return el('aside', { class: 'card space-y-3' },
-    el('h2', { class: 'text-lg font-semibold' }, '📞 Contato'),
+    el('h2', { class: 'flex items-center gap-2 text-lg font-semibold' }, icon('phone', { class: 'text-brand-600' }), 'Contato'),
     post.whatsappUrl
-      ? el('a', { href: post.whatsappUrl, target: '_blank', rel: 'noopener noreferrer', class: 'btn btn-whatsapp w-full' }, '💬 Chamar no WhatsApp')
+      ? el('a', { href: post.whatsappUrl, target: '_blank', rel: 'noopener noreferrer', class: 'btn btn-whatsapp w-full' }, icon('chat'), 'Chamar no WhatsApp')
       : null,
     el('p', {}, el('a', { href: `tel:${post.contactPhone.replace(/\D/g, '')}`, class: 'font-medium text-brand-700 hover:underline' }, post.contactPhone)),
     post.contactEmail ? el('p', {}, el('a', { href: `mailto:${post.contactEmail}`, class: 'text-brand-700 hover:underline' }, post.contactEmail)) : null,
-    post.reward ? el('p', { class: 'rounded-lg bg-amber-50 px-3 py-2 font-semibold text-amber-800' }, `🏆 ${post.reward}`) : null,
+    post.reward ? el('p', { class: 'flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 font-semibold text-amber-800' }, icon('trophy'), post.reward) : null,
     post.owner ? el('p', { class: 'text-sm text-stone-500' }, `Publicado por ${post.owner.name}`) : null,
   );
 }
@@ -150,7 +151,7 @@ function render(post) {
       ),
       el('div', { class: 'space-y-6' },
         el('section', { class: 'card' },
-          el('h2', { class: 'mb-2 text-lg font-semibold' }, '🐾 Informações do pet'),
+          el('h2', { class: 'mb-2 flex items-center gap-2 text-lg font-semibold' }, icon('paw', { class: 'text-brand-600' }), 'Informações do pet'),
           el('dl', {},
             row('Nome', post.petName),
             row('Tipo', post.petTypeLabel),

@@ -18,8 +18,8 @@
         <fieldset class="card space-y-4">
           <legend class="text-lg font-semibold">Situação</legend>
           <div class="grid gap-3 sm:grid-cols-2">
-            <label class="choice"><input type="radio" name="status" value="lost" required /> 💔 Perdi meu pet</label>
-            <label class="choice"><input type="radio" name="status" value="found" /> 🔍 Encontrei um pet</label>
+            <label class="choice"><input type="radio" name="status" value="lost" required /> <i data-icon="search" data-size="18" class="text-lost-600"></i> Perdi meu pet</label>
+            <label class="choice"><input type="radio" name="status" value="found" /> <i data-icon="megaphone" data-size="18" class="text-found-600"></i> Encontrei um pet</label>
           </div>
           <div>
             <label for="title" class="label">Título do anúncio</label>
@@ -79,7 +79,7 @@
             </div>
           </div>
           <p id="cep-status" class="cep-status" aria-live="polite"></p>
-          <p class="text-sm text-stone-500">📍 Com o endereço, o anúncio ganha um mapa. Quanto mais preciso, melhor.</p>
+          <p class="text-sm text-stone-500"><i data-icon="map-pin" data-size="16"></i> Com o endereço, o anúncio ganha um mapa. Quanto mais preciso, melhor.</p>
           <div class="grid gap-4 sm:grid-cols-2">
             <div>
               <label for="contactPhone" class="label">Telefone / WhatsApp</label>

@@ -24,8 +24,8 @@
           Publique um anúncio e alcance pessoas da sua região em segundos.
         </p>
         <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-          <a href="/posts/criar?status=found" class="btn btn-found">🔍 Encontrei um Pet</a>
-          <a href="/posts/criar?status=lost" class="btn btn-lost">💔 Meu Pet Está Perdido</a>
+          <a href="/posts/criar?status=found" class="btn btn-found"><i data-icon="megaphone"></i> Encontrei um Pet</a>
+          <a href="/posts/criar?status=lost" class="btn btn-lost"><i data-icon="search"></i> Meu Pet Está Perdido</a>
         </div>
       </div>
     </section>
@@ -35,15 +35,15 @@
 
       <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
         <h2 class="text-2xl font-bold">Anúncios recentes</h2>
-        <a href="/posts/" class="font-semibold text-brand-700 hover:underline">Ver todos →</a>
+        <a href="/posts/" class="inline-flex items-center gap-1 font-semibold text-brand-700 hover:underline">Ver todos <i data-icon="arrow-right" data-size="16"></i></a>
       </div>
 
       <nav class="mb-6 flex flex-wrap gap-2" aria-label="Atalhos de filtro">
         <a href="/posts/" class="chip">Todos</a>
-        <a href="/posts/?status=lost" class="chip">💔 Perdidos</a>
-        <a href="/posts/?status=found" class="chip">🔍 Encontrados</a>
-        <a href="/posts/?pet_type=dog" class="chip">🐶 Cachorros</a>
-        <a href="/posts/?pet_type=cat" class="chip">🐱 Gatos</a>
+        <a href="/posts/?status=lost" class="chip"><i data-icon="x-circle" data-size="16"></i> Perdidos</a>
+        <a href="/posts/?status=found" class="chip"><i data-icon="check-circle" data-size="16"></i> Encontrados</a>
+        <a href="/posts/?pet_type=dog" class="chip"><i data-icon="dog" data-size="16"></i> Cachorros</a>
+        <a href="/posts/?pet_type=cat" class="chip"><i data-icon="cat" data-size="16"></i> Gatos</a>
       </nav>
 
       <div id="recent-posts" aria-live="polite" aria-busy="true">

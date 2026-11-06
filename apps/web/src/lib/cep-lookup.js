@@ -5,6 +5,7 @@
  *   - cancela a consulta anterior se a pessoa continuar digitando.
  */
 import { api, ApiError } from './api.js';
+import { icon } from './icons.js';
 
 export function maskCep(value) {
   const d = value.replace(/\D/g, '').slice(0, 8);
@@ -27,7 +28,7 @@ export function attachCepLookup(cepInput, target, status) {
   let timer = null;
 
   const setStatus = (text, kind = '') => {
-    status.textContent = text;
+    status.replaceChildren(...(kind === 'ok' ? [icon('check', { size: 16 }), ' '] : []), text);
     status.dataset.state = kind;
   };
 
@@ -39,7 +40,7 @@ export function attachCepLookup(cepInput, target, status) {
       const address = await api(`/cep/${digits}`, { signal: controller.signal });
       target.value = formatAddress(address);
       target.dispatchEvent(new Event('input', { bubbles: true }));
-      setStatus('✓ Endereço preenchido. Confira e complete se precisar.', 'ok');
+      setStatus('Endereço preenchido. Confira e complete se precisar.', 'ok');
       target.focus();
     } catch (err) {
       if (err?.name === 'AbortError') return;
