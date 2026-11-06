@@ -64,7 +64,7 @@ Origem: engenharia reversa do projeto Flask (`pets-post/app/**`).
 | ID | Regra | Status |
 |---|---|---|
 | BR-PARTNER-001 | Mapa público lista apenas parceiros `isActive=true` **com** coordenadas. | ✅ |
-| BR-PARTNER-002 | CRUD exclusivo de admin; site precisa ser URL http/https. *(cadastro na Etapa 7; a API pública já esconde site que não é http/https)* | 🟡 API pública ✅ · cadastro na Etapa 7 |
+| BR-PARTNER-002 | CRUD exclusivo de admin; site precisa ser URL http/https. *(cadastro na Etapa 7; a API pública já esconde site que não é http/https)* | ✅ |
 | BR-PARTNER-003 | Busca "perto de mim": distância em linha reta (Haversine) a partir de `lat`/`lng`, raio padrão 10 km (1 a 100), do mais perto para o mais longe. | ✅ |
 
 ## Validação e contato — BR-VAL / BR-CONTACT
@@ -78,11 +78,11 @@ Origem: engenharia reversa do projeto Flask (`pets-post/app/**`).
 ## Admin — BR-ADMIN
 | ID | Regra | Status |
 |---|---|---|
-| BR-ADMIN-001 | Dashboard: total de usuários, total de posts, ativos, resolvidos, perdidos e encontrados ativos; 5 posts e 5 usuários mais recentes. | 🟡 |
-| BR-ADMIN-002 | Admin (des)ativa usuários, exceto a si mesmo (PERM-005). | 🟡 |
-| BR-ADMIN-003 | Admin pode ocultar/reexibir anúncios (`isActive`). *(nova — no Flask o campo existia sem rota)* | 🟡 |
-| BR-ADMIN-004 | Dashboard inclui estatísticas e moderação de adoção. *(nova)* | 🟡 |
-| BR-ADMIN-005 | Desativar um usuário encerra todas as sessões dele na hora. *(nova — no Flask a sessão continuava até expirar)* | 🟡 |
+| BR-ADMIN-001 | Dashboard: total de usuários, total de posts, ativos, resolvidos, perdidos e encontrados ativos; 5 posts e 5 usuários mais recentes. | ✅ |
+| BR-ADMIN-002 | Admin (des)ativa usuários, exceto a si mesmo (PERM-005). | ✅ |
+| BR-ADMIN-003 | Admin pode ocultar/reexibir anúncios (`isActive`). *(nova — no Flask o campo existia sem rota)* | ✅ |
+| BR-ADMIN-004 | Dashboard inclui estatísticas e moderação de adoção. *(nova)* | ✅ |
+| BR-ADMIN-005 | Desativar um usuário encerra todas as sessões dele na hora. *(nova — no Flask a sessão continuava até expirar)* | ✅ |
 
 ## Dados e operação — BR-DATA
 | ID | Regra | Status |

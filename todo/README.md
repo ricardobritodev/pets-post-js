@@ -31,5 +31,5 @@ Regras citadas (`BR-*`, `PERM-*`) estão em [`../specs/domain`](../specs/domain/
 | 4 — Posts | ✅ concluída (ver `doc/features/004-posts.md`) |
 | 5 — Mídia e geo | ✅ concluída (ver `doc/features/005-midia-geo.md`) |
 | 6 — Adoção e parceiros | ✅ concluída (ver `doc/features/006-adocao-parceiros.md`) |
-| 7 — Admin e deploy | 🔜 próxima |
+| 7 — Admin e deploy | 🟡 admin e kit de deploy prontos; falta subir no VPS (ver `doc/features/007-admin-deploy.md`) |
 | 8 — Chatbot e IA | ⬜ |

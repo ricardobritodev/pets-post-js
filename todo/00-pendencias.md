@@ -19,4 +19,4 @@
 ## Dívida técnica conhecida
 - [ ] **D-01 —** `npm audit`: 3 alertas *high* em `deepmerge-ts` (CLI do Prisma 6, só dev).
   Reavaliar ao migrar para Prisma 7.
-- [x] **D-02 —** Telas do front ainda são placeholder. *(2026-11-05: home, posts, detalhe, formulário, sobre, login e cadastro prontos; faltam só as telas do admin)*
+- [x] **D-02 —** Telas do front ainda são placeholder. *(2026-11-05: home, posts, detalhe, formulário, sobre, login e cadastro prontos; admin pronto na Etapa 7)*

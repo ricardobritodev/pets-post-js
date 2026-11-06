@@ -54,10 +54,11 @@ Legenda: ✅ concluída · 🔜 próxima · ⬜ pendente
 | 6.2 | Mapa de parceiros + `GET /partners` (BR-PARTNER-001) | ✅ |
 | 6.3 | Busca "perto de mim" com Haversine (BR-PARTNER-003) | ✅ |
 
-## Etapa 7 — Admin e cutover 🔜
-| 7.1 | Dashboard, usuários, moderação, parceiros (BR-ADMIN-*) | ⬜ |
-| 7.2 | Express serve o build do Vite em produção; CSP final | 🟡 serve o build + OG (Etapa 4) e CSP com fotos/mapa (Etapa 5); falta revisar no deploy |
-| 7.3 | Migração de uploads, deploy paralelo, troca de DNS | ⬜ |
+## Etapa 7 — Admin e cutover 🟡 (falta subir no VPS)
+| 7.1 | Dashboard, usuários, moderação, parceiros (BR-ADMIN-*) | ✅ |
+| 7.2 | Express serve o build do Vite em produção; CSP final | ✅ |
+| 7.3 | Kit de deploy (setup, deploy com rollback, backup, systemd, Nginx) | ✅ |
+| 7.4 | Subir no VPS da Hostinger, DNS e HTTPS (Q-004) | ⬜ depende do VPS contratado |
 
 ## Etapa 8+ — Chatbot e IA (ADR 004/005)
 | 8.1 | Bot Telegram (grammY) + intenções node-nlp + busca SQL | ⬜ |
