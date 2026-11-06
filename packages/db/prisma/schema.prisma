@@ -201,6 +201,8 @@ model Product {
   promoPriceCents Int?            @map("promo_price_cents")
   stock           Int             @default(0)
   url             String?         @db.VarChar(500)
+  // Quem vende e entrega (BR-STORE-013): lido do `offers.seller` da página; vazio = nome do parceiro.
+  sellerName      String?         @map("seller_name") @db.VarChar(120)
   isActive        Boolean         @default(true) @map("is_active")
   isFeatured      Boolean         @default(false) @map("is_featured")
   // Quando o preço foi conferido (BR-STORE-011): ao criar, ao mudar o preço e ao "Atualizar do link".
