@@ -42,19 +42,20 @@ Legenda: ✅ concluída · 🔜 próxima · ⬜ pendente
 | 4.4 | Criar/editar/excluir/resolver (PERM-001) | ✅ |
 | 4.5 | Páginas de lista, detalhe, formulário; injeção Open Graph (ADR 002) | ✅ |
 
-## Etapa 5 — Mídia e geolocalização 🔜
-| 5.1 | Upload (`multer`) + processamento (`sharp`) (BR-PHOTO-*) | ⬜ |
-| 5.2 | Geocodificação Nominatim com fila 1 req/s (BR-GEO-001..003) | ⬜ |
-| 5.3 | Proxy CEP ViaCEP (BR-GEO-004) | ⬜ |
-| 5.4 | Mapa Leaflet nas páginas de detalhe | ⬜ |
+## Etapa 5 — Mídia e geolocalização ✅
+| 5.1 | Upload (`multer`) + processamento (`sharp`) (BR-PHOTO-*) | ✅ |
+| 5.2 | Geocodificação Nominatim com fila 1 req/s (BR-GEO-001..003) | ✅ |
+| 5.3 | Proxy CEP ViaCEP (BR-GEO-004) | ✅ |
+| 5.4 | Mapa Leaflet nas páginas de detalhe | ✅ |
+| 5.5 | Migration M-01 (coordenadas em `DOUBLE`) | ✅ |
 
-## Etapa 6 — Adoção e parceiros
+## Etapa 6 — Adoção e parceiros 🔜
 | 6.1 | CRUD de adoção + marcar adotado (BR-ADOPT-*) | ⬜ |
 | 6.2 | Mapa de parceiros + `GET /partners` (BR-PARTNER-001) | ⬜ |
 
 ## Etapa 7 — Admin e cutover
 | 7.1 | Dashboard, usuários, moderação, parceiros (BR-ADMIN-*) | ⬜ |
-| 7.2 | Express serve o build do Vite em produção; CSP final | 🟡 serve o build + OG (Etapa 4); falta CSP final |
+| 7.2 | Express serve o build do Vite em produção; CSP final | 🟡 serve o build + OG (Etapa 4) e CSP com fotos/mapa (Etapa 5); falta revisar no deploy |
 | 7.3 | Migração de uploads, deploy paralelo, troca de DNS | ⬜ |
 
 ## Etapa 8+ — Chatbot e IA (ADR 004/005)

@@ -69,8 +69,8 @@ curl -s localhost:3000/posts/1 | grep og:
   o pet. O campo vai vazio.
 
 ## Pendências
-- Fotos (upload, `sharp`, remover arquivos ao excluir), CEP, geocodificação e mapa no detalhe: Etapa 5.
+- ~~Fotos, CEP, geocodificação e mapa no detalhe~~ ✅ Etapa 5 ([005](005-midia-geo.md)).
 - `og:image` padrão para posts sem foto: o WhatsApp não aceita SVG, então falta criar um PNG do logo.
 - Página "Meus anúncios" no front: a API (`/me/posts`) já existe.
-- As páginas não foram conferidas num navegador de verdade, só via HTTP e build. Vale abrir e
-  clicar em tudo.
+- Detalhe e formulário foram conferidos no Chrome headless na Etapa 5 (e isso achou um `false` solto no
+  detalhe, já corrigido). Home, lista e filtros ainda não foram clicados num navegador.

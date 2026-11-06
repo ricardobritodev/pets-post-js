@@ -168,6 +168,7 @@ npm run test:integration -- --test-name-pattern="BR-DATA"   # filtrar
 | `npm run db:seed:partners` | Parceiros reais de SP (pode rodar em produção) |
 | `npm run db:baseline -- --url ...` | Adota um banco Flask existente (relatório; `--apply` executa) |
 | `npm run db:studio` | Abre o Prisma Studio (interface web do banco) |
+| `npm run geo:backfill -w @petspost/api` | Mostra os posts sem coordenadas; com `-- --apply`, geocodifica (1 por segundo) |
 
 ## Estrutura do projeto
 
@@ -203,4 +204,6 @@ Detalhes em [specs/README.md](specs/README.md).
 | Home mostra "Não foi possível carregar os anúncios" | API parada (`npm run dev:api`), MySQL parado (`brew services start mysql`) ou `DATABASE_URL` errado |
 | `test:integration` diz `BR-DATA-005` | Falta `DATABASE_URL_TEST` no `.env`, ou o nome do banco não termina em `_test` |
 | `Foreign key constraint violated` ao excluir post no banco Flask | Rode o baseline (alinha as FKs com CASCADE) |
+| Post sem mapa no detalhe | O endereço ainda não foi geocodificado (leva alguns segundos), o Nominatim não achou, ou `GEOCODER_ENABLED=false`. Para posts antigos: `npm run geo:backfill -w @petspost/api -- --apply` |
+| Foto recusada com "Arquivo não é uma imagem válida" | O arquivo não é PNG/JPG/GIF/WEBP de verdade (ex.: HEIC do iPhone renomeado). Exporte como JPG |
 | `EADDRINUSE :3000` | Outra coisa usando a porta. Mude `API_PORT` no `.env` e o proxy em `apps/web/vite.config.js` |
