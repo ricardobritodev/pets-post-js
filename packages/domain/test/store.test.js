@@ -133,3 +133,15 @@ test('BR-STORE-012 nome e site da loja nova: vendedor → og:site_name sem sloga
   assert.equal(siteOrigin('javascript:alert(1)'), null);
   assert.equal(domainLabel('https://loja.exemplo.com.br/p'), 'exemplo');
 });
+
+test('BR-STORE-015 navegador do admin baixa só de servidores de fotos da lista, por https', async () => {
+  const { browserCanFetchImage, BROWSER_IMAGE_HOSTS } = await import('../src/store.js');
+  assert.ok(BROWSER_IMAGE_HOSTS.length > 0);
+  assert.equal(browserCanFetchImage('https://cobasi.vteximg.com.br/arquivos/ids/1-1200-1200/a.webp?v=1'), true);
+  assert.equal(browserCanFetchImage('https://americanas.vtexassets.com/arquivos/ids/37/a.jpg'), true);
+  assert.equal(browserCanFetchImage('http://cobasi.vteximg.com.br/a.webp'), false); // só https
+  assert.equal(browserCanFetchImage('https://vteximg.com.br.golpe.com/a.webp'), false);
+  assert.equal(browserCanFetchImage('https://vteximg.com.br/a.webp'), false); // só subdomínio
+  assert.equal(browserCanFetchImage('https://images.tcdn.com.br/a.jpg'), false); // fora da lista: envio manual
+  assert.equal(browserCanFetchImage('nao-e-link'), false);
+});

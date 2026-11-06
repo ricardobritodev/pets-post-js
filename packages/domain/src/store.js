@@ -185,3 +185,22 @@ export function soldBy(product, partner) {
   const seller = String(product?.sellerName ?? '').trim();
   return seller || partner?.name || null;
 }
+
+/**
+ * BR-STORE-015 — servidores de fotos de onde o *navegador do admin* pode baixar quando a loja limita o servidor
+ * (eles permitem pelo CORS). Mesma lista na CSP das páginas /admin/*. Fora dela: envio manual.
+ */
+export const BROWSER_IMAGE_HOSTS = Object.freeze(['*.vteximg.com.br', '*.vtexassets.com']);
+
+/** A foto pode ser baixada pelo navegador do admin? Só https e host da lista. */
+export function browserCanFetchImage(url) {
+  try {
+    const { protocol, hostname } = new URL(String(url ?? ''));
+    if (protocol !== 'https:') return false;
+    return BROWSER_IMAGE_HOSTS.some((pattern) => (pattern.startsWith('*.')
+      ? hostname.endsWith(pattern.slice(1)) && hostname.length > pattern.length - 1
+      : hostname === pattern));
+  } catch {
+    return false;
+  }
+}
