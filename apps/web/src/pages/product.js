@@ -1,5 +1,5 @@
 /**
- * Produto /loja/produto/:id — BR-STORE-001/004/005. Open Graph injetado pelo servidor (ADR 002).
+ * Produto /loja/produto/:id — BR-STORE-001/004/005/013. Open Graph injetado pelo servidor (ADR 002).
  */
 import '../styles/main.css';
 import { api } from '../lib/api.js';
@@ -27,6 +27,7 @@ function buyBox(p) {
     el('p', { class: `flex items-center gap-1.5 text-sm font-medium ${p.inStock ? 'text-found-600' : 'text-lost-600'}` },
       icon(p.inStock ? 'check-circle' : 'x-circle', { size: 16 }),
       p.inStock ? `Em estoque (${p.stock} ${p.stock === 1 ? 'unidade' : 'unidades'} no parceiro)` : 'Esgotado no momento'),
+    soldByLine(p.soldBy),
     p.buyUrl
       ? el('a', {
         href: p.buyUrl,
@@ -40,10 +41,14 @@ function buyBox(p) {
   );
 }
 
+/** BR-STORE-013 — estilo marketplace. */
+const soldByLine = (name) => name && el('p', { class: 'flex items-center gap-1.5 text-sm text-stone-600' },
+  icon('shopping-bag', { size: 16, class: 'text-brand-600' }), 'Vendido e entregue por ', el('strong', { class: 'font-semibold text-stone-900' }, name));
+
 function partnerCard(partner) {
   if (!partner) return null;
   return el('section', { class: 'card space-y-2' },
-    el('h2', { class: 'flex items-center gap-2 text-lg font-semibold' }, icon('shopping-bag', { class: 'text-brand-600' }), 'Vendido por'),
+    el('h2', { class: 'flex items-center gap-2 text-lg font-semibold' }, icon('map-pin', { class: 'text-brand-600' }), 'Loja parceira'),
     el('p', { class: 'font-medium' }, partner.name),
     el('p', { class: 'text-sm text-stone-500' }, partner.typeLabel),
     el('p', { class: 'flex items-start gap-1.5 text-sm text-stone-600' }, icon('map-pin', { size: 16, class: 'mt-0.5' }), partner.address),

@@ -1,5 +1,5 @@
 /**
- * /admin/produtos/criar e /admin/produtos/:id/editar — BR-STORE-003/005/006/007.
+ * /admin/produtos/criar e /admin/produtos/:id/editar — BR-STORE-003/005/006/007/012/013.
  * Preço digitado em reais ("189,90"); a API recebe centavos.
  */
 import '../styles/main.css';
@@ -15,7 +15,9 @@ import { syncPhotos } from '../lib/photo-sync.js';
 import { icon } from '../lib/icons.js';
 
 const editId = Number(/^\/admin\/produtos\/(\d+)\/editar/.exec(location.pathname)?.[1]) || null;
-const TEXT_FIELDS = ['partnerId', 'name', 'description', 'category', 'petType', 'stock', 'url'];
+/** Valor da opção "Nova loja" no select de parceiro (BR-STORE-012). */
+const NEW_PARTNER = 'nova-loja';
+const TEXT_FIELDS = ['partnerId', 'sellerName', 'name', 'description', 'category', 'petType', 'stock', 'url'];
 
 const field = (id, label, input, hint) =>
   el('div', {}, el('label', { for: id, class: 'label' }, label), input, hint && el('p', { class: 'mt-1 text-xs text-stone-500' }, hint));
@@ -42,6 +44,8 @@ function buildForm(partners) {
       el('div', { class: 'sm:col-span-2' }, field('name', 'Nome', input('name', { required: true, maxlength: '150', placeholder: 'Ex.: Ração Premium Cães Adultos 10 kg' }))),
       field('partnerId', 'Parceiro (quem vende)', select('partnerId', [['', 'Selecione…'],
         ...partners.map((p) => [String(p.id), `${p.name}${p.isActive ? '' : ' (inativo)'}`])])),
+      field('sellerName', optional('Vendido e entregue por'), input('sellerName', { maxlength: '120', placeholder: 'Ex.: Cobasi' }),
+        'Aparece no produto como "Vendido e entregue por …". Vazio = nome do parceiro.'),
       field('category', 'Categoria', select('category', [['', 'Selecione…'], ['food', 'Ração'], ['treats', 'Petiscos'], ['toys', 'Brinquedos'],
         ['hygiene', 'Higiene e beleza'], ['health', 'Farmácia e saúde'], ['accessories', 'Coleiras e acessórios'], ['beds', 'Camas e casinhas']])),
       field('petType', 'Para qual pet', select('petType', [['', 'Todos os pets'], ['dog', 'Cachorro'], ['cat', 'Gato'], ['bird', 'Pássaro'], ['other', 'Outros']])),
@@ -71,7 +75,7 @@ function buildForm(partners) {
 /**
  * Quadro "Importar de um link" (BR-STORE-009): busca o rascunho na API e preenche o formulário.
  * As fotos da loja aparecem como miniaturas (data:, sem carregar nada de fora) para marcar quais entram.
- * @returns {{ node: HTMLElement, selectedImageUrls: () => string[] }}
+ * @returns {{ node: HTMLElement, selectedImageUrls: () => string[], newPartner: () => ({ name: string, website: string }|null) }}
  */
 function importBox(form) {
   const urlInput = el('input', { id: 'import-url', type: 'url', class: 'input', placeholder: 'https://loja-do-parceiro.com.br/produto/…', maxlength: '2000' });
@@ -80,6 +84,7 @@ function importBox(form) {
   const galleryBox = el('div', { class: 'space-y-2', hidden: true },
     el('p', { class: 'text-sm font-medium' }, 'Fotos da loja (marque as que entram no produto):'), gallery);
   let images = [];
+  let newPartner = null;
 
   const button = el('button', {
     type: 'button',
@@ -93,6 +98,15 @@ function importBox(form) {
         form.elements.name.value = draft.name ?? '';
         form.elements.description.value = draft.description ?? '';
         form.elements.url.value = draft.url ?? '';
+        form.elements.sellerName.value = draft.sellerName ?? '';
+        // BR-STORE-012 — a loja vem escolhida pelo site ou pelo nome; sem parceiro, a própria loja entra como nova.
+        form.querySelector(`option[value="${NEW_PARTNER}"]`)?.remove();
+        newPartner = draft.newPartner ?? null;
+        if (draft.partnerId) form.elements.partnerId.value = String(draft.partnerId);
+        else if (newPartner) {
+          form.elements.partnerId.append(el('option', { value: NEW_PARTNER }, `Nova loja: ${newPartner.name} (cadastrada ao salvar)`));
+          form.elements.partnerId.value = NEW_PARTNER;
+        }
         if (draft.priceCents != null) form.elements.priceCents.value = centsToInput(draft.priceCents);
         if (draft.category) form.elements.category.value = draft.category;
         if (draft.petType) form.elements.petType.value = draft.petType;
@@ -108,9 +122,15 @@ function importBox(form) {
             }))));
         galleryBox.hidden = images.length === 0;
         status.className = 'text-sm text-found-600';
-        status.textContent = `Dados de ${draft.siteName} preenchidos. Confira tudo, escolha o parceiro e salve.`;
+        const chosen = form.elements.partnerId.selectedOptions[0];
+        status.replaceChildren(draft.partnerId && chosen?.value
+          ? `Dados de ${draft.siteName} preenchidos e parceiro ${chosen.textContent} identificado pelo link. Confira tudo e salve.`
+          : newPartner
+            ? `Dados de ${draft.siteName} preenchidos. ${newPartner.name} será cadastrada como parceira (loja online) ao salvar.`
+            : 'Dados preenchidos, mas não identifiquei a loja: escolha o parceiro na lista.');
         for (const w of warnings) showFlash(w, 'warning');
         if (!form.elements.category.value) setFieldError(form.elements.category, 'Não consegui adivinhar a categoria: escolha uma.');
+        if (!form.elements.partnerId.value) setFieldError(form.elements.partnerId, 'Escolha quem vende este produto.');
       } catch (err) {
         status.className = 'text-sm text-lost-600';
         status.textContent = err instanceof ApiError ? err.message : 'Sem conexão com o servidor.';
@@ -123,13 +143,17 @@ function importBox(form) {
   const node = el('fieldset', { class: 'card space-y-3 border-brand-500/40 bg-brand-50/40' },
     el('legend', { class: 'flex items-center gap-2 text-lg font-semibold' }, icon('arrow-right', { class: 'text-brand-600' }), 'Importar de um link'),
     el('p', { class: 'text-sm text-stone-600' },
-      'Cole o link do produto na loja do parceiro: nome, descrição, preço e fotos são preenchidos para você revisar. ',
+      'Cole o link do produto na loja do parceiro: nome, descrição, preço, fotos e o parceiro (pelo site) são preenchidos para você revisar. ',
       'Alguns sites não permitem leitura automática; nesses, preencha à mão.'),
     el('div', { class: 'flex flex-col gap-2 sm:flex-row' }, urlInput, button),
     status,
     galleryBox,
   );
-  return { node, selectedImageUrls: () => images.filter((i) => i.checked).map((i) => i.url) };
+  return {
+    node,
+    selectedImageUrls: () => images.filter((i) => i.checked).map((i) => i.url),
+    newPartner: () => newPartner,
+  };
 }
 
 /** "Atualizar do link" (BR-STORE-011), só na edição de produto com link. */
@@ -222,6 +246,11 @@ if (await mountAdmin()) {
         clearErrors(form);
         const data = readForm(form);
         if (!data) return showFlash('Confira os campos destacados.', 'danger');
+        // "Nova loja" escolhida: a API cadastra a loja como parceiro junto com o produto (BR-STORE-012)
+        if (data.partnerId === NEW_PARTNER) {
+          delete data.partnerId;
+          data.newPartner = importer.newPartner();
+        }
         await withSubmitting(form, async () => {
           try {
             const { product: saved } = await api(editId ? `/admin/products/${editId}` : '/admin/products', {

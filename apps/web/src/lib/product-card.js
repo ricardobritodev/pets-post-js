@@ -34,7 +34,9 @@ export function renderProductCard(p) {
     el('div', { class: 'flex flex-1 flex-col gap-1 p-3' },
       el('p', { class: 'text-xs text-stone-500' }, `${p.categoryLabel} · ${p.petTypeLabel}`),
       el('h3', { class: 'line-clamp-2 text-sm font-medium leading-snug' }, el('a', { href, class: 'hover:text-brand-700' }, p.name)),
-      p.partner && el('p', { class: 'flex items-center gap-1 text-xs text-stone-500' }, icon('shopping-bag', { size: 12 }), p.partner.name),
+      // BR-STORE-013 — "Vendido e entregue por" (vendedor do produto ou o parceiro)
+      p.soldBy && el('p', { class: 'flex items-center gap-1 text-xs text-stone-500' }, icon('shopping-bag', { size: 12, class: 'shrink-0' }),
+        el('span', { class: 'line-clamp-1' }, 'Vendido e entregue por ', el('span', { class: 'font-medium text-stone-700' }, p.soldBy))),
       el('div', { class: 'mt-auto pt-2' }, priceBlock(p)),
     ),
   );
