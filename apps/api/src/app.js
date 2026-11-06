@@ -31,6 +31,9 @@ import { cepRouter } from './modules/geo/router.js';
 import { createAdoptionRepository } from './modules/adoption/repository.js';
 import { createAdoptionService } from './modules/adoption/service.js';
 import { adoptionRouter, meAdoptionRouter } from './modules/adoption/router.js';
+import { createPartnerRepository } from './modules/partners/repository.js';
+import { createPartnerService } from './modules/partners/service.js';
+import { partnersRouter } from './modules/partners/router.js';
 import { webRouter } from './web/router.js';
 
 /**
@@ -101,6 +104,8 @@ export function createApp({ config, db, logger, securityLog, sessionStore, limit
   const adoptionService = createAdoptionService({ adoptions: createAdoptionRepository(db), photos: adoptionPhotos, geo });
   app.use('/api/v1/adoption', adoptionRouter({ service: adoptionService, limits }));
   app.use('/api/v1/me', meAdoptionRouter({ service: adoptionService }));
+
+  app.use('/api/v1/partners', partnersRouter({ service: createPartnerService({ partners: createPartnerRepository(db) }) }));
   app.use('/api/v1/cep', cepRouter({ cep, limits }));
 
   app.use('/api', notFound);
