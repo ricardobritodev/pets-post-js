@@ -13,6 +13,8 @@ import { icon } from './icons.js';
 const NAV = [
   { href: '/', label: 'Início' },
   { href: '/posts/', label: 'Posts' },
+  { href: '/adocao/', label: 'Adoção' },
+  { href: '/mapa', label: 'Mapa' },
   { href: '/sobre', label: 'Sobre' },
 ];
 

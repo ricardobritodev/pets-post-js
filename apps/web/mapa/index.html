@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mapa de parceiros · Pets Post</title>
+    <meta name="description" content="Lares temporários, petshops e clínicas veterinárias parceiras perto de você." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script type="module" src="/src/pages/partners-map.js"></script>
+  </head>
+  <body class="flex min-h-screen flex-col bg-stone-50 text-stone-800 antialiased">
+    <div id="app-header"></div>
+    <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
+      <div id="app-flash" class="mb-6 space-y-2" aria-live="polite"></div>
+
+      <div class="mb-4 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 class="flex items-center gap-2 text-3xl font-bold"><i data-icon="map" data-size="30" class="text-brand-600"></i> Mapa de parceiros</h1>
+          <p class="mt-1 text-stone-600">Lares temporários, petshops e clínicas veterinárias que ajudam o Pets Post.</p>
+        </div>
+        <button type="button" id="locate" class="btn btn-outline"><i data-icon="map-pin" data-size="18"></i> Minha localização</button>
+      </div>
+
+      <div class="mb-4 flex flex-wrap gap-2" role="group" aria-label="Filtrar por tipo de parceiro" id="type-filters">
+        <button type="button" class="chip" data-type="" aria-pressed="true">Todos</button>
+        <button type="button" class="chip" data-type="foster_home" aria-pressed="false"><span class="legend-dot legend-foster_home"></span> Lares temporários</button>
+        <button type="button" class="chip" data-type="petshop" aria-pressed="false"><span class="legend-dot legend-petshop"></span> Petshops</button>
+        <button type="button" class="chip" data-type="vet_clinic" aria-pressed="false"><span class="legend-dot legend-vet_clinic"></span> Clínicas</button>
+      </div>
+
+      <div class="grid gap-6 lg:grid-cols-[1fr_20rem]">
+        <div id="partners-map" class="partners-map" role="region" aria-label="Mapa de lares temporários, petshops e clínicas parceiras"></div>
+        <aside class="card space-y-3 p-4 sm:p-4">
+          <h2 id="list-title" class="text-lg font-semibold">Parceiros</h2>
+          <p id="list-hint" class="text-sm text-stone-500" aria-live="polite">Carregando…</p>
+          <ul id="partners-list" class="partner-list"></ul>
+        </aside>
+      </div>
+    </main>
+    <footer id="app-footer" class="border-t border-stone-200 bg-white"></footer>
+  </body>
+</html>

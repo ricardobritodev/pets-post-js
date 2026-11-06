@@ -114,6 +114,8 @@
   .badge-lost { @apply bg-red-100 text-red-800; }
   .badge-found { @apply bg-emerald-100 text-emerald-800; }
   .badge-resolved { @apply bg-sky-100 text-sky-800; }
+  .badge-adoption { @apply bg-violet-100 text-violet-800; }
+  .badge-health { @apply bg-emerald-50 text-emerald-700; }
 
   .pet-card {
     @apply flex flex-col overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm transition hover:shadow-md;
@@ -169,7 +171,55 @@
   }
 
   /* Mapa do detalhe. `isolate` segura o z-index alto do Leaflet dentro do card. */
+  /* Mapa de parceiros (Etapa 6). Cores por tipo iguais às do Flask. */
+  .partners-map {
+    @apply isolate h-[65vh] min-h-96 w-full overflow-hidden rounded-xl border border-stone-200;
+  }
+  .partner-pin {
+    @apply flex size-[30px] items-center justify-center rounded-full border-2 border-white text-white shadow-md;
+  }
+  .partner-pin-foster_home, .legend-foster_home { @apply bg-green-600; }
+  .partner-pin-petshop, .legend-petshop { @apply bg-blue-600; }
+  .partner-pin-vet_clinic, .legend-vet_clinic { @apply bg-red-600; }
+  .legend-dot {
+    @apply inline-block size-2.5 rounded-full;
+  }
+  .chip[aria-pressed="true"] {
+    @apply border-brand-500 bg-brand-50 text-brand-700;
+  }
+  .partner-list {
+    @apply max-h-[55vh] space-y-1 overflow-y-auto;
+  }
+  .partner-item {
+    @apply flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-brand-600;
+  }
+  .partner-item-icon {
+    @apply flex size-7 shrink-0 items-center justify-center rounded-full text-white;
+  }
+  .partner-popup {
+    @apply space-y-1 text-sm text-stone-700;
+  }
+  .partner-popup-line {
+    @apply flex items-start gap-1.5;
+  }
+  .partner-popup-line .icon {
+    @apply mt-0.5 text-stone-400;
+  }
+  .partner-type {
+    @apply text-xs font-semibold;
+  }
+  .partner-type-foster_home { @apply text-green-700; }
+  .partner-type-petshop { @apply text-blue-700; }
+  .partner-type-vet_clinic { @apply text-red-700; }
+
   .detail-map {
     @apply isolate h-72 w-full overflow-hidden rounded-lg border border-stone-200;
   }
 }
+
+/*
+ * O CSS do Leaflet pinta todo link do mapa de azul (.leaflet-container a). Ele fica fora de @layer,
+ * e CSS sem camada ganha de qualquer @layer: por isso esta regra também fica fora.
+ */
+.partner-popup a.btn-whatsapp { color: #fff; }
+.partner-popup a.btn-outline { color: var(--color-stone-700); }

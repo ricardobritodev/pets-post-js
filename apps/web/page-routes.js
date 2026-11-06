@@ -8,7 +8,7 @@
  * As URLs do sistema antigo foram mantidas (links já compartilhados no WhatsApp).
  */
 
-/** @typedef {{ page: string, params: Record<string, string>, og?: 'post' }} PageMatch */
+/** @typedef {{ page: string, params: Record<string, string>, og?: 'post' | 'adoption' }} PageMatch */
 
 const ROUTES = [
   { re: /^\/$/, page: 'index.html' },
@@ -16,6 +16,11 @@ const ROUTES = [
   { re: /^\/posts\/criar\/?$/, page: 'posts/form.html' },
   { re: /^\/posts\/(?<id>\d+)\/editar\/?$/, page: 'posts/form.html' },
   { re: /^\/posts\/(?<id>\d+)\/?$/, page: 'posts/detalhe.html', og: 'post' },
+  { re: /^\/adocao\/?$/, page: 'adocao/index.html' },
+  { re: /^\/adocao\/criar\/?$/, page: 'adocao/form.html' },
+  { re: /^\/adocao\/(?<id>\d+)\/editar\/?$/, page: 'adocao/form.html' },
+  { re: /^\/adocao\/(?<id>\d+)\/?$/, page: 'adocao/detalhe.html', og: 'adoption' },
+  { re: /^\/mapa\/?$/, page: 'mapa/index.html' },
   { re: /^\/sobre\/?$/, page: 'sobre/index.html' },
   { re: /^\/login\/?$/, page: 'login/index.html' },
   { re: /^\/cadastro\/?$/, page: 'cadastro/index.html' },
@@ -33,6 +38,10 @@ export const PAGE_INPUTS = Object.freeze({
   posts: 'posts/index.html',
   postDetail: 'posts/detalhe.html',
   postForm: 'posts/form.html',
+  adoption: 'adocao/index.html',
+  adoptionDetail: 'adocao/detalhe.html',
+  adoptionForm: 'adocao/form.html',
+  mapa: 'mapa/index.html',
   sobre: 'sobre/index.html',
   login: 'login/index.html',
   cadastro: 'cadastro/index.html',

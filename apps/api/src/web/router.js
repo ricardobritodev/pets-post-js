@@ -4,6 +4,7 @@
  *
  *   /assets/*      → arquivos com hash no nome, cache de 1 ano
  *   /posts/:id     → posts/detalhe.html com Open Graph do post
+ *   /adocao/:id    → adocao/detalhe.html com Open Graph da adoção
  *   outras páginas → o HTML de page-routes.js
  *   URL desconhecida → 404 com a home (o front mostra o conteúdo padrão)
  */
@@ -12,13 +13,17 @@ import { join } from 'node:path';
 import express, { Router } from 'express';
 import { resolvePage, LEGACY_REDIRECTS } from '@petspost/web/page-routes';
 import { idParamSchema } from '@petspost/contracts';
-import { injectMeta, postMeta } from './meta.js';
+import { injectMeta, META_BUILDERS } from './meta.js';
 
 /**
- * @param {{ distDir: string, posts: { get: (id: number, viewer: null) => Promise<object> },
- *           publicUrl?: string, cache?: boolean }} deps
+ * @param {{
+ *   distDir: string,
+ *   og: Record<'post' | 'adoption', { get: (id: number, viewer: null) => Promise<object> }>,
+ *   publicUrl?: string,
+ *   cache?: boolean,
+ * }} deps `og`: o serviço que busca o anúncio de cada tipo de página com Open Graph
  */
-export function webRouter({ distDir, posts, publicUrl, cache = true }) {
+export function webRouter({ distDir, og, publicUrl, cache = true }) {
   const router = Router();
   const files = new Map();
 
@@ -44,14 +49,14 @@ export function webRouter({ distDir, posts, publicUrl, cache = true }) {
       if (!match) return res.status(404).type('html').send(await html('index.html'));
 
       let page = await html(match.page);
-      if (match.og === 'post') {
-        // Só posts públicos ganham Open Graph; inativo/inexistente → 404 sem vazar dados.
-        const post = await posts.get(idParamSchema.parse(match.params.id), null).catch((err) => {
+      if (match.og) {
+        // Só anúncios públicos ganham Open Graph; inativo/inexistente → 404 sem vazar dados.
+        const item = await og[match.og].get(idParamSchema.parse(match.params.id), null).catch((err) => {
           if (err?.status === 404) return null;
           throw err;
         });
-        if (!post) res.status(404);
-        else page = injectMeta(page, postMeta(post, publicUrl));
+        if (!item) res.status(404);
+        else page = injectMeta(page, META_BUILDERS[match.og](item, publicUrl));
       }
       res.type('html').send(page);
     } catch (err) {

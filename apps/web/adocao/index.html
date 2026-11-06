@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Adoção · Pets Post</title>
+    <meta name="description" content="Cães, gatos e outros pets esperando um lar. Adote com responsabilidade." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script type="module" src="/src/pages/adoption-list.js"></script>
+  </head>
+  <body class="flex min-h-screen flex-col bg-stone-50 text-stone-800 antialiased">
+    <div id="app-header"></div>
+    <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
+      <div id="app-flash" class="mb-6 space-y-2" aria-live="polite"></div>
+
+      <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 class="text-3xl font-bold">Adote um pet</h1>
+          <p class="mt-1 text-stone-600">Cães, gatos e outros bichos esperando um lar.</p>
+          <p id="result-count" class="mt-1 text-stone-600" aria-live="polite"></p>
+        </div>
+        <a href="/adocao/criar" class="btn btn-primary"><i data-icon="plus" data-size="18"></i> Colocar para adoção</a>
+      </div>
+
+      <form id="filters" class="card mb-8 grid gap-4 p-4 sm:grid-cols-[1fr_auto] sm:items-end sm:p-4" role="search">
+        <div>
+          <label for="pet_type" class="label">Tipo de animal</label>
+          <select id="pet_type" name="pet_type" class="input">
+            <option value="">Todos</option>
+            <option value="dog">Cachorro</option>
+            <option value="cat">Gato</option>
+            <option value="bird">Pássaro</option>
+            <option value="other">Outro</option>
+          </select>
+        </div>
+        <button type="button" id="clear-filters" class="btn btn-ghost">Limpar filtros</button>
+      </form>
+
+      <div id="adoption-list" aria-live="polite" aria-busy="true">
+        <p class="text-stone-500">Carregando anúncios…</p>
+      </div>
+      <nav id="pagination" class="mt-10 flex items-center justify-center gap-2" aria-label="Paginação"></nav>
+    </main>
+    <footer id="app-footer" class="border-t border-stone-200 bg-white"></footer>
+  </body>
+</html>

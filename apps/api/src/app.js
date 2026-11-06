@@ -118,7 +118,12 @@ export function createApp({ config, db, logger, securityLog, sessionStore, limit
 
   // Front (build do Vite) + Open Graph — ADR 002
   if (webDistDir) {
-    app.use(webRouter({ distDir: webDistDir, posts: postService, publicUrl: config.PUBLIC_URL, cache: config.NODE_ENV === 'production' }));
+    app.use(webRouter({
+      distDir: webDistDir,
+      og: { post: postService, adoption: adoptionService },
+      publicUrl: config.PUBLIC_URL,
+      cache: config.NODE_ENV === 'production',
+    }));
   }
   app.use(errorHandler({ config, logger }));
 

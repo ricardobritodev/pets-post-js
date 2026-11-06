@@ -39,6 +39,24 @@ export function postMeta(post, publicUrl) {
 }
 
 /**
+ * Meta tags de um anúncio de adoção.
+ * @param {{ id: number, title: string, description: string, petTypeLabel: string, location: string,
+ *           primaryPhoto: { url: string }|null }} adoption
+ * @param {string|undefined} publicUrl
+ */
+export function adoptionMeta(adoption, publicUrl) {
+  return {
+    title: `Para adoção: ${adoption.title} · Pets Post`,
+    description: truncate(`${adoption.petTypeLabel} · ${adoption.location}. ${adoption.description}`, 200),
+    url: absolute(`/adocao/${adoption.id}`, publicUrl),
+    image: adoption.primaryPhoto ? absolute(adoption.primaryPhoto.url, publicUrl) : null,
+  };
+}
+
+/** Qual função monta as meta tags de cada tipo de página (page-routes.js → `og`). */
+export const META_BUILDERS = Object.freeze({ post: postMeta, adoption: adoptionMeta });
+
+/**
  * Troca o <title> e insere as meta tags no lugar do marcador.
  * @param {string} html
  * @param {{ title: string, description: string, url?: string|null, image?: string|null }} meta

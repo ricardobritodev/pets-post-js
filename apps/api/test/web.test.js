@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import express from 'express';
 import { resolvePage } from '@petspost/web/page-routes';
-import { injectMeta, postMeta, escapeHtml, truncate, META_MARKER } from '../src/web/meta.js';
+import { injectMeta, postMeta, adoptionMeta, escapeHtml, truncate, META_MARKER } from '../src/web/meta.js';
 import { webRouter } from '../src/web/router.js';
 import { HttpError } from '../src/middleware/errors.js';
 
@@ -20,6 +20,33 @@ test('resolvePage: URLs do sistema antigo continuam valendo', () => {
   assert.equal(resolvePage('/').page, 'index.html');
   assert.equal(resolvePage('/posts/abc'), null);
   assert.equal(resolvePage('/qualquer'), null);
+});
+
+test('resolvePage: adoção e mapa com as URLs do sistema antigo', () => {
+  assert.deepEqual(resolvePage('/adocao/3'), { page: 'adocao/detalhe.html', params: { id: '3' }, og: 'adoption' });
+  assert.deepEqual(resolvePage('/adocao/3/editar'), { page: 'adocao/form.html', params: { id: '3' } });
+  assert.equal(resolvePage('/adocao/criar').page, 'adocao/form.html');
+  assert.equal(resolvePage('/adocao').page, 'adocao/index.html');
+  assert.equal(resolvePage('/adocao/').page, 'adocao/index.html');
+  assert.equal(resolvePage('/mapa').page, 'mapa/index.html');
+  assert.equal(resolvePage('/adocao/abc'), null);
+});
+
+const adoption = {
+  id: 3,
+  title: 'Gatinha Mel',
+  description: 'Carinhosa e castrada.',
+  petTypeLabel: 'Gato',
+  location: 'Pinheiros, São Paulo, SP',
+  primaryPhoto: null,
+};
+
+test('ADR 002 adoptionMeta: título "Para adoção" e URL /adocao/:id', () => {
+  const m = adoptionMeta(adoption, 'https://www.petspost.com.br');
+  assert.equal(m.title, 'Para adoção: Gatinha Mel · Pets Post');
+  assert.equal(m.description, 'Gato · Pinheiros, São Paulo, SP. Carinhosa e castrada.');
+  assert.equal(m.url, 'https://www.petspost.com.br/adocao/3');
+  assert.equal(m.image, null);
 });
 
 const post = {
@@ -67,11 +94,13 @@ before(async () => {
   dir = mkdtempSync(join(tmpdir(), 'petspost-dist-'));
   mkdirSync(join(dir, 'posts'));
   mkdirSync(join(dir, 'sobre'));
+  mkdirSync(join(dir, 'adocao'));
   mkdirSync(join(dir, 'assets'));
   const page = (name) => `<html><head><title>${name}</title>${META_MARKER}</head><body>${name}</body></html>`;
   writeFileSync(join(dir, 'index.html'), page('home'));
   writeFileSync(join(dir, 'posts/detalhe.html'), page('detalhe'));
   writeFileSync(join(dir, 'sobre/index.html'), page('sobre'));
+  writeFileSync(join(dir, 'adocao/detalhe.html'), page('adocao'));
   writeFileSync(join(dir, 'assets/app-abc123.js'), 'console.log(1)');
 
   const posts = {
@@ -80,7 +109,13 @@ before(async () => {
       throw new HttpError(404, 'NOT_FOUND', 'x'); // inexistente ou inativo
     },
   };
-  const app = express().use(webRouter({ distDir: dir, posts, publicUrl: 'https://www.petspost.com.br', cache: false }));
+  const adoptions = {
+    get: async (id) => {
+      if (id === 3) return adoption;
+      throw new HttpError(404, 'NOT_FOUND', 'x');
+    },
+  };
+  const app = express().use(webRouter({ distDir: dir, og: { post: posts, adoption: adoptions }, publicUrl: 'https://www.petspost.com.br', cache: false }));
   server = app.listen(0);
   await new Promise((r) => server.once('listening', r));
   base = `http://127.0.0.1:${server.address().port}`;
@@ -105,6 +140,17 @@ test('PERM-002 /posts/:id inexistente ou inativo → 404 sem meta do post', asyn
   const html = await res.text();
   assert.doesNotMatch(html, /og:title/);
   assert.match(html, /detalhe/); // a página do front mostra "não encontrado"
+});
+
+test('ADR 002 /adocao/:id recebe Open Graph da adoção; inexistente → 404 sem meta', async () => {
+  const ok = await fetch(`${base}/adocao/3`);
+  assert.equal(ok.status, 200);
+  const html = await ok.text();
+  assert.match(html, /<meta property="og:title" content="Para adoção: Gatinha Mel/);
+  assert.match(html, /<meta name="twitter:card" content="summary" \/>/);
+  const missing = await fetch(`${base}/adocao/4`);
+  assert.equal(missing.status, 404);
+  assert.doesNotMatch(await missing.text(), /og:title/);
 });
 
 test('páginas, assets com cache longo, 404 e redirects das URLs antigas', async () => {
