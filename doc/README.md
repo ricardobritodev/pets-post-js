@@ -18,6 +18,7 @@ O **que deve ser feito** (regras, contratos) fica em [`../specs`](../specs/READM
 | 005 | [Fotos, CEP, geocodificação e mapa](features/005-midia-geo.md) | 5 | 2026-11-06 |
 | 006 | [Adoção e mapa de parceiros](features/006-adocao-parceiros.md) | 6 | 2026-11-06 |
 | 007 | [Painel admin e preparação do deploy](features/007-admin-deploy.md) | 7 | 2026-11-06 |
+| 008 | [Loja: vitrine de produtos dos parceiros](features/008-loja.md) | 7b | 2026-11-06 |
 
 ## Como documentar uma feature nova
 Crie `features/NNN-nome.md` usando o modelo abaixo e adicione na tabela acima.

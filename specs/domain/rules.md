@@ -78,14 +78,14 @@ Origem: engenharia reversa do projeto Flask (`pets-post/app/**`).
 ## Loja (vitrine) — BR-STORE
 | ID | Regra | Status |
 |---|---|---|
-| BR-STORE-001 | A vitrine pública mostra só produtos ativos de parceiros ativos. Inativo (ou de parceiro inativo) dá 404 no detalhe. | 🟡 |
-| BR-STORE-002 | Categorias fixas (ração, petiscos, brinquedos, higiene, saúde, acessórios, camas); tipo de animal opcional (vazio = todos). | 🟡 |
-| BR-STORE-003 | Preço em centavos. Promoção só vale se for menor que o preço; o desconto exibido arredonda para baixo. | 🟡 |
-| BR-STORE-004 | Estoque é informativo: esgotado continua na vitrine com o aviso "Esgotado". | 🟡 |
-| BR-STORE-005 | O botão de compra leva para fora: link do produto → site do parceiro → WhatsApp do parceiro. Só http/https. | 🟡 |
-| BR-STORE-006 | Só o admin cadastra, edita e exclui produtos (PERM-003). Todo produto pertence a um parceiro existente. | 🟡 |
-| BR-STORE-007 | Até 6 fotos por produto, com as mesmas regras e o mesmo serviço dos anúncios (BR-PHOTO-*). | 🟡 |
-| BR-STORE-008 | Excluir um parceiro com produtos é bloqueado (409); é preciso excluir ou mover os produtos antes. | 🟡 |
+| BR-STORE-001 | A vitrine pública mostra só produtos ativos de parceiros ativos. Inativo (ou de parceiro inativo) dá 404 no detalhe. | ✅ |
+| BR-STORE-002 | Categorias fixas (ração, petiscos, brinquedos, higiene, saúde, acessórios, camas); tipo de animal opcional (vazio = todos). | ✅ |
+| BR-STORE-003 | Preço em centavos. Promoção só vale se for menor que o preço; o desconto exibido arredonda para baixo. | ✅ |
+| BR-STORE-004 | Estoque é informativo: esgotado continua na vitrine com o aviso "Esgotado". | ✅ |
+| BR-STORE-005 | O botão de compra leva para fora: link do produto → site do parceiro → WhatsApp do parceiro. Só http/https. | ✅ |
+| BR-STORE-006 | Só o admin cadastra, edita e exclui produtos (PERM-003). Todo produto pertence a um parceiro existente. | ✅ |
+| BR-STORE-007 | Até 6 fotos por produto, com as mesmas regras e o mesmo serviço dos anúncios (BR-PHOTO-*). | ✅ |
+| BR-STORE-008 | Excluir um parceiro com produtos é bloqueado (409); é preciso excluir ou mover os produtos antes. | ✅ |
 
 ## Admin — BR-ADMIN
 | ID | Regra | Status |
