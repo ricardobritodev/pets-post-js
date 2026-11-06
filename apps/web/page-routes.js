@@ -33,6 +33,7 @@ const ROUTES = [
   { re: /^\/admin\/produtos\/criar\/?$/, page: 'admin/produto-form.html' },
   { re: /^\/admin\/produtos\/(?<id>\d+)\/editar\/?$/, page: 'admin/produto-form.html' },
   { re: /^\/sobre\/?$/, page: 'sobre/index.html' },
+  { re: /^\/ajuda\/?$/, page: 'ajuda/index.html' },
   { re: /^\/login\/?$/, page: 'login/index.html' },
   { re: /^\/cadastro\/?$/, page: 'cadastro/index.html' },
 ];
@@ -64,6 +65,7 @@ export const PAGE_INPUTS = Object.freeze({
   adminPartners: 'admin/parceiros.html',
   adminPartnerForm: 'admin/parceiro-form.html',
   sobre: 'sobre/index.html',
+  ajuda: 'ajuda/index.html',
   login: 'login/index.html',
   cadastro: 'cadastro/index.html',
   notFound: '404.html',

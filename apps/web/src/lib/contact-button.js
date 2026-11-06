@@ -5,33 +5,36 @@
 import { api } from './api.js';
 import { el } from './dom.js';
 import { icon } from './icons.js';
+import { floatStack } from './float-stack.js';
 
 const CACHE_KEY = 'petspost.site';
 const CACHE_MS = 5 * 60 * 1000;
+let pending = null;
 
 /** Configuração do site, guardada por 5 min para não buscar a cada página. */
-async function siteConfig() {
-  try {
-    const cached = JSON.parse(sessionStorage.getItem(CACHE_KEY) ?? 'null');
-    if (cached && Date.now() - cached.at < CACHE_MS) return cached.data;
-  } catch { /* sessionStorage indisponível ou corrompido: busca de novo */ }
-  const data = await api('/site');
-  try {
-    sessionStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), data }));
-  } catch { /* sem cache, tudo bem */ }
-  return data;
+export function siteConfig() {
+  pending ??= (async () => {
+    try {
+      const cached = JSON.parse(sessionStorage.getItem(CACHE_KEY) ?? 'null');
+      if (cached && Date.now() - cached.at < CACHE_MS) return cached.data;
+    } catch { /* sessionStorage indisponível ou corrompido: busca de novo */ }
+    const data = await api('/site');
+    try {
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), data }));
+    } catch { /* sem cache, tudo bem */ }
+    return data;
+  })().catch(() => ({ contact: { whatsappUrl: null } }));
+  return pending;
 }
+
+/** Link do WhatsApp do Pets Post, ou null. */
+export const contactWhatsappUrl = async () => (await siteConfig()).contact?.whatsappUrl ?? null;
 
 export async function mountContactButton() {
   if (location.pathname.startsWith('/admin') || document.getElementById('whatsapp-float')) return;
-  let url;
-  try {
-    url = (await siteConfig()).contact?.whatsappUrl;
-  } catch {
-    return; // API fora do ar: sem botão
-  }
+  const url = await contactWhatsappUrl();
   if (!url) return;
-  document.body.append(
+  floatStack().append(
     el('a', {
       id: 'whatsapp-float',
       href: url,

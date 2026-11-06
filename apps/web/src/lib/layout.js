@@ -9,6 +9,7 @@ import { flash, takeFlashes } from './flash.js';
 import { el } from './dom.js';
 import { icon } from './icons.js';
 import { mountContactButton } from './contact-button.js';
+import { mountHelpChat } from './help-chat.js';
 
 /**
  * Menu da faixa laranja. A organização (logo + busca grande + conta em cima, menu embaixo) segue o
@@ -123,8 +124,14 @@ export function showFlash(message, type = 'info') {
 }
 
 function renderFooter() {
-  return el('div', { class: 'mx-auto max-w-6xl px-4 py-6 text-sm text-stone-500' },
-    `© ${new Date().getFullYear()} Pets Post · ajudando pets a voltarem para casa`);
+  return el('div', { class: 'mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-6 text-sm text-stone-500' },
+    el('span', {}, `© ${new Date().getFullYear()} Pets Post · ajudando pets a voltarem para casa`),
+    el('nav', { class: 'flex gap-4', 'aria-label': 'Rodapé' },
+      el('a', { href: '/ajuda', class: 'hover:text-brand-700' }, 'Ajuda'),
+      el('a', { href: '/sobre', class: 'hover:text-brand-700' }, 'Sobre'),
+      el('a', { href: '/mapa', class: 'hover:text-brand-700' }, 'Parceiros'),
+    ),
+  );
 }
 
 /**
@@ -141,6 +148,7 @@ export async function mountLayout() {
   document.getElementById('app-header')?.replaceChildren(renderHeader(user));
   document.getElementById('app-footer')?.replaceChildren(renderFooter());
   for (const { message, type } of takeFlashes()) showFlash(message, type);
+  mountHelpChat(); // chatbot de ajuda (ADR 007)
   mountContactButton(); // BR-CONTACT-002 (não espera: o botão aparece quando a configuração chegar)
   return user;
 }

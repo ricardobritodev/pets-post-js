@@ -30,6 +30,7 @@ test('resolvePage: adoção e mapa com as URLs do sistema antigo', () => {
   assert.equal(resolvePage('/adocao/').page, 'adocao/index.html');
   assert.equal(resolvePage('/mapa').page, 'mapa/index.html');
   assert.equal(resolvePage('/loja').page, 'loja/index.html');
+  assert.equal(resolvePage('/ajuda').page, 'ajuda/index.html');
   assert.deepEqual(resolvePage('/loja/produto/9'), { page: 'loja/produto.html', params: { id: '9' }, og: 'product' });
   assert.equal(resolvePage('/admin/produtos/criar').page, 'admin/produto-form.html');
   assert.equal(resolvePage('/adocao/abc'), null);
