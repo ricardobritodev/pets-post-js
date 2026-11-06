@@ -1,6 +1,6 @@
 # API — Loja (vitrine de produtos dos parceiros)
 
-Regras: BR-STORE-001..011 · Permissões: PERM-003 (cadastro) · Convenções: [conventions.md](conventions.md) ·
+Regras: BR-STORE-001..014 · Permissões: PERM-003 (cadastro) · Convenções: [conventions.md](conventions.md) ·
 Contratos: `packages/contracts/src/store.js`
 
 **É uma vitrine, não um e-commerce:** o Pets Post mostra o produto com foto e preço, e o botão leva para a
@@ -27,6 +27,7 @@ loja do parceiro. Não tem carrinho, pagamento nem pedido aqui. Cada produto per
   "petType": "dog", "petTypeLabel": "Cachorro",
   "priceCents": 18990, "promoPriceCents": 15990, "finalPriceCents": 15990, "discountPercent": 16,
   "inStock": true, "isFeatured": true, "primaryPhoto": { "url": "/uploads/x.jpg" },
+  "soldBy": "Petshop Exemplo",
   "partner": { "id": 3, "name": "Petshop Exemplo" } }
 ```
 - Preço em **centavos** (inteiro), para não ter erro de arredondamento. O front formata em R$.
@@ -35,6 +36,8 @@ loja do parceiro. Não tem carrinho, pagamento nem pedido aqui. Cada produto per
 - `inStock` = estoque > 0. Produto esgotado continua na vitrine, com o aviso (BR-STORE-004).
 
 - `priceCheckedAt`: quando o preço foi conferido (BR-STORE-011). A vitrine mostra "Preço consultado em…".
+- `soldBy` (BR-STORE-013): quem vende e entrega, para o "Vendido e entregue por …": o `sellerName` do produto
+  ou, sem ele, o nome do parceiro.
 
 ### Product (detalhe) = ProductCard +
 ```json
@@ -64,7 +67,7 @@ loja do parceiro. Não tem carrinho, pagamento nem pedido aqui. Cada produto per
 | Rota | O que faz |
 |---|---|
 | `GET /api/v1/admin/products` | todos (inclusive inativos), busca `q`, filtros `category`, `partnerId`, `visibility`; 20 por página |
-| `GET /api/v1/admin/products/:id` | `{ product }` com todos os campos |
+| `GET /api/v1/admin/products/:id` | `{ product }` com todos os campos (inclui `sellerName`) |
 | `POST /api/v1/admin/products` | cria (`productSchema`) → 201 `{ product }` |
 | `PATCH /api/v1/admin/products/:id` | edita (subconjunto) → `{ product }` |
 | `DELETE /api/v1/admin/products/:id` | exclui; fotos e arquivos saem junto → 204 |
@@ -73,17 +76,23 @@ loja do parceiro. Não tem carrinho, pagamento nem pedido aqui. Cada produto per
 ### Importar de um link (BR-STORE-009/010)
 | Rota | O que faz |
 |---|---|
-| `POST /api/v1/admin/products/import` `{ url }` | lê a página e devolve um **rascunho**: `{ draft: { name, description, priceCents, inStock, url, category, petType, siteName }, images: [{ url, thumb }], warnings: [] }`. `category`/`petType` são **sugestões** pelo nome (podem vir `null`). `thumb` é uma miniatura `data:` para pré-visualizar sem carregar a imagem de fora (CSP). Preço ou fotos que não vierem viram `warnings` (o admin completa). Erros: 400 `VALIDATION_ERROR` (link inválido) · 422 `IMPORT_FAILED` com a mensagem (site bloqueou, endereço não permitido, não achou o produto…) |
+| `POST /api/v1/admin/products/import` `{ url }` | lê a página e devolve um **rascunho**: `{ draft: { name, description, priceCents, inStock, url, category, petType, siteName, sellerName, partnerId, newPartner }, partnerMatches: [{ id, name, isActive }], images: [{ url, thumb }], warnings: [] }`. `sellerName` vem do `offers.seller` da página (pode ser `null`). `partnerId`/`partnerMatches` (BR-STORE-012): parceiros com o mesmo domínio do link; `partnerId` é o escolhido (pelo site ou pelo nome); sem nenhum, `partnerId: null` e `newPartner: { name, website }` (a loja que será cadastrada ao salvar). `category`/`petType` são **sugestões** pelo nome (podem vir `null`). `thumb` é uma miniatura `data:` para pré-visualizar sem carregar a imagem de fora (CSP). Preço ou fotos que não vierem viram `warnings` (o admin completa). Erros: 400 `VALIDATION_ERROR` (link inválido) · 422 `IMPORT_FAILED` com a mensagem (site bloqueou, endereço não permitido, não achou o produto…) |
 | `POST /api/v1/admin/products/:id/photos/import` `{ urls: string[] }` | baixa as fotos escolhidas (até completar 6) e salva como as enviadas (BR-PHOTO-*); resposta igual ao envio de fotos: `{ product, rejected }` |
 | `POST /api/v1/admin/products/:id/refresh` | lê de novo o `url` do produto e atualiza o preço, o estoque e o `priceCheckedAt`: `{ product, changed: { priceCents?: [antes, depois], inStock?: [antes, depois] } }`. Sem `url` → 400; site falhou → 422 `IMPORT_FAILED` (o produto não muda) |
 
 - Limite: 10 importações por minuto e 100 por hora por IP (`limits.import`).
+- Fotos (BR-STORE-010): as baixadas no rascunho ficam guardadas na memória por 15 min; o `photos/import` usa essas
+  em vez de baixar de novo. Site que responde 429 nas fotos (ex.: VTEX, `rate-limit-reason: bot`) → o servidor para
+  de pedir e o aviso diz para tentar em alguns minutos ou enviar à mão.
+- Onde o servidor procura os dados (BR-STORE-009/014), nesta ordem: schema.org `Product`/`ProductGroup` em JSON-LD
+  (em qualquer nível do bloco) → `skuJson` das lojas VTEX antigas → microdados (`itemprop`) e Open Graph. O que
+  faltar num é completado pelo seguinte. `source` no resultado interno: `json-ld` · `vtex` · `meta`.
 - O preço importado é o "por" da loja. A promoção ("de/por") fica para o admin preencher, porque as lojas não
   publicam o "de" num formato padrão.
 
-`productSchema` (BR-STORE-006/007): `partnerId` (parceiro existente), `name` (obrigatório, 150), `description`
+`productSchema` (BR-STORE-006/007): `partnerId` (parceiro existente; ou `newPartner`), `name` (obrigatório, 150), `description`
 (até 5000), `category`, `petType?`, `priceCents` (inteiro > 0, até R$ 100.000), `promoPriceCents?` (menor que o
-preço), `stock` (inteiro ≥ 0, padrão 0), `url?` (http/https), `isActive` (padrão true), `isFeatured` (padrão false).
+preço), `stock` (inteiro ≥ 0, padrão 0), `url?` (http/https), `newPartner?` (`{ name, website }`, no lugar de `partnerId` só ao criar: cadastra a loja como parceiro online, BR-STORE-012), `sellerName?` (até 120; vazio = nome do parceiro, BR-STORE-013), `isActive` (padrão true), `isFeatured` (padrão false).
 No formulário o preço é digitado em reais ("189,90"); o front converte para centavos.
 
 ## Páginas do front
