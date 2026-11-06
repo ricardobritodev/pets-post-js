@@ -13,6 +13,7 @@ import { clearErrors, showFieldErrors, setFieldError, withSubmitting } from '../
 import { createPhotoPicker } from '../lib/photo-picker.js';
 import { syncPhotos } from '../lib/photo-sync.js';
 import { icon } from '../lib/icons.js';
+import { downloadAllInBrowser } from '../lib/browser-images.js';
 
 const editId = Number(/^\/admin\/produtos\/(\d+)\/editar/.exec(location.pathname)?.[1]) || null;
 /** Valor da opção "Nova loja" no select de parceiro (BR-STORE-012). */
@@ -75,7 +76,7 @@ function buildForm(partners) {
 /**
  * Quadro "Importar de um link" (BR-STORE-009): busca o rascunho na API e preenche o formulário.
  * As fotos da loja aparecem como miniaturas (data:, sem carregar nada de fora) para marcar quais entram.
- * @returns {{ node: HTMLElement, selectedImageUrls: () => string[], newPartner: () => ({ name: string, website: string }|null) }}
+ * @returns {{ node: HTMLElement, selectedImageUrls: () => string[], selectedFiles: () => File[], newPartner: () => ({ name: string, website: string }|null) }}
  */
 function importBox(form) {
   const urlInput = el('input', { id: 'import-url', type: 'url', class: 'input', placeholder: 'https://loja-do-parceiro.com.br/produto/…', maxlength: '2000' });
@@ -94,7 +95,7 @@ function importBox(form) {
       status.className = 'text-sm text-stone-500';
       status.textContent = 'Lendo a página da loja…';
       try {
-        const { draft, images: found, warnings } = await api('/admin/products/import', { method: 'POST', json: { url: urlInput.value } });
+        const { draft, images: found, pendingImages = [], warnings } = await api('/admin/products/import', { method: 'POST', json: { url: urlInput.value } });
         form.elements.name.value = draft.name ?? '';
         form.elements.description.value = draft.description ?? '';
         form.elements.url.value = draft.url ?? '';
@@ -112,7 +113,18 @@ function importBox(form) {
         if (draft.petType) form.elements.petType.value = draft.petType;
         if (draft.inStock === false) form.elements.stock.value = '0';
         else if (draft.inStock === true && Number(form.elements.stock.value) === 0) form.elements.stock.value = '1';
-        images = found.map((img, i) => ({ ...img, checked: i < 6 }));
+        for (const img of images) if (img.file) URL.revokeObjectURL(img.thumb);
+        images = found.map((img) => ({ ...img }));
+        // BR-STORE-015: fotos que a loja não deixou o servidor baixar (429) — o seu navegador baixa
+        if (pendingImages.length) {
+          status.textContent = 'A loja limitou o nosso servidor: baixando as fotos pelo seu navegador…';
+          const { files, failed } = await downloadAllInBrowser(pendingImages);
+          images.push(...files.map(({ url, file }) => ({ url, file, thumb: URL.createObjectURL(file) })));
+          if (failed) {
+            showFlash(`${failed === pendingImages.length ? 'As fotos' : `${failed} foto(s)`} não puderam ser baixadas nem pelo navegador: envie à mão, se quiser.`, 'warning');
+          }
+        }
+        images.forEach((img, i) => { img.checked = i < 6; });
         gallery.replaceChildren(...images.map((img, i) =>
           el('label', { class: 'photo-tile cursor-pointer' },
             el('img', { src: img.thumb, alt: `Foto ${i + 1} da loja` }),
@@ -151,7 +163,8 @@ function importBox(form) {
   );
   return {
     node,
-    selectedImageUrls: () => images.filter((i) => i.checked).map((i) => i.url),
+    selectedImageUrls: () => images.filter((i) => i.checked && !i.file).map((i) => i.url),
+    selectedFiles: () => images.filter((i) => i.checked && i.file).map((i) => i.file),
     newPartner: () => newPartner,
   };
 }
@@ -268,6 +281,12 @@ if (await mountAdmin()) {
               } catch (err) {
                 problems.push(err instanceof ApiError ? err.message : 'Não consegui baixar as fotos da loja.');
               }
+            }
+            // Fotos que o navegador baixou (BR-STORE-015): mesmo envio das fotos escolhidas à mão
+            const browserFiles = editId ? [] : importer.selectedFiles();
+            if (browserFiles.length) {
+              problems.push(...await syncPhotos(`/admin/products/${saved.id}`, { newFiles: () => browserFiles, removedIds: () => [] },
+                (t) => (submitButton.textContent = t)));
             }
             flash(editId ? `Produto "${saved.name}" atualizado.` : `Produto "${saved.name}" cadastrado.`, 'success');
             if (problems.length) flash(`Algumas fotos não entraram: ${problems.join(' · ')}`, 'warning');
