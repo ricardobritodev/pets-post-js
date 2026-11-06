@@ -60,6 +60,11 @@ Legenda: ✅ concluída · 🔜 próxima · ⬜ pendente
 | 7.3 | Kit de deploy (setup, deploy com rollback, backup, systemd, Nginx) | ✅ |
 | 7.4 | Subir no VPS da Hostinger, DNS e HTTPS (Q-004) | ⬜ depende do VPS contratado |
 
+## Etapa 7b — Loja (vitrine de produtos dos parceiros) 🔜
+| 7b.1 | Produtos dos parceiros com fotos, preço, promoção e estoque (BR-STORE-*) | ⬜ |
+| 7b.2 | Vitrine `/loja` com busca, categorias e botão para a loja do parceiro | ⬜ |
+| 7b.3 | Cadastro de produtos no painel admin | ⬜ |
+
 ## Etapa 8+ — Chatbot e IA (ADR 004/005)
 | 8.1 | Bot Telegram (grammY) + intenções node-nlp + busca SQL | ⬜ |
 | 8.2 | Extração de post por LLM + RAG LanceDB | ⬜ |
