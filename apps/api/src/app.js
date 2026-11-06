@@ -16,6 +16,8 @@ import { DEFAULT_LIMITS } from './middleware/rate-limit.js';
 import { PrismaSessionStore } from './lib/session-store.js';
 import { createLogger, createSecurityLog } from './lib/security-log.js';
 import { createDiskStorage } from './lib/storage.js';
+import { createGeocoder } from './lib/geocoder.js';
+import { createCepClient } from './lib/cep.js';
 import { createUserRepository } from './modules/users/repository.js';
 import { createAuthService } from './modules/auth/service.js';
 import { authRouter } from './modules/auth/router.js';
@@ -24,6 +26,8 @@ import { createPostService } from './modules/posts/service.js';
 import { postsRouter, meRouter } from './modules/posts/router.js';
 import { createPhotoRepository } from './modules/photos/repository.js';
 import { createPhotoService } from './modules/photos/service.js';
+import { createPostGeocoding } from './modules/posts/geocoding.js';
+import { cepRouter } from './modules/geo/router.js';
 import { webRouter } from './web/router.js';
 
 /**
@@ -36,14 +40,20 @@ import { webRouter } from './web/router.js';
  *   limits?: typeof DEFAULT_LIMITS,
  *   webDistDir?: string, // serve o build do front (produção)
  *   storage?: ReturnType<typeof createDiskStorage>, // onde as fotos ficam (ADR 006)
+ *   geocoder?: ReturnType<typeof createGeocoder> | null, // null = sem geocodificação
+ *   cep?: ReturnType<typeof createCepClient>,
  * }} deps
  */
-export function createApp({ config, db, logger, securityLog, sessionStore, limits, webDistDir, storage }) {
+export function createApp({ config, db, logger, securityLog, sessionStore, limits, webDistDir, storage, geocoder, cep }) {
   const app = express();
   limits = { ...DEFAULT_LIMITS, ...limits }; // quem passa só alguns limites herda o resto
   logger ??= createLogger(config);
   securityLog ??= createSecurityLog(logger);
   storage ??= createDiskStorage({ dir: config.UPLOAD_DIR ?? fileURLToPath(new URL('../uploads', import.meta.url)) });
+  if (geocoder === undefined) {
+    geocoder = config.GEOCODER_ENABLED ? createGeocoder({ userAgent: config.GEOCODER_USER_AGENT, logger }) : null;
+  }
+  cep ??= createCepClient();
 
   app.disable('x-powered-by');
 
@@ -66,9 +76,13 @@ export function createApp({ config, db, logger, securityLog, sessionStore, limit
   app.use('/api/v1/auth', authRouter({ auth: createAuthService({ users, securityLog }), csrf, limits, securityLog }));
 
   const photoService = createPhotoService({ photos: createPhotoRepository(db), storage, logger });
-  const postService = createPostService({ posts: createPostRepository(db), photos: photoService });
+  const postRepository = createPostRepository(db);
+  const geo = createPostGeocoding({ geocoder, posts: postRepository, logger });
+  app.locals.geo = geo; // os testes esperam a fila com app.locals.geo.idle()
+  const postService = createPostService({ posts: postRepository, photos: photoService, geo });
   app.use('/api/v1/posts', postsRouter({ service: postService, limits }));
   app.use('/api/v1/me', meRouter({ service: postService }));
+  app.use('/api/v1/cep', cepRouter({ cep, limits }));
 
   app.use('/api', notFound);
 

@@ -17,6 +17,9 @@ const schema = z
     WEB_DIST_DIR: z.string().optional(),
     // Pasta das fotos enviadas (ADR 006). Padrão: apps/api/uploads
     UPLOAD_DIR: z.string().optional(),
+    // Geocodificação via Nominatim (specs/api/geo.md). Padrão: ligada, menos em NODE_ENV=test.
+    GEOCODER_ENABLED: z.enum(['true', 'false']).optional(),
+    GEOCODER_USER_AGENT: z.string().min(5).optional(),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV !== 'production') return;
@@ -36,6 +39,7 @@ export function loadConfig(source = process.env) {
     throw new Error(`Configuração inválida:\n${details}\nConfira o arquivo .env (veja .env.example).`);
   }
   const data = { ...result.data };
+  data.GEOCODER_ENABLED = (data.GEOCODER_ENABLED ?? (data.NODE_ENV === 'test' ? 'false' : 'true')) === 'true';
   // Fora de produção, sem SESSION_SECRET: gera um aleatório (as sessões somem ao reiniciar).
   if (!data.SESSION_SECRET) {
     data.SESSION_SECRET = randomBytes(32).toString('hex');

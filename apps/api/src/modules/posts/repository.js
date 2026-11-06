@@ -50,8 +50,19 @@ export function createPostRepository(db) {
 
     findDetail: (id) => db.petPost.findUnique({ where: { id }, include: detailInclude }),
 
-    /** O mínimo para decidir permissão. */
-    findAccessInfo: (id) => db.petPost.findUnique({ where: { id }, select: { id: true, userId: true, isActive: true } }),
+    /** O mínimo para decidir permissão (e se precisa geocodificar, BR-GEO-002). */
+    findAccessInfo: (id) =>
+      db.petPost.findUnique({
+        where: { id },
+        select: { id: true, userId: true, isActive: true, lastSeenLocation: true, lastSeenLat: true, lastSeenLng: true },
+      }),
+
+    /**
+     * Grava as coordenadas só se o endereço ainda for o geocodificado (a pessoa pode ter
+     * editado ou excluído o post enquanto a fila andava). Devolve quantos posts mudaram (0 ou 1).
+     */
+    setCoordsIfAddress: async (id, address, { lat, lng }) =>
+      (await db.petPost.updateMany({ where: { id, lastSeenLocation: address }, data: { lastSeenLat: lat, lastSeenLng: lng } })).count,
 
     create: (userId, data) => db.petPost.create({ data: { ...data, userId }, include: detailInclude }),
 

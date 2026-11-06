@@ -11,9 +11,10 @@ const notFound = () => new HttpError(404, 'NOT_FOUND', 'Anúncio não encontrado
  * @param {{
  *   posts: ReturnType<typeof import('./repository.js').createPostRepository>,
  *   photos: ReturnType<typeof import('../photos/service.js').createPhotoService>,
+ *   geo: ReturnType<typeof import('./geocoding.js').createPostGeocoding>,
  * }} deps
  */
-export function createPostService({ posts, photos }) {
+export function createPostService({ posts, photos, geo }) {
   /**
    * Garante que o usuário pode gerenciar o post.
    * Inexistente → 404. Inativo de outra pessoa → 404 (PERM-002, não revela). Ativo de outra → 403 (PERM-001).
@@ -53,14 +54,20 @@ export function createPostService({ posts, photos }) {
       return toPostDetail(post, viewer);
     },
 
-    /** BR-POST-001 */
+    /** BR-POST-001 + BR-GEO-001 (geocodifica depois de responder). */
     async create(viewer, data) {
-      return toPostDetail(await posts.create(viewer.id, data), viewer);
+      const post = await posts.create(viewer.id, data);
+      geo.schedule(post.id, post.lastSeenLocation);
+      return toPostDetail(post, viewer);
     },
 
+    /** BR-GEO-002 — endereço novo apaga as coordenadas antigas e entra na fila. */
     async update(id, viewer, data) {
-      await assertManageable(id, viewer);
-      return toPostDetail(await posts.update(id, data), viewer);
+      const before = await assertManageable(id, viewer);
+      const moved = data.lastSeenLocation !== undefined && data.lastSeenLocation !== before.lastSeenLocation;
+      const post = await posts.update(id, moved ? { ...data, lastSeenLat: null, lastSeenLng: null } : data);
+      if (geo.needsGeocoding(before, data.lastSeenLocation)) geo.schedule(id, post.lastSeenLocation);
+      return toPostDetail(post, viewer);
     },
 
     /** BR-POST-006 + BR-PHOTO-007 — os registros saem por CASCADE; os arquivos, depois. */

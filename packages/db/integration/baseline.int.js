@@ -40,13 +40,22 @@ before(() => {
 });
 after(() => db?.$disconnect());
 
+/**
+ * A migration 2_coords_double (M-01) troca FLOAT por DOUBLE. O valor guardado é o mesmo, mas o
+ * MySQL passa a mostrar todas as casas (-23.5874 → -23.587400436401367). Comparar na precisão do
+ * FLOAT (Math.fround) prova que nenhuma coordenada mudou.
+ */
+const COORDS = ['lastSeenLat', 'lastSeenLng', 'locationLat', 'locationLng', 'lat', 'lng'];
+const asFloat32 = (rows) =>
+  rows.map((r) => Object.fromEntries(Object.entries(r).map(([k, v]) => [k, COORDS.includes(k) && v != null ? Math.fround(v) : v])));
+
 const snapshot = async () => ({
   users: await db.user.findMany({ orderBy: { id: 'asc' } }),
-  petPosts: await db.petPost.findMany({ orderBy: { id: 'asc' } }),
+  petPosts: asFloat32(await db.petPost.findMany({ orderBy: { id: 'asc' } })),
   photos: await db.photo.findMany({ orderBy: { id: 'asc' } }),
-  adoptionPosts: await db.adoptionPost.findMany({ orderBy: { id: 'asc' } }),
+  adoptionPosts: asFloat32(await db.adoptionPost.findMany({ orderBy: { id: 'asc' } })),
   adoptionPhotos: await db.adoptionPhoto.findMany({ orderBy: { id: 'asc' } }),
-  partners: await db.partner.findMany({ orderBy: { id: 'asc' } }),
+  partners: asFloat32(await db.partner.findMany({ orderBy: { id: 'asc' } })),
   alembic: await db.$queryRawUnsafe('SELECT version_num FROM alembic_version'),
 });
 
@@ -86,12 +95,18 @@ test('BR-DATA-004 baseline é idempotente (segunda execução não muda nada)', 
   assert.deepEqual(await snapshot(), antes);
 });
 
-test('BR-DATA-004 migrations posteriores à 0_init (1_sessions) entram via deploy', async () => {
+test('BR-DATA-004 migrations posteriores à 0_init (1_sessions, 2_coords_double) entram via deploy', async () => {
   assert.equal(await db.session.count(), 0);
   const [{ n }] = await db.$queryRawUnsafe(
-    "SELECT COUNT(*) AS n FROM _prisma_migrations WHERE migration_name = '1_sessions' AND finished_at IS NOT NULL",
+    "SELECT COUNT(*) AS n FROM _prisma_migrations WHERE migration_name IN ('1_sessions', '2_coords_double') AND finished_at IS NOT NULL",
   );
-  assert.equal(Number(n), 1);
+  assert.equal(Number(n), 2);
+  // M-01: as coordenadas do banco Flask viraram DOUBLE
+  const cols = await db.$queryRawUnsafe(
+    "SELECT COLUMN_NAME AS c, DATA_TYPE AS t FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND COLUMN_NAME IN ('last_seen_lat', 'last_seen_lng', 'location_lat', 'location_lng', 'lat', 'lng')",
+  );
+  assert.equal(cols.length, 6);
+  for (const { c, t } of cols) assert.equal(t, 'double', c);
 });
 
 test('BR-AUTH-004 senhas do banco Flask continuam válidas após o baseline', async () => {

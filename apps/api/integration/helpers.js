@@ -6,11 +6,11 @@ import { createApp } from '../src/app.js';
 import { loadConfig } from '../src/config.js';
 
 /** Sobe a app numa porta livre. Devolve { base, close, events }. */
-export async function startApp({ db, limits, storage, configOverrides = {} } = {}) {
+export async function startApp({ db, limits, storage, geocoder, cep, configOverrides = {} } = {}) {
   const config = loadConfig({ NODE_ENV: 'test', SESSION_SECRET: 'x'.repeat(40), ...configOverrides });
   const events = [];
   const securityLog = (event, fields) => events.push({ event, ...fields });
-  const app = createApp({ config, db, securityLog, limits, storage });
+  const app = createApp({ config, db, securityLog, limits, storage, geocoder, cep });
   const server = app.listen(0);
   // Com --test-name-pattern o node pode rodar o before() e pular o after(): sem unref, o
   // servidor aberto segura o processo e o teste nunca termina.
@@ -19,6 +19,7 @@ export async function startApp({ db, limits, storage, configOverrides = {} } = {
   return {
     base: `http://127.0.0.1:${server.address().port}`,
     events,
+    geo: app.locals.geo, // geo.idle(): espera a geocodificação em segundo plano
     close: () => new Promise((r) => server.close(r)),
   };
 }

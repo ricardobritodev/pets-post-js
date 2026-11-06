@@ -14,6 +14,8 @@ export const DEFAULT_LIMITS = Object.freeze({
   csrf: { perMinute: 30, perHour: 300 },
   // Re-codificar imagem gasta CPU: limita os envios de fotos.
   upload: { perMinute: 20, perHour: 200 },
+  // BR-GEO-004 — consulta de CEP (cada uma vira uma chamada ao ViaCEP).
+  cep: { perMinute: 30, perHour: 300 },
 });
 
 const json429 = (_req, res) =>

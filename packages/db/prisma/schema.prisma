@@ -81,8 +81,8 @@ model PetPost {
   petColor         String?    @map("pet_color") @db.VarChar(100)
   petSize          PetSize?   @map("pet_size")
   lastSeenLocation String     @map("last_seen_location") @db.VarChar(255)
-  lastSeenLat      Float?     @map("last_seen_lat") @db.Float
-  lastSeenLng      Float?     @map("last_seen_lng") @db.Float
+  lastSeenLat      Float?     @map("last_seen_lat") @db.Double
+  lastSeenLng      Float?     @map("last_seen_lng") @db.Double
   contactPhone     String     @map("contact_phone") @db.VarChar(20)
   contactEmail     String?    @map("contact_email") @db.VarChar(120)
   reward           String?    @db.VarChar(100)
@@ -127,8 +127,8 @@ model AdoptionPost {
   isVaccinated        Boolean   @default(false) @map("is_vaccinated")
   adopterRequirements String?   @map("adopter_requirements") @db.Text
   location            String    @db.VarChar(255)
-  locationLat         Float?    @map("location_lat") @db.Float
-  locationLng         Float?    @map("location_lng") @db.Float
+  locationLat         Float?    @map("location_lat") @db.Double
+  locationLng         Float?    @map("location_lng") @db.Double
   contactPhone        String    @map("contact_phone") @db.VarChar(20)
   contactEmail        String?   @map("contact_email") @db.VarChar(120)
   isActive            Boolean   @default(true) @map("is_active")
@@ -165,8 +165,8 @@ model Partner {
   description String?     @db.Text
   partnerType PartnerType @map("partner_type")
   address     String      @db.VarChar(255)
-  lat         Float?      @db.Float
-  lng         Float?      @db.Float
+  lat         Float?      @db.Double
+  lng         Float?      @db.Double
   phone       String?     @db.VarChar(20)
   email       String?     @db.VarChar(120)
   website     String?     @db.VarChar(255)
