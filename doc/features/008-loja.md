@@ -80,3 +80,50 @@ Nenhuma violação de CSP.
 ## Pendências
 - Os parceiros reais do mapa ainda não têm produtos: é preciso cadastrar pelo admin.
 - Carrinho e pagamento ficam fora de propósito (é vitrine).
+
+---
+
+## Atualização (2026-11-06): importar produto de um link
+
+**Pedido:** colar o link de um produto (ex.: da Petz) e o anúncio ser criado a partir dele.
+
+### O que foi entregue
+- **"Importar de um link" no formulário de novo produto** (`/admin/produtos/criar`):
+  1. você cola o link e clica em "Buscar";
+  2. nome, descrição, preço, link do produto, categoria e pet (os dois últimos são sugestões pelo nome) são preenchidos,
+     junto com as **fotos da loja em miniatura**, para marcar quais entram;
+  3. você confere, escolhe o parceiro e salva. Nada é salvo antes disso;
+  4. as fotos escolhidas são baixadas pelo servidor e tratadas como as enviadas (800 px, JPEG, sem metadados).
+- **Como o servidor lê a página (BR-STORE-009):** usa só os dados que a loja publica para Google e WhatsApp (schema.org
+  `Product` em JSON-LD; se não houver, Open Graph). Não executa o JavaScript da página nem "raspa" o layout.
+- **"Atualizar do link"** na edição: lê a página de novo e atualiza o preço e a disponibilidade, mostrando o que mudou.
+  Promoção que ficaria maior que o preço novo é apagada.
+- **"Preço consultado em DD/MM/AAAA. Confirme na loja antes de comprar."** na página do produto (BR-STORE-011).
+  A data é gravada ao criar, ao mudar o preço e ao atualizar do link. Migration `4_price_checked_at`.
+
+### Segurança (BR-STORE-010)
+O servidor acessar um link digitado é um risco conhecido (SSRF: usar o site para chegar à rede interna).
+`apps/api/src/lib/safe-fetch.js`:
+- só `https` na porta 443, sem usuário e senha no link;
+- o IP é conferido **na hora de conectar**. Localhost, rede privada, link-local (169.254.x, onde ficam os metadados
+  da nuvem), IPv6 interno e IPv4 disfarçado de IPv6 são recusados, inclusive quando o DNS aponta para eles ou um
+  redirecionamento leva para eles;
+- IP escrito direto no link também é conferido. Esse caso foi achado testando de verdade: o Node não consulta o
+  DNS quando o link já é um IP;
+- até 3 redirecionamentos, 8 s, 3 MB por página e 8 MB por foto;
+- só o admin usa (401/403), com limite de 10 importações por minuto;
+- User-Agent honesto do Pets Post. O site **não se passa por navegador nem tenta burlar bloqueio de robôs**.
+
+### E a Petz?
+Testei com o link que você mandou: a Petz responde **403 (Akamai)** para leitura automática. No Pets Post aparece
+"O site petz.com.br não permite leitura automática (respondeu 403). Preencha os dados à mão." O mesmo vale para
+qualquer loja que bloqueie robôs. A alternativa para esses sites é um botão no seu navegador ("Enviar para o Pets
+Post"), que fica como próximo passo opcional.
+
+### Testes
+- `apps/api/test/product-import.test.js` (sem rede): validação de link, IPs internos, DNS apontando para dentro,
+  redirecionamentos, tamanho, gzip, leitura de JSON-LD (`@graph`, `AggregateOffer`, entidades HTML) e Open Graph.
+- `apps/api/integration/store-import.int.js`: rascunho, site bloqueado, página sem produto, permissão, salvar com
+  fotos importadas, "Atualizar do link" e data do preço.
+- No navegador (Chrome headless, com uma loja falsa): importação, mensagem de bloqueio, salvar de ponta a ponta,
+  "Atualizar do link" e a data na vitrine.

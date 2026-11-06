@@ -65,6 +65,7 @@ Legenda: ✅ concluída · 🔜 próxima · ⬜ pendente
 | 7b.2 | Vitrine `/loja` com busca, categorias e botão para a loja do parceiro | ✅ |
 | 7b.3 | Cadastro de produtos no painel admin | ✅ |
 | 7b.4 | Header novo: busca da loja em destaque e menu na faixa laranja | ✅ |
+| 7b.5 | Importar produto de um link + "Preço consultado em…" (BR-STORE-009..011) | ✅ |
 
 ## Etapa 8 — Chatbot de ajuda: FAQ dentro do site (ADR 007) ✅
 | 8.1 | Conteúdo do FAQ + correspondência local (acentos, plural, sinônimos) | ✅ |
